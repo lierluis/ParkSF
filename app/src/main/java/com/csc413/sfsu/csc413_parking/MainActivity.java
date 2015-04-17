@@ -1,17 +1,28 @@
 package com.csc413.sfsu.csc413_parking;
 
+import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 
 
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends ActionBarActivity implements View.OnClickListener {
+
+    Button go_start;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+          /*
+            The "continue" button from the splash screen
+         */
+        go_start = (Button)findViewById(R.id.go_start);
+        go_start.setOnClickListener(this);
+
     }
 
 
@@ -36,4 +47,28 @@ public class MainActivity extends ActionBarActivity {
 
         return super.onOptionsItemSelected(item);
     }
+
+    /*
+        called from "onClick" method starts the Map_Activity
+     */
+    private void go_Start_Click(){
+        startActivity(new Intent("com.google.android.gms.maps.MapFragment"));
+    }
+
+    /*
+        gets the button response and re-routes to the method for
+        the button action method: "go_Start_Click()"
+     */
+    @Override
+    public void onClick(View v) {
+        switch (v.getId())
+        {
+            case R.id.go_start:
+                go_Start_Click();
+                break;
+
+        }
+    }
+
+
 }
