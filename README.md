@@ -4,4 +4,3 @@ User Interface:
 - Splash Page
 - Map Activity
 
-Screen shots: 
