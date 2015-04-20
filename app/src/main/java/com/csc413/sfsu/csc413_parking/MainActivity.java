@@ -12,7 +12,6 @@ public class MainActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        int testForGithub=0; //testing Devin's branch by making a small change for a new commit
     }
 
 
