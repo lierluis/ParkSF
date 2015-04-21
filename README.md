@@ -73,7 +73,7 @@ To summarize, here is a set of steps to get the API up and running:
  </br>
 	
 <li><b>Modify query parameters:</b>
-</br>Append to, update, or delete from the SFParkQuery instance any desired parameters using the addParameter(), updateParameter(), addOrUpdateParameter(), or removeParameter() methods. Consult the official SFPark Availability Service documentation for a list of valid parameters, as invalid parameters will return an error status.</li>
+</br>Append to, update, or delete from the SFParkQuery instance any desired parameters using the <code>addParameter()</code>, <code>updateParameter()</code>, <code>addOrUpdateParameter()</code>, or <code>removeParameter()</code> methods. Consult the official SFPark Availability Service documentation for a list of valid parameters, as invalid parameters will return an error status.</li>
 </br>
 	
 <li><b>Create a container to hold the data from the response</b>
