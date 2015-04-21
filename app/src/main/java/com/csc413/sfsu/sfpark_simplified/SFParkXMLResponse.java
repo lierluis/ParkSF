@@ -155,6 +155,7 @@ public class SFParkXMLResponse {
             // Return true upon success
             return true;
         } catch (Exception e) {
+            reset();
             status = "FAILED: " + e.getClass();
             return false;
         }
