@@ -29,7 +29,7 @@ The basic idea behind the SFPark Simplified API is to create and store queries i
 them to a <b>SFParkXMLResponse</b> object which establishes a connection with the SFPark Availability database, passes the query, retrieves the data from the response, and extracts it into a convenient format.
 
 SFParkXMLResponse objects are instantiated empty and then subsequently "populated" with data by calling the 
-<code>populateResponse()</code> method; this method may also be called any time the user wishes to update the response 
+<code>populate()</code> method; this method may also be called any time the user wishes to update the response 
 by overwriting the previous information with that of a new query. Regardless of the degree of success the method has 
 in populating the response, at minimum the status variable will be updated to reflect the state of the most recent 
 database query. The user may call the SFParkXMLResponse object's <code>status()</code> method to retrieve this value.
@@ -86,7 +86,7 @@ The following steps describe how to get started with the SFPark Simplified API:
 </br>
 	
 <li><b>Pass the query to the database and retrieve the response:</b>
-</br>Populate the SFParkXMLResponse instance by passing the SFParkQuery created above to the <code>populateResponse()</code> method. It is a good idea to check the value returned by the <code>status()</code> method to determine whether the SFParkXMLResponse object was successfully populated. Attempts to access data from this object on a status other than SUCCESS could result in an Exception being thrown (typically an IndexOutOfRangeException or NullPointerException).</li>
+</br>Populate the SFParkXMLResponse instance by passing the SFParkQuery created above to the <code>populate()</code> method. It is a good idea to check the value returned by the <code>status()</code> method to determine whether the SFParkXMLResponse object was successfully populated. Attempts to access data from this object on a status other than SUCCESS could result in an Exception being thrown (typically an IndexOutOfRangeException or NullPointerException).</li>
 </br>
 	
 <li><b>Access the data</b>
@@ -106,7 +106,7 @@ query.addParameter("response", "xml");
 
 
 SFParkXMLResponse response = new SFParkXMLResponse(); /* Create empty response */
-boolean success = response.populateResponse(query); /* Populate the response with the query */
+boolean success = response.populate(query); /* Populate the response with the query */
 
 /* Access response only on successful population to avoid NullPointerException */
 if (success) { 
@@ -128,7 +128,7 @@ if (success) {
 query.removeParamter("response"); /* Default response is XML, no need for parameter */
 query.updateParameter("radius", "0.75"); /* Widen the search radius */
 
-success = response.populateResponse(query); /* Repopulate the response with new query */
+success = response.populate(query); /* Repopulate the response with new query */
 
 /* Access data if successfully populated... */
 </pre>
