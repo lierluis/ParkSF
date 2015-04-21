@@ -25,8 +25,7 @@ com.csc413.sfsu.sfpark_simplified
 <a href="http://www.sfpark.org">SFPark Availability Service API</a>
 ## Overview
 The basic idea behind the SFPark Simplified API is to create and store queries in <b>SFParkQuery</b> objects and pass 
-them to a <b>SFParkXMLResponse</b> object which establishes a connection with the SFPark Availability database, passes 
-the query, retrieves the data from the response, and extracts it into a convenient format.
+them to a <b>SFParkXMLResponse</b> object which establishes a connection with the SFPark Availability database, passes the query, retrieves the data from the response, and extracts it into a convenient format.
 
 SFParkXMLResponse objects are instantiated empty and then subsequently "populated" with data by calling the 
 <code>populateResponse()</code> method; this method may also be called any time the user wishes to update the response 
@@ -47,17 +46,20 @@ format depending on the accessor called. Such formats may include:
 </ul>
 Any extending class of BranchElement contains and returns data in the form of SFParkElements, which may include BranchElements, DataElements, or both. There are currently five classes that extend BranchElement:
 <ul>
-	<li><b>AVLElement</b></li>
-	<li><b>OPHRSElement</b></li>
-	<li><b>OPSElement</b></li>
-	<li><b>RATESElement</b></li>
-	<li><b>RSElement</b></li>
+	<li><b>AVLElement:</b> 
+	</br>availability element, which is the top level container for all data at a given location. Availability elements are synonymous with "<b>records</b>" when referred to by the SFPark Availability Service API</li>
+	<li><b>OPHRSElement:</b> 
+	</br>operating hours element, which contains operating schedules</li>
+	<li><b>OPSElement:</b> 
+	</br>operating schedule element, which contains parking structure operating schedules</li>
+	<li><b>RATESElement:</b> 
+	</br>rates element, which contains rate schedules</li>
+	<li><b>RSElement:</b> 
+	</br>rate schedule element, which contains parking structure rate schedules</li>
 </ul>
 Each of these classes corresponds to an element with the same tag name as the class name prefix (for instance the 
 AVLElement class corresponds to <b>AVL</b> elements in the SFPark Availability Service API, RSElements correspond to 
-<b>RS</b> elements, and so on) and contains unique accessors for each of their child elements. It is highly recommended 
-that the user familiarize him/herself with the SFPark Availability Service API XML response hierarchy, as this will make 
-it much easier to interpret the SFPark Simplicity API hierarchy since it directly models the former. 
+<b>RS</b> elements, and so on) and contains unique accessors for each of their child elements. It is highly recommended that the user familiarize him/herself with the SFPark Availability Service API XML response hierarchy <i>(section 3.1 XML Response, pg 11)</i>, as this will make it much easier to interpret the SFPark Simplicity API hierarchy since it directly models the former.
 
 Finally, location data is stored in SFParkLocation objects, which are intended to contain either one or two 
 longitude/latitude coordinate pairs <i>(since any location extracted from the SFPark Availability database will contain 
@@ -66,7 +68,9 @@ The number of locations stored in a SFParkLocation object may be easily retrieve
 latitude values, which are accessed "list" style (eg. <code>SFParkLocation.longitude(index)</code> or 
 <code>SFParkLocation.latitude(index)</code>).
 
-To summarize, here is a set of steps to get the API up and running:
+## Getting started
+The following steps describe how to get started with the SFPark Simplified API:
+
 <ol>
 <li><b>Create a query:</b>
  </br>Create a new SFParkQuery instance, which will by default have no parameters.</li>
@@ -81,12 +85,14 @@ To summarize, here is a set of steps to get the API up and running:
 </br>
 	
 <li><b>Pass the query to the database and retrieve the response:</b>
-</br>Populate the SFParkXMLResponse instance by passing the SFParkQuery created above to the <code>populateResponse()</code> method. It is a good idea to check the value returned by the status() method to determine whether the SFParkXMLResponse object was successfully populated. Attempts to access data from this object on a status other than SUCCESS could result in an Exception being thrown (typically an IndexOutOfRangeException or NullPointerException).</li>
+</br>Populate the SFParkXMLResponse instance by passing the SFParkQuery created above to the <code>populateResponse()</code> method. It is a good idea to check the value returned by the <code>status()</code> method to determine whether the SFParkXMLResponse object was successfully populated. Attempts to access data from this object on a status other than SUCCESS could result in an Exception being thrown (typically an IndexOutOfRangeException or NullPointerException).</li>
 </br>
 	
 <li><b>Access the data</b>
-</br>Once populated successfully, the user may now access the data with the appropriate accessor methods; the naming convention for the accessors is the exact lowercase equivalent of the SFPark Availability Service API element tag names, so to access an element with the tag name DESC, for instance, you would call the desc() method, or rr() for a RR element, and so on. The accessor naming convention is the same for both leaf and non-leaf elements, so to access an AVL element - which is a "record" with all of the available data about a location, and incidentally contains child elements - the avl(int index) accessor can be called. To access a child element of a non-root branch element such as an AVL, a simple dot-sytax chain is all that is needed; for instance, avl(index).ophrs(index).end() accesses the data from an END element of an OPS element, which is contained in the OPHRS element of an AVL element. Again, the user is encouraged to consult the official documentation (3.1 XML Response, pg 11) for the breakdown of the different SFPark elements and their hierarchy.</li>
+</br>Once populated successfully, the user may now access the data with the appropriate accessor methods; the naming convention for the accessors is the exact lowercase equivalent of the SFPark Availability Service API element tag names, so to access an element with the tag name DESC, for instance, you would call the <code>desc()</code> method, or <code>rr()</code> for a RR element, and so on. The accessor naming convention is the same for both leaf and non-leaf elements, so to access an AVL element, the <code>avl(int index)</code> accessor can be called. To access a child element of a non-root branch element such as an AVL, a simple dot-sytax chain is all that is needed; for instance, <code>avl(index).ophrs(index).end()</code> accesses the data from an END element of an OPS element, which is contained in the OPHRS element of an AVL element. Again, the user is encouraged to consult the official documentation <i>(section 3.1 XML Response, pg 11)</i> for the breakdown of the different SFPark elements and their hierarchy.</li>
 </ol>
+
+## Element hierarchy
 The following is a general tree structure showing the SFPark Availability Service element hierarchy;
 the names in parentheses are the SFPark Simplified classes that hold the corresponding elements:
 <ol>
