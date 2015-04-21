@@ -5,7 +5,7 @@ and extracting the data from responses in a simple and easy-accessible format.
 ## Author
 Jeremy Erickson
 ## Package name
-sfpark_simplified
+com.csc413.sfsu.sfpark_simplified
 ## Included classes
 <ul>
 <li>AVLElement</li>
