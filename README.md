@@ -11,6 +11,7 @@ com.csc413.sfsu.sfpark_simplified
 <li>AVLElement</li>
 <li>BranchElement</li>
 <li>DataElement</li>
+<li>NetworkRequest</li>
 <li>OPHRSElement</li>
 <li>OPSElement</li>
 <li>RATESElement</li>
@@ -146,8 +147,4 @@ the names in parentheses are the SFPark Simplified classes that hold the corresp
 </ol>
 
 ## Known issues
-Android OS requires all network requests to be performed asynchronously (i.e. not on the main thread); 
-any such requests performed on the main thread will throw an <b>android.os.NetworkOnMainThreadException</b>.
-For now, the user may call the <code>SFParkXMLResponse.populateResponse()</code> method within an asynchronous 
-environment (such as an <b>android.os.AsycTask</b> class). The SFPark Simplified API is currently being further 
-developed to perform asynchronous execution of network requests automatically so that the user will not have to.
+[No currently known issues]
