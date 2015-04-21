@@ -95,39 +95,43 @@ The following steps describe how to get started with the SFPark Simplified API:
 
 <b>Example usage:</b>
 </br>
-<code>
-SFParkQuery query = new SFParkQuery(); // Create empty query
+<pre style="background-color:lightgray">
+SFParkQuery query = new SFParkQuery(); /* Create empty query */
 
-query.addParameter("long", "-122.98880"); // Add parameters
+query.addParameter("long", "-122.98880"); /* Add parameters */
 query.addParameter("lat", "37.8979");
 query.addParameter("radius", "0.5");
 query.addParameter("uom", "mile");
 query.addParameter("response", "xml");
 
-SFParkXMLResponse response = new SFParkXMLResponse(); // Create empty response
-boolean success = response.populateResponse(query); // Populate the response with the query, return whether successful
 
-if (success) { // Access response only on successful population to avoid NullPointerException
-    // Access and retrieve data from response
+SFParkXMLResponse response = new SFParkXMLResponse(); /* Create empty response */
+boolean success = response.populateResponse(query); /* Populate the response with the query */
+
+/* Access response only on successful population to avoid NullPointerException */
+if (success) { 
+    /* Access and retrieve data from response */
     String status = response.status();
     String message = response.message();
     int numRecords = response.numRecords();
     
-    for (int i = 0; i < numRecords; i++) { // Availability elements (records) may be accessed indexically
-    	System.out.println("Record #" + (i+1) + " name: " + response.avl(i).name()); // Print each record name, eg.
+    /* Availability elements (records) may be accessed indexically */
+    for (int i = 0; i < numRecords; i++) { 
+    	 /* Print each record name, for example */
+    	System.out.println("Record #" + (i+1) + " name: " + response.avl(i).name());
     }
     
     /* Etc... */
 }
 
-query.removeParamter("response"); // Remove a redundant parameter (XML is the default response type)
 
-query.updateParameter("radius", "0.75"); // Widen the search radius
+query.removeParamter("response"); /* Default response is XML, no need for parameter */
+query.updateParameter("radius", "0.75"); /* Widen the search radius */
 
-success = response.populateResponse(query); // Repopulate the response with data from the modified query
+success = response.populateResponse(query); /* Repopulate the response with new query */
 
 /* Access data if successfully populated... */
-</code>
+</pre>
 
 
 
