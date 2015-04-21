@@ -49,6 +49,21 @@ public class SFParkXMLResponse {
     /** Holds all availability (AVL) elements; an AVL element represents one record */
     private ArrayList<AVLElement> avlList;
 
+    /** Resets all data members to their starting values.
+     * Numerical data is set to -1; Strings and Lists are reinitialized as empty.
+    */
+    private void reset () {
+        status = "";
+        requestID = -1;
+        udf1 = -1;
+        numRecords = -1;
+        errorCode = -1;
+        message = "";
+        availabilityUpdatedTimeStamp = "";
+        availabilityRequestTimeStamp = "";
+        avlList = new ArrayList<AVLElement>();
+    }
+
     // PUBLIC METHODS //
     //
     /** Constructor.
@@ -63,10 +78,10 @@ public class SFParkXMLResponse {
      * @param   url a String representing a SFPark Availability REST Service API query in the form of a URL
      * @return  true if the query was successful and no exceptions were thrown, false otherwise
      */
-    public boolean populateResponse (String url) {
+    public boolean populate (String url) {
         try {
-            // List to hold all AVLElements
-            avlList = new ArrayList<AVLElement>();
+            // Reset all data members to their default values
+            reset();
 
             Document document = new NetworkRequest().execute(url).get(10, TimeUnit.SECONDS);
 
@@ -150,8 +165,8 @@ public class SFParkXMLResponse {
      * @param   query   an SFParkQuery object containing the SFPark Availability REST Service API query
      * @return  true if the query was successful, false otherwise
      */
-    public boolean populateResponse (SFParkQuery query) {
-        return populateResponse(query.toString());
+    public boolean populate (SFParkQuery query) {
+        return populate(query.toString());
     }
 
     /** Returns a SFPark availability element at the specified index.

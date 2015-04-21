@@ -48,7 +48,7 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
                 query.addOrUpdateParameter("long", latLng.longitude + "");
                 query.addOrUpdateParameter("lat", latLng.latitude + "");
                 String msg;
-                if (response.populateResponse(query)) {
+                if (response.populate(query)) {
                     msg = "Status: " + response.status();
                     msg += "\nMessage: " + response.message();
                     if (response.numRecords() > 0) {
