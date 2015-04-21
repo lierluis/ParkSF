@@ -66,7 +66,7 @@ Any extending class of BranchElement contains and returns data in the form of SF
 </ul>
 Each of these classes corresponds to an element with the same tag name as the class name prefix (for instance the 
 AVLElement class corresponds to <b>AVL</b> elements in the SFPark Availability Service API, RSElements correspond to 
-<b>RS</b> elements, and so on) and contains unique accessors for each of their child elements. It is highly recommended that the user familiarize him/herself with the SFPark Availability Service API XML response hierarchy <i>(section 3.1 XML Response, pg 11)</i>, as this will make it much easier to interpret the SFPark Simplicity API hierarchy since it directly models the former.
+<b>RS</b> elements, and so on) and contains unique accessors for each of their child elements. It is highly recommended that the user familiarize him/herself with the SFPark Availability Service API XML response hierarchy <i>(section 3.1 XML Response, pg 11)</i>, as this will make it much easier to interpret the SFPark Simplified API hierarchy since it directly models the former.
 
 Finally, location data is stored in SFParkLocation objects, which are intended to contain either one or two 
 longitude/latitude coordinate pairs <i>(since any location extracted from the SFPark Availability database will contain 
@@ -84,7 +84,7 @@ The following steps describe how to get started with the SFPark Simplified API:
  </br>
 	
 <li><b>Modify query parameters:</b>
-</br>Append to, update, or delete from the SFParkQuery instance any desired parameters using the <code>addParameter()</code>, <code>updateParameter()</code>, <code>addOrUpdateParameter()</code>, or <code>removeParameter()</code> methods. Consult the official SFPark Availability Service documentation for a list of valid parameters, as invalid parameters will return an error status.</li>
+</br>Append to, update, or delete from the SFParkQuery instance any desired parameters using the <code>addParameter()</code>, <code>updateParameter()</code>, <code>addOrUpdateParameter()</code>, or <code>removeParameter()</code> methods. Consult the official SFPark Availability Service documentation for a list of valid parameters, as invalid parameters will cause the query to return an error status when passed to the database.</li>
 </br>
 	
 <li><b>Create a container to hold the data from the response</b>
