@@ -28,12 +28,18 @@ com.csc413.sfsu.sfpark_simplified
 The basic idea behind the SFPark Simplified API is to create and store queries in <b>SFParkQuery</b> objects and pass 
 them to a <b>SFParkXMLResponse</b> object which establishes a connection with the SFPark Availability database, passes the query, retrieves the data from the response, and extracts it into a convenient format.
 
+<h4>Querying the database</h4>
 SFParkXMLResponse objects are instantiated empty and then subsequently "populated" with data by calling the 
 <code>populate()</code> method; this method may also be called any time the user wishes to update the response 
-by overwriting the previous information with that of a new query. Regardless of the degree of success the method has 
-in populating the response, at minimum the status variable will be updated to reflect the state of the most recent 
-database query. The user may call the SFParkXMLResponse object's <code>status()</code> method to retrieve this value.
+by overwriting the previous information with that of a new query. Once the method is called, the status variable will be updated to reflect the state of the most recent database query. The user may call the SFParkXMLResponse object's <code>status()</code> method to retrieve this value, which will be one of the following:
+<ul>
+	<li><b>SUCCESS:</b> the response was populated with data from a successful database query</li>
+	<li><b>ERROR:</b> a connection was established with the database but no data could be retrieved</li>
+	<li><b>FAILED:<i>[Exception class]:</i></b> an Exception was thrown before the response could populate</li>
+</ul>
+Note that a status of SUCCESS does not guarantee that any records were found, only that the database was accessed and that data was retrieved. An example would be queries with location parameters outside of the SFPark Availability Service's range. 
 
+<h4>Handling data</h4>
 With the exception of the root element (the <b>SFP_AVAILABILITY</b> element, to be specific) which is stored in a 
 SFParkXMLResponse object, all data is stored in <b>SFParkElement</b> objects, which are abstract classes that are 
 extended by the <b>BranchElement</b> class (an abstract class which stores non-leaf elements, i.e. elements with one 
@@ -93,8 +99,7 @@ The following steps describe how to get started with the SFPark Simplified API:
 </br>Once populated successfully, the user may now access the data with the appropriate accessor methods; the naming convention for the accessors is, with a few small exceptions, the exact lowercase equivalent of the SFPark Availability Service API element tag names, with underscore separators being replaced by capital letter separators. So to access an element with the tag name DESC, for instance, you would call the <code>desc()</code> method, or <code>rr()</code> for a RR element; to access an element with the tag name AVAILABILITY_REQUEST_TIMESTAMP, the user would call <code>availabilityRequestTimestamp()</code>, and so forth. The accessor naming convention is the same for both leaf and non-leaf elements, so to access an AVL element, the <code>avl(int index)</code> accessor can be called. To access a child element of a non-root branch element such as an AVL, a simple dot-sytax chain is all that is needed; for instance, <code>avl(index).ophrs(index).end()</code> accesses the data from an END element of an OPS element, which is contained in the OPHRS element of an AVL element. Again, the user is encouraged to consult the official documentation <i>(section 3.1 XML Response, pg 11)</i> for the breakdown of the different SFPark elements and their hierarchy.</li>
 </ol>
 
-<b>Example usage:</b>
-</br>
+<h4>Example usage:</h4>
 <pre style="background-color:lightgray">
 SFParkQuery query = new SFParkQuery(); /* Create empty query */
 
