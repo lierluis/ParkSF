@@ -37,7 +37,7 @@ database query. The user may call the SFParkXMLResponse object's <code>status()<
 With the exception of the root element (the <b>SFP_AVAILABILITY</b> element, to be specific) which is stored in a 
 SFParkXMLResponse object, all data is stored in <b>SFParkElement</b> objects, which are abstract classes that are 
 extended by the <b>BranchElement</b> class (an abstract class which stores non-leaf elements, i.e. elements with one 
-or more child elements) and the </b>DataElement</b> class (a public class which stores leaf elements).
+or more child elements) and the <b>DataElement</b> class (a public class which stores leaf elements).
 DataElements contain textual data in the form of Strings, but may return their data to the user in a different 
 format depending on the accessor called. Such formats may include:
 <ul>
