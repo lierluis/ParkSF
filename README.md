@@ -22,7 +22,7 @@ com.csc413.sfsu.sfpark_simplified
 <li>Tuple</li>
 </ul>
 ## See also
-<a href="www.sfpark.org">SFPark Availability Service API</a>
+<a href="http://www.sfpark.org">SFPark Availability Service API</a>
 ## Overview
 The basic idea behind the SFPark Simplified API is to create and store queries in <b>SFParkQuery</b> objects and pass 
 them to a <b>SFParkXMLResponse</b> object which establishes a connection with the SFPark Availability database, passes 
