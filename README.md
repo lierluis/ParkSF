@@ -28,14 +28,20 @@ com.csc413.sfsu.sfpark_simplified
 The basic idea behind the SFPark Simplified API is to create and store queries in <b>SFParkQuery</b> objects and pass 
 them to a <b>SFParkXMLResponse</b> object which establishes a connection with the SFPark Availability database, passes the query, retrieves the data from the response, and extracts it into a convenient format.
 
+<h4>Querying the database</h4>
 SFParkXMLResponse objects are instantiated empty and then subsequently "populated" with data by calling the 
-<code>populateResponse()</code> method; this method may also be called any time the user wishes to update the response 
-by overwriting the previous information with that of a new query. Regardless of the degree of success the method has 
-in populating the response, at minimum the status variable will be updated to reflect the state of the most recent 
-database query. The user may call the SFParkXMLResponse object's <code>status()</code> method to retrieve this value.
+<code>populate()</code> method; this method may also be called any time the user wishes to update the response 
+by overwriting the previous information with that of a new query. Once the method is called, the status variable will be updated to reflect the state of the most recent database query. The user may call the SFParkXMLResponse object's <code>status()</code> method to retrieve this value, which will be one of the following:
+<ul>
+	<li><b>SUCCESS:</b> the response was populated with data from a successful database query</li>
+	<li><b>ERROR:</b> a connection was established with the database but no data could be retrieved</li>
+	<li><b>FAILED:<i>[Exception class]:</i></b> an Exception was thrown before the response could populate</li>
+</ul>
+Note that a status of SUCCESS does not guarantee that any records were found, only that the database was accessed and that data was retrieved. An example would be queries with location parameters outside of the SFPark Availability Service's range. 
 
+<h4>Handling data</h4>
 With the exception of the root element (the <b>SFP_AVAILABILITY</b> element, to be specific) which is stored in a 
-SFParkXMLResponse object, all data is stored in <b>SFParkElement</b> objects, which are abstract classes that are 
+SFParkXMLResponse object, all data is stored in <b>SFParkElement</b> objects, which are of an abstract class that is
 extended by the <b>BranchElement</b> class (an abstract class which stores non-leaf elements, i.e. elements with one 
 or more child elements) and the <b>DataElement</b> class (a public class which stores leaf elements).
 DataElements contain textual data in the form of Strings, but may return their data to the user in a different 
@@ -60,7 +66,7 @@ Any extending class of BranchElement contains and returns data in the form of SF
 </ul>
 Each of these classes corresponds to an element with the same tag name as the class name prefix (for instance the 
 AVLElement class corresponds to <b>AVL</b> elements in the SFPark Availability Service API, RSElements correspond to 
-<b>RS</b> elements, and so on) and contains unique accessors for each of their child elements. It is highly recommended that the user familiarize him/herself with the SFPark Availability Service API XML response hierarchy <i>(section 3.1 XML Response, pg 11)</i>, as this will make it much easier to interpret the SFPark Simplicity API hierarchy since it directly models the former.
+<b>RS</b> elements, and so on) and contains unique accessors for each of their child elements. It is highly recommended that the user familiarize him/herself with the SFPark Availability Service API XML response hierarchy <i>(section 3.1 XML Response, pg 11)</i>, as this will make it much easier to interpret the SFPark Simplified API hierarchy since it directly models the former.
 
 Finally, location data is stored in SFParkLocation objects, which are intended to contain either one or two 
 longitude/latitude coordinate pairs <i>(since any location extracted from the SFPark Availability database will contain 
@@ -78,7 +84,7 @@ The following steps describe how to get started with the SFPark Simplified API:
  </br>
 	
 <li><b>Modify query parameters:</b>
-</br>Append to, update, or delete from the SFParkQuery instance any desired parameters using the <code>addParameter()</code>, <code>updateParameter()</code>, <code>addOrUpdateParameter()</code>, or <code>removeParameter()</code> methods. Consult the official SFPark Availability Service documentation for a list of valid parameters, as invalid parameters will return an error status.</li>
+</br>Append to, update, or delete from the SFParkQuery instance any desired parameters using the <code>addParameter()</code>, <code>updateParameter()</code>, <code>addOrUpdateParameter()</code>, or <code>removeParameter()</code> methods. Consult the official SFPark Availability Service documentation for a list of valid parameters, as invalid parameters will cause the query to return an error status when passed to the database.</li>
 </br>
 	
 <li><b>Create a container to hold the data from the response</b>
@@ -86,15 +92,14 @@ The following steps describe how to get started with the SFPark Simplified API:
 </br>
 	
 <li><b>Pass the query to the database and retrieve the response:</b>
-</br>Populate the SFParkXMLResponse instance by passing the SFParkQuery created above to the <code>populateResponse()</code> method. It is a good idea to check the value returned by the <code>status()</code> method to determine whether the SFParkXMLResponse object was successfully populated. Attempts to access data from this object on a status other than SUCCESS could result in an Exception being thrown (typically an IndexOutOfRangeException or NullPointerException).</li>
+</br>Populate the SFParkXMLResponse instance by passing the SFParkQuery created above to the <code>populate()</code> method. It is a good idea to check the value returned by the <code>status()</code> method to determine whether the SFParkXMLResponse object was successfully populated. Attempts to access data from this object on a status other than SUCCESS could result in an Exception being thrown (typically an IndexOutOfRangeException or NullPointerException).</li>
 </br>
 	
 <li><b>Access the data</b>
 </br>Once populated successfully, the user may now access the data with the appropriate accessor methods; the naming convention for the accessors is, with a few small exceptions, the exact lowercase equivalent of the SFPark Availability Service API element tag names, with underscore separators being replaced by capital letter separators. So to access an element with the tag name DESC, for instance, you would call the <code>desc()</code> method, or <code>rr()</code> for a RR element; to access an element with the tag name AVAILABILITY_REQUEST_TIMESTAMP, the user would call <code>availabilityRequestTimestamp()</code>, and so forth. The accessor naming convention is the same for both leaf and non-leaf elements, so to access an AVL element, the <code>avl(int index)</code> accessor can be called. To access a child element of a non-root branch element such as an AVL, a simple dot-sytax chain is all that is needed; for instance, <code>avl(index).ophrs(index).end()</code> accesses the data from an END element of an OPS element, which is contained in the OPHRS element of an AVL element. Again, the user is encouraged to consult the official documentation <i>(section 3.1 XML Response, pg 11)</i> for the breakdown of the different SFPark elements and their hierarchy.</li>
 </ol>
 
-<b>Example usage:</b>
-</br>
+<h4>Example usage:</h4>
 <pre style="background-color:lightgray">
 SFParkQuery query = new SFParkQuery(); /* Create empty query */
 
@@ -106,7 +111,7 @@ query.addParameter("response", "xml");
 
 
 SFParkXMLResponse response = new SFParkXMLResponse(); /* Create empty response */
-boolean success = response.populateResponse(query); /* Populate the response with the query */
+boolean success = response.populate(query); /* Populate the response with the query */
 
 /* Access response only on successful population to avoid NullPointerException */
 if (success) { 
@@ -128,7 +133,7 @@ if (success) {
 query.removeParamter("response"); /* Default response is XML, no need for parameter */
 query.updateParameter("radius", "0.75"); /* Widen the search radius */
 
-success = response.populateResponse(query); /* Repopulate the response with new query */
+success = response.populate(query); /* Repopulate the response with new query */
 
 /* Access data if successfully populated... */
 </pre>
