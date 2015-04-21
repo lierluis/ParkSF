@@ -28,7 +28,7 @@ The basic idea behind the SFPark Simplified API is to create and store queries i
 them to a <b>SFParkXMLResponse</b> object which establishes a connection with the SFPark Availability database, passes 
 the query, retrieves the data from the response, and extracts it into a convenient format.
 
-<b>SFParkXMLResponse</b> objects are instantiated empty and then subsequently "populated" with data by calling the 
+SFParkXMLResponse objects are instantiated empty and then subsequently "populated" with data by calling the 
 <code>populateResponse()</code> method; this method may also be called any time the user wishes to update the response 
 by overwriting the previous information with that of a new query. Regardless of the degree of success the method has 
 in populating the response, at minimum the status variable will be updated to reflect the state of the most recent 
