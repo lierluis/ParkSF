@@ -30,22 +30,16 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
         query.addParameter("radius", "0.5");
         query.addParameter("uom", "mile");
         query.addParameter("response", "xml");
-
-        String origurl = query.toString();
-        Toast.makeText(getApplicationContext(), origurl, Toast.LENGTH_LONG).show();
-
-        String msg;
         response = new SFParkXMLResponse();
-        if (response.populateResponse(query.toString()))
-            msg = "Originally populated successfully";
-        else
-            msg = "Original population failed: " + response.status();
-        Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_LONG).show();
+
     }
 
     @Override
     public void onMapReady (GoogleMap map) {
         this.map = map;
+        LatLng sanFrancisco = new LatLng(37.7750, -122.4183);
+        map.setMyLocationEnabled(true);
+        map.moveCamera(CameraUpdateFactory.newLatLngZoom(sanFrancisco, 14));
         //map.setOnMapClickListener(new MapListener(map));
         map.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
@@ -53,9 +47,20 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
                 //String msg = "Latitude: " + latLng.latitude + "\nLongitude: " + latLng.longitude;
                 query.addOrUpdateParameter("long", latLng.longitude + "");
                 query.addOrUpdateParameter("lat", latLng.latitude + "");
-                String msg = "oh no";
-                if (response.populateResponse(query))
-                    msg = "populated successfully";
+                String msg;
+                if (response.populateResponse(query)) {
+                    msg = "Status: " + response.status();
+                    msg += "\nMessage: " + response.message();
+                    if (response.numRecords() > 0) {
+                        for (int i = 0; i < response.avl(0).pts(); i++) {
+                            msg += "\nLocation " + (i+1) + ": ("
+                                    + response.avl(0).loc().longitude(i)
+                                    + ","
+                                    + response.avl(0).loc().latitude(i)
+                                    + ")";
+                        }
+                    }
+                }
                 else
                     msg = "failed to populate: " + response.status();
 

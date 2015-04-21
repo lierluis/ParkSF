@@ -67,11 +67,11 @@ public class SFParkQuery {
         updateQuery();
     }
 
-    /** Appends a parameter to the query.
+    /** Appends a new parameter to the query.
      * Since a query cannot contain more than instance of any parameter, only
      * unique parameters - determined by the parameter name - may be added;
      * duplicate parameters will be ignored.
-     * To update an existing parameter's value, call the updateParameter method.
+     * To update an existing parameter's value, call either the updateParameter or addOrUpdateParameter method.
      *
      * @param   arg     the name of the parameter to add
      * @param   val     the value of the parameter to add
@@ -109,6 +109,8 @@ public class SFParkQuery {
     }
 
     /** Updates a parameter if it exists in the query, or adds it as a new parameter otherwise.
+     * To add a non-existing parameter only, call the addParameter method.
+     * To update an existing parameter only, call the updateParameter method.
      *
      * @param   arg     the name of the parameter to update or add
      * @param   val     the value of the parameter to update or add
@@ -127,8 +129,7 @@ public class SFParkQuery {
     }
 
 
-    /** Removes a parameter from the query.
-     * A parameter that does not exist in the query will be ignored.
+    /** Removes a parameter from the query, if it exists.
      *
      * @param   arg     the name of the parameter to remove
      * @return  true if the parameter existed and was successfully removed, false otherwise

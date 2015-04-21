@@ -5,7 +5,10 @@ import android.os.AsyncTask;
 import org.w3c.dom.Element;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
+
 import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
+
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
@@ -65,10 +68,7 @@ public class SFParkXMLResponse {
             // List to hold all AVLElements
             avlList = new ArrayList<AVLElement>();
 
-            // Create document object to parse xml data
-            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder builder = factory.newDocumentBuilder();
-            Document document = builder.parse(url);
+            Document document = new NetworkRequest().execute(url).get(10, TimeUnit.SECONDS);
 
             // Extract root element which contains all data
             Element root;
