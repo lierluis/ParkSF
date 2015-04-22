@@ -75,6 +75,15 @@ The number of locations stored in a SFParkLocation object may be easily retrieve
 latitude values, which are accessed "list" style (eg. <code>SFParkLocation.longitude(index)</code> or 
 <code>SFParkLocation.latitude(index)</code>).
 
+<h4>Default values</h4>
+Every data member of an element is assigned a default value in cases where either no corresponding data was available from the query response or an error occurred while retrieving it from the element. Default values include:
+<ul>
+	<li><b>-1</b> for numerical data (no numerical data member will ever have a valid value below 0)</li>
+	<li><b>empty String </b> for textual data</li>
+	<li><b>null</b> for other Object data</li>
+</ul>
+It is good practice to always check data members against their default values to determine whether their data is valid. Some data members may also throw Exceptions if their values cannot be parsed, so the user should consult the Javadoc to get an idea of such potential cases.
+
 ## Getting started
 The following steps describe how to get started with the SFPark Simplified API:
 
@@ -113,22 +122,21 @@ query.addParameter("response", "xml");
 SFParkXMLResponse response = new SFParkXMLResponse(); /* Create empty response */
 boolean success = response.populate(query); /* Populate the response with the query */
 
-/* Access response only on successful population to avoid NullPointerException */
-if (success) { 
-    /* Access and retrieve data from response */
-    String status = response.status();
+
+String status = response.status(); /* Status will have a valid value regardless of success */
+
+/* It is a good practice to only access data from a successful query */
+if (success) {
     String message = response.message();
     int numRecords = response.numRecords();
-    
     /* Availability elements (records) may be accessed indexically */
     for (int i = 0; i < numRecords; i++) { 
-    	 /* Print each record name, for example */
+        /* Print each record name, for example */
     	System.out.println("Record #" + (i+1) + " name: " + response.avl(i).name());
     }
     
     /* Etc... */
 }
-
 
 query.removeParamter("response"); /* Default response is XML, no need for parameter */
 query.updateParameter("radius", "0.75"); /* Widen the search radius */
