@@ -14,7 +14,8 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 /** The SFParkXMLResponse class is a helper class that allows the user to conveniently interface with a
  * response returned from a SFPark Availability database query and easily retrieve associated data.
- * This class initializes a data tree based on the hierarchy detailed in the SFPark Availability REST Service API documentation.
+ * This class initializes a data tree based on the hierarchy detailed in the SFPark Availability
+ * REST Service API documentation.
  *
  * @author      Jeremy Erickson
  * @version     %I%, %G%
@@ -29,7 +30,7 @@ public class SFParkXMLResponse {
      * Three possible values exist for this data member:
      *  - SUCCESS: database accessed and query returned successfully (official SFPark API value)
      *  - ERROR: database accessed but encountered an error with the query (official SFPark API value)
-     *  - FAILURE: no data could be extracted at all (i.e. SFP_AVAILABILITY tag returns null) (custom sfparkdb API value)
+     *  - FAILURE: complete failure to access database (custom SFPark Simplicity API value)
      */
     private String status;
     /** The request ID of the response */
