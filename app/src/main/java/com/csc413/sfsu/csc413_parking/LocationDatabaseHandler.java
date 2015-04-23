@@ -2,13 +2,18 @@ package com.csc413.sfsu.csc413_parking;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 import com.google.android.gms.maps.model.LatLng;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
- * Created by devin on 4/22/15.
+ *  LocationDataBaseHandler objects create, instantiate, and interface with databases of locations.
+ * @author Devin Clary
  */
 public class LocationDatabaseHandler extends SQLiteOpenHelper {
 
@@ -69,6 +74,25 @@ public class LocationDatabaseHandler extends SQLiteOpenHelper {
         db.close();
     }
 
+    /**
+     * An accessor method for retrieving all latitude/longitude pairs from the location database
+     * @return An array list of LatLng objects.
+     */
+    public List<LatLng> getAllLocations() {
+        List<LatLng> locationList = new ArrayList<LatLng>();
+        String selectQuery = "SELECT  * FROM " + this.tableName;
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor cursor = db.rawQuery(selectQuery, null);
+
+        if (cursor.moveToFirst()) {
+            do {
+                LatLng location=new LatLng(Double.parseDouble(cursor.getString(1)),Double.parseDouble(cursor.getString(2)));
+                locationList.add(location);
+            } while(cursor.moveToNext());
+        }
+
+        return locationList;
+    }
 
 
 }
