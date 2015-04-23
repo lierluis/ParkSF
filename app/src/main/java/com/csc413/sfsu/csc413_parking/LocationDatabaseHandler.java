@@ -18,6 +18,7 @@ public class LocationDatabaseHandler extends SQLiteOpenHelper {
     private static final String keyLong=LocationDataBaseContract.LocationEntry.KEY_LONGITUDE;
     private static final String keyIsFavorite=LocationDataBaseContract.LocationEntry.KEY_IS_FAVORITE;
     private static final String keyTimesSearched=LocationDataBaseContract.LocationEntry.KEY_TIMES_SEARCHED;
+    private static final String locationID=LocationDataBaseContract.LocationEntry.LOCATION_NAME_ENTRY_ID;
 
 
     /**
@@ -34,7 +35,7 @@ public class LocationDatabaseHandler extends SQLiteOpenHelper {
      */
     @Override
     public void onCreate(SQLiteDatabase db){
-        String CREATE_CONTACTS_TABLE = "CREATE TABLE " + this.tableName + "("+" INTEGER PRIMARY KEY," + this.keyLat + " DOUBLE,"
+        String CREATE_CONTACTS_TABLE = "CREATE TABLE " + this.tableName + "("+this.locationID+" INTEGER PRIMARY KEY," + this.keyLat + " DOUBLE,"
             + keyLong + " DOUBLE" +keyIsFavorite+"INTEGER"+this.keyTimesSearched+"INTEGER"+")";
         db.execSQL(CREATE_CONTACTS_TABLE);
 
@@ -67,6 +68,7 @@ public class LocationDatabaseHandler extends SQLiteOpenHelper {
         db.insert(this.tableName, null, values);
         db.close();
     }
+
 
 
 }
