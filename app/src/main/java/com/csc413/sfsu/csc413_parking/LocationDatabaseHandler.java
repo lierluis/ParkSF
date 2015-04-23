@@ -56,13 +56,16 @@ public class LocationDatabaseHandler extends SQLiteOpenHelper {
     }
 
     /**
-     * Adds the a Latitude-Longitude pair to the database in the form of two doubles.
-     * @param location
+     * Adds the a Latitude-Longitude pair to the corresponding columns of the database in the form of two doubles.
+     * @param location a LatLng object to be parsed into two doubles for latitude and longitude.
      */
     public void addLocation(LatLng location){
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
-
+        values.put(this.keyLat, location.latitude);
+        values.put(this.keyLong, location.longitude);
+        db.insert(this.tableName, null, values);
+        db.close();
     }
 
 
