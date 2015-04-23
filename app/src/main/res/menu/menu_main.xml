@@ -1,6 +1,53 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools" tools:context=".MainActivity">
-    <item android:id="@+id/action_settings" android:title="@string/action_settings"
-        android:orderInCategory="100" app:showAsAction="never" />
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".MainActivity">
+    <item
+        android:id="@+id/search_icon"
+        android:icon="@drawable/ic_action_search"
+        android:title="@string/search_title"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/layers_icon"
+        android:icon="@drawable/ic_layers"
+        android:title="@string/layers_title"
+        app:showAsAction="always"/>
+    <item
+        android:id="@+id/parked_icon"
+        android:icon="@drawable/ic_car"
+        android:title="@string/parked_title"
+        app:showAsAction="always" />
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/menu_option1"
+            android:orderInCategory="1"
+            app:showAsAction="never"
+            android:title="@string/option1_string"/>
+        <item
+            android:id="@+id/menu_option2"
+            android:orderInCategory="2"
+            app:showAsAction="never"
+            android:title="@string/option2_string"/>
+        <item
+            android:id="@+id/menu_option3"
+            android:orderInCategory="3"
+            app:showAsAction="never"
+            android:title="@string/option3_string"/>
+    </group>
+
 </menu>
+
+<!--
+android:layout_width="match_parent"
+android:layout_height="match_parent">
+
+
+<item
+        android:id="@+id/settings_icon"
+        android:icon="@drawable/ic_action_overflow"
+        android:title="@string/settings_title"
+        android:orderInCategory="100"
+        app:showAsAction="always" />
+
+-->
