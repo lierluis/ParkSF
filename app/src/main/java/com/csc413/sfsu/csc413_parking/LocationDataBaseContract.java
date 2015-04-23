@@ -3,18 +3,18 @@ package com.csc413.sfsu.csc413_parking;
 import android.provider.BaseColumns;
 
 /**
- *  The LocationDataBaseContract class is a wrapper class for SQLite constants used by LocationDataBase objects.
+ *  The LocationDatabaseContract class is a wrapper class for SQLite constants used by LocationDataBase objects.
  *
- *  It is not intended for any objects of type LocationDataBaseContract to be created, as all data members
- *  of the LocationDataBaseContract class will be static across all instances of the class
+ *  It is not intended for any objects of type LocationDatabaseContract to be created, as all data members
+ *  of the LocationDatabaseContract class will be static across all instances of the class
  *  in order to maintain consistent naming conventions.
  *
  *  @author Devin Clary
  */
-public class LocationDataBaseContract {
+public class LocationDatabaseContract {
 
     // Constructor is empty if someone creates an instance.
-    public LocationDataBaseContract() {}
+    public LocationDatabaseContract() {}
 
     // Static column names
     public static abstract class LocationEntry implements BaseColumns {

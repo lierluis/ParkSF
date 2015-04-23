@@ -18,12 +18,12 @@ import java.util.List;
 public class LocationDatabaseHandler extends SQLiteOpenHelper {
 
     private static final int DATABASE_VERSION = 1;
-    private static final String tableName=LocationDataBaseContract.LocationEntry.TABLE_LOCATIONS;
-    private static final String keyLat=LocationDataBaseContract.LocationEntry.KEY_LATITUDE;
-    private static final String keyLong=LocationDataBaseContract.LocationEntry.KEY_LONGITUDE;
-    private static final String keyIsFavorite=LocationDataBaseContract.LocationEntry.KEY_IS_FAVORITE;
-    private static final String keyTimesSearched=LocationDataBaseContract.LocationEntry.KEY_TIMES_SEARCHED;
-    private static final String locationID=LocationDataBaseContract.LocationEntry.LOCATION_NAME_ENTRY_ID;
+    private static final String tableName= LocationDatabaseContract.LocationEntry.TABLE_LOCATIONS;
+    private static final String keyLat= LocationDatabaseContract.LocationEntry.KEY_LATITUDE;
+    private static final String keyLong= LocationDatabaseContract.LocationEntry.KEY_LONGITUDE;
+    private static final String keyIsFavorite= LocationDatabaseContract.LocationEntry.KEY_IS_FAVORITE;
+    private static final String keyTimesSearched= LocationDatabaseContract.LocationEntry.KEY_TIMES_SEARCHED;
+    private static final String locationID= LocationDatabaseContract.LocationEntry.LOCATION_NAME_ENTRY_ID;
 
 
     /**
@@ -31,12 +31,13 @@ public class LocationDatabaseHandler extends SQLiteOpenHelper {
      * @param context An object specific to Android containing information about the application environment.
      */
     public LocationDatabaseHandler(Context context){
-        super(context, LocationDataBaseContract.LocationEntry.TABLE_LOCATIONS, null, DATABASE_VERSION);
+        super(context, LocationDatabaseContract.LocationEntry.TABLE_LOCATIONS, null, DATABASE_VERSION);
     }
 
     /**
      * Upon first initialization of the database, onCreate() is called.
-     * All rows and row titles are instantiated within this method using the static names declared in LocationDataBaseContract class
+     * All rows and row titles are instantiated within this method using the static names declared in LocationDatabaseContract class
+     * @param db The SQLiteDatabase object is automatically passed after it is instantiated.
      */
     @Override
     public void onCreate(SQLiteDatabase db){
@@ -55,7 +56,7 @@ public class LocationDatabaseHandler extends SQLiteOpenHelper {
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         // Drop older table if existed
-        db.execSQL("DROP TABLE IF EXISTS " + LocationDataBaseContract.LocationEntry.TABLE_LOCATIONS);
+        db.execSQL("DROP TABLE IF EXISTS " + LocationDatabaseContract.LocationEntry.TABLE_LOCATIONS);
 
         // Create tables again
         onCreate(db);
@@ -92,6 +93,21 @@ public class LocationDatabaseHandler extends SQLiteOpenHelper {
         }
 
         return locationList;
+    }
+
+    /**
+     * Retrieves the number of entries in the SQLite LocationDatabase
+     * @return An integer count representing the number of rows (locations) in the database
+     */
+
+    public int getLocationsCount() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String countQuery = "SELECT  * FROM " + this.tableName;
+        Cursor cursor = db.rawQuery(countQuery, null);
+
+        int count= cursor.getCount();
+        cursor.close();
+        return count;
     }
 
 
