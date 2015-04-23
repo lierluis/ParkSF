@@ -1,5 +1,6 @@
 package com.csc413.sfsu.csc413_parking;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -12,6 +13,12 @@ import com.google.android.gms.maps.model.LatLng;
 public class LocationDatabaseHandler extends SQLiteOpenHelper {
 
     private static final int DATABASE_VERSION = 1;
+    private static final String tableName=LocationDataBaseContract.LocationEntry.TABLE_LOCATIONS;
+    private static final String keyLat=LocationDataBaseContract.LocationEntry.KEY_LATITUDE;
+    private static final String keyLong=LocationDataBaseContract.LocationEntry.KEY_LONGITUDE;
+    private static final String keyIsFavorite=LocationDataBaseContract.LocationEntry.KEY_IS_FAVORITE;
+    private static final String keyTimesSearched=LocationDataBaseContract.LocationEntry.KEY_TIMES_SEARCHED;
+
 
     /**
      * Constructor
@@ -27,9 +34,8 @@ public class LocationDatabaseHandler extends SQLiteOpenHelper {
      */
     @Override
     public void onCreate(SQLiteDatabase db){
-        String CREATE_CONTACTS_TABLE = "CREATE TABLE " + LocationDataBaseContract.LocationEntry.TABLE_LOCATIONS + "("
-                + LocationDataBaseContract.LocationEntry.COLUMN_NAME_ENTRY_ID + " INTEGER PRIMARY KEY," + LocationDataBaseContract.LocationEntry.KEY_LATITUDE + " DOUBLE,"
-                + LocationDataBaseContract.LocationEntry.KEY_LONGITUDE + " DOUBLE" +LocationDataBaseContract.LocationEntry.KEY_IS_FAVORITE+"INTEGER"+LocationDataBaseContract.LocationEntry.KEY_TIMES_SEARCHED+"INTEGER"+")";
+        String CREATE_CONTACTS_TABLE = "CREATE TABLE " + this.tableName + "("+" INTEGER PRIMARY KEY," + this.keyLat + " DOUBLE,"
+            + keyLong + " DOUBLE" +keyIsFavorite+"INTEGER"+this.keyTimesSearched+"INTEGER"+")";
         db.execSQL(CREATE_CONTACTS_TABLE);
 
     }
@@ -54,6 +60,8 @@ public class LocationDatabaseHandler extends SQLiteOpenHelper {
      * @param location
      */
     public void addLocation(LatLng location){
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
 
     }
 

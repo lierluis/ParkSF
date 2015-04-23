@@ -19,7 +19,6 @@ public class LocationDataBaseContract {
     // Static column names
     public static abstract class LocationEntry implements BaseColumns {
         public static final String TABLE_LOCATIONS = "locations";
-        public static final String COLUMN_NAME_ENTRY_ID = "locationsID";
         public static final String KEY_LATITUDE="lat";
         public static final String KEY_LONGITUDE="long";
         public static final String KEY_IS_FAVORITE="isFavorite";
