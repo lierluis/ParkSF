@@ -13,7 +13,8 @@ import java.util.List;
 
 /**
  *  LocationDataBaseHandler objects create, instantiate, and interface with databases of locations.
- * @author Devin Clary
+ *  Each row represents the data from a ParkingLocation object. The data contained in each row is directly paralleled to the data returned by the SFParkSimplified API
+ *  Note that not all fields for each location will contain data.
  */
 public class LocationDatabaseHandler extends SQLiteOpenHelper {
 
@@ -87,31 +88,55 @@ public class LocationDatabaseHandler extends SQLiteOpenHelper {
     }
 
     /**
-     * Adds the a Latitude-Longitude pair to the corresponding columns of the database in the form of two doubles.
-     * @param location a LatLng object to be parsed into two doubles for latitude and longitude.
+     * Adds a ParkingLocation object's data fields into a row of the LocationDatabase
+     * @param loc a ParkingLocation object to be parsed into discrete data to store in database.
      */
-    public void addLocation(LatLng location){
+    public void addLocation(ParkingLocation loc){
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
-        values.put(this.keyLat, location.latitude);
-        values.put(this.keyLong, location.longitude);
+        values.put(this.keyLat, loc.getCoords().latitude);
+        values.put(this.keyLong, loc.getCoords().longitude);
+        values.put(this.keyOriginLat, loc.getOriginLocation().latitude);
+        values.put(this.keyOriginLong, loc.getOriginLocation().longitude);
+        values.put(this.keyRadius, loc.getRadiusFromOrigin());
+
+        //convert boolean to 1 or 0 to store in Database
+        values.put(this.keyHasStreetParking,((loc.hasOnStreetParking()) ? 1 : 0));
+        values.put(this.keyName, loc.getName());
+        values.put(this.keyDesc, loc.getDesc());
+        values.put(this.keyOSPID, loc.getOspid());
+        values.put(this.keyBFID, loc.getBfid());
+        values.put(this.keyIsFavorite, ((loc.isFavorite())? 1 : 0));
+        values.put(this.keyTimesSearched, loc.getTimesSearched());
+
         db.insert(this.tableName, null, values);
         db.close();
     }
 
     /**
-     * An accessor method for retrieving all latitude/longitude pairs from the location database
-     * @return An array list of LatLng objects.
+     * An accessor method for retrieving all ParkingLocation objects from the location database.
+     * @return An array list of ParkingLocation objects.
      */
-    public List<LatLng> getAllLocations() {
-        List<LatLng> locationList = new ArrayList<LatLng>();
+    public List<ParkingLocation> getAllLocations() {
+        List<ParkingLocation> locationList = new ArrayList<ParkingLocation>();
         String selectQuery = "SELECT  * FROM " + this.tableName;
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor cursor = db.rawQuery(selectQuery, null);
 
         if (cursor.moveToFirst()) {
             do {
-                LatLng location=new LatLng(Double.parseDouble(cursor.getString(1)),Double.parseDouble(cursor.getString(2)));
+                LatLng coords=new LatLng(cursor.getDouble(1),cursor.getDouble(2));
+                LatLng origin=new LatLng(cursor.getDouble(3),cursor.getDouble(4));
+                Double radius=cursor.getDouble(5);
+                boolean hasStreetParking=((cursor.getInt(6)==1) ? true : false);
+                String name=cursor.getString(7);
+                String desc=cursor.getString(8);
+                int ospid=cursor.getInt(9);
+                int bfid=cursor.getInt(10);
+                boolean isFavorite=(cursor.getInt(11)==1 ? true : false);
+                int timesSearched=(cursor.getInt(12));
+
+                ParkingLocation location=new ParkingLocation(origin, radius, hasStreetParking, name, desc, ospid, bfid, coords, isFavorite, timesSearched);
                 locationList.add(location);
             } while(cursor.moveToNext());
         }

@@ -27,6 +27,10 @@ public class ParkingLocation {
     private static int bfid;
     /**The coordinates of this parking location. Corresponds to the <LOC> tag from SFPark responses. Note: the SFPark database will usually have two points (start and end) for on street parking. In this case, only the first point will be saved.*/
     private static LatLng coords;
+    /**Whether this location has been specified as a favorite by the user.*/
+    private static boolean isFavorite;
+    /** The number of times this location has been the subject of a search by the user.*/
+    private static int timesSearched;
 
     //Constructors
 
@@ -56,7 +60,7 @@ public class ParkingLocation {
      * @param bfid Corresponds to the <BFID> tag from SFPark. This will only exist for on street parking lcoations. Set to 0 if this value doesn't exist.
      * @param coords The coordinates of this parking locations. For on street locations that contain two sets of coordinates, the first should be used.
      */
-    ParkingLocation(LatLng origin, Double radiusFromOrigin, boolean hasOnStreetParking, String name, String desc, int ospid, int bfid, LatLng coords){
+    ParkingLocation(LatLng origin, Double radiusFromOrigin, boolean hasOnStreetParking, String name, String desc, int ospid, int bfid, LatLng coords, boolean isFavorite, int timesSearched){
         this.originLocation=origin;
         this.radiusFromOrigin=radiusFromOrigin;
         this.hasOnStreetParking=hasOnStreetParking;
@@ -65,6 +69,8 @@ public class ParkingLocation {
         this.ospid=ospid;
         this.bfid=bfid;
         this.coords=coords;
+        this.isFavorite=isFavorite;
+        this.timesSearched=timesSearched;
     }
 
     //Accessors
@@ -131,6 +137,22 @@ public class ParkingLocation {
      */
     LatLng getCoords(){
         return this.coords;
+    }
+
+    /**
+     *
+     * @return Whether this location is a favorite by the user or not.
+     */
+    boolean isFavorite(){
+        return this.isFavorite;
+    }
+
+    /**
+     *
+     * @return The number of times this location has been searched.
+     */
+    int getTimesSearched(){
+        return this.timesSearched;
     }
 
 
