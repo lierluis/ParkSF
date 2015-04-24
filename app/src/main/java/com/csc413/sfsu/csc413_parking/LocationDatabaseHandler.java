@@ -67,7 +67,7 @@ public class LocationDatabaseHandler extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db){
         String CREATE_LOCATIONS_TABLE = "CREATE TABLE " + this.tableName + "("+this.locationID+" INTEGER PRIMARY KEY, " + this.keyLat + " DOUBLE,"
             + this.keyLong + " DOUBLE, " + this.keyOriginLat + " DOUBLE, "+ this.keyOriginLong + " DOUBLE, "+this.keyRadius+" DOUBLE, "+this.keyHasStreetParking+" INTEGER, "
-                +this.keyName+" STRING, "+this.keyDesc+" STRING, "+this.keyOSPID+"INTEGER, "+this.keyBFID+" INTEGER, "+keyIsFavorite+" INTEGER, "+this.keyTimesSearched+" INTEGER"+")";
+                +this.keyName+" STRING, "+this.keyDesc+" STRING, "+this.keyOSPID+" INTEGER, "+this.keyBFID+" INTEGER, "+keyIsFavorite+" INTEGER, "+this.keyTimesSearched+" INTEGER"+")";
         db.execSQL(CREATE_LOCATIONS_TABLE);
 
     }

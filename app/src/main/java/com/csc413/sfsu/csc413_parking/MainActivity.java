@@ -14,6 +14,8 @@ import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 
+import java.util.List;
+
 
 public class MainActivity extends ActionBarActivity implements OnMapReadyCallback {
     private GoogleMap map;
@@ -34,6 +36,17 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
         query.setRadius(0.5);
         query.setUnitOfMeasurement("MILE");
         response = new SFParkXMLResponse();
+
+        LatLng origin=new LatLng(37.792279, -122.39709);
+        LatLng coords=new LatLng(37.79226, -122.39708);
+        ParkingLocation loc=new ParkingLocation(origin, .25, true, "NAME!!", "DESC!!", 21412, 41212, coords, false, 12);
+        LocationDatabaseHandler db = new LocationDatabaseHandler(this);
+        db.addLocation(loc);
+        List<ParkingLocation> locationList=db.getAllLocations();
+        System.out.println("GOT HERE");
+        for(int i=0; i<db.getLocationsCount(); i++){
+            System.out.println(locationList.get(i).toString());
+        }
     }
 
     @Override

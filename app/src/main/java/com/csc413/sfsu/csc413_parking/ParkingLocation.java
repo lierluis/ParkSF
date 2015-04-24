@@ -28,7 +28,7 @@ public class ParkingLocation {
     /**The coordinates of this parking location. Corresponds to the <LOC> tag from SFPark responses. Note: the SFPark database will usually have two points (start and end) for on street parking. In this case, only the first point will be saved.*/
     private static LatLng coords;
     /**Whether this location has been specified as a favorite by the user.*/
-    private static boolean isFavorite;
+    private boolean isFavorite;
     /** The number of times this location has been the subject of a search by the user.*/
     private static int timesSearched;
 
@@ -42,11 +42,11 @@ public class ParkingLocation {
         this.originLocation=new LatLng(0.0,0.0);
         this.radiusFromOrigin=0.0;
         this.hasOnStreetParking=false;
-        this.name="";
-        this.desc="";
-        this.ospid=0;
-        this.bfid=0;
-        this.coords=new LatLng(0.0,0.0);
+        name="";
+        desc="";
+        ospid=0;
+        bfid=0;
+        coords=new LatLng(0.0,0.0);
     }
 
     /**
@@ -103,8 +103,8 @@ public class ParkingLocation {
      *
      * @return The name of this location if it exists. Null otherwise.
      */
-    String getName(){
-        return this.name;
+    static String getName(){
+        return name;
     }
 
     /**
@@ -112,7 +112,7 @@ public class ParkingLocation {
      * @return The description of this location, if it exists. Null otherwise.
      */
     String getDesc(){
-        return this.desc;
+        return desc;
     }
 
     /**
@@ -120,7 +120,7 @@ public class ParkingLocation {
      * @return The SFMTA off street parking ID, if it exists. 0 otherwise.
      */
     int getOspid(){
-        return this.ospid;
+        return ospid;
     }
 
     /**
@@ -128,7 +128,7 @@ public class ParkingLocation {
      * @return The SFMTA on street parking ID, if it exists. 0 otherwise.
      */
     int getBfid(){
-        return this.bfid;
+        return bfid;
     }
 
     /**
@@ -136,7 +136,7 @@ public class ParkingLocation {
      * @return The coordinates of this parking location.
      */
     LatLng getCoords(){
-        return this.coords;
+        return coords;
     }
 
     /**
@@ -152,7 +152,14 @@ public class ParkingLocation {
      * @return The number of times this location has been searched.
      */
     int getTimesSearched(){
-        return this.timesSearched;
+        return timesSearched;
+    }
+
+
+    public String toString(){
+        return "Name: "+getName()+"Desc: "+getDesc()+"Location: "+getCoords()+"Origin: "+this.originLocation.toString()+" Radius: "+this.radiusFromOrigin
+                +" Has Street Parking: "+this.hasOnStreetParking+" OSPID: "+getOspid()+" BFID: "+getBfid()+" IsFavorite: "+isFavorite()
+                +" Times Searched: "+getTimesSearched();
     }
 
 
