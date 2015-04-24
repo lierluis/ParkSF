@@ -17,12 +17,21 @@ import java.util.List;
  */
 public class LocationDatabaseHandler extends SQLiteOpenHelper {
 
+    /** The version of the database. If changed, it will force the database to call an update method */
     private static final int DATABASE_VERSION = 1;
+    /**The name of the locations table.*/
     private static final String tableName= LocationDatabaseContract.LocationEntry.TABLE_LOCATIONS;
+    /**The name of the latitude column key, to be stored as an SQLite DOUBLEs value.*/
     private static final String keyLat= LocationDatabaseContract.LocationEntry.KEY_LATITUDE;
+    /**The name of the longitude column key, to be stored as an SQLite DOUBLE value.*/
     private static final String keyLong= LocationDatabaseContract.LocationEntry.KEY_LONGITUDE;
+    /**The name of the hasStreetParking column key, to be stored as an SQLite INTEGER value, 1 or 0 for true or false.*/
+    private static final String keyHasStreetParking=LocationDatabaseContract.LocationEntry.KEY_HAS_STREET_PARKING;
+    /**The name of the isFavorite column key, to be stored as an SQLite INTEGER value, 1 or 0 for true or false.*/
     private static final String keyIsFavorite= LocationDatabaseContract.LocationEntry.KEY_IS_FAVORITE;
+    /**The name of the timesSearched column key, to be stored as an SQLite INTEGER value.*/
     private static final String keyTimesSearched= LocationDatabaseContract.LocationEntry.KEY_TIMES_SEARCHED;
+    /**The name of the ID key for each entry, to be stored automatically as an INTEGER PRIMARY KEY value*/
     private static final String locationID= LocationDatabaseContract.LocationEntry.LOCATION_NAME_ENTRY_ID;
 
 
@@ -41,8 +50,8 @@ public class LocationDatabaseHandler extends SQLiteOpenHelper {
      */
     @Override
     public void onCreate(SQLiteDatabase db){
-        String CREATE_CONTACTS_TABLE = "CREATE TABLE " + this.tableName + "("+this.locationID+" INTEGER PRIMARY KEY," + this.keyLat + " DOUBLE,"
-            + keyLong + " DOUBLE" +keyIsFavorite+"INTEGER"+this.keyTimesSearched+"INTEGER"+")";
+        String CREATE_CONTACTS_TABLE = "CREATE TABLE " + this.tableName + "("+this.locationID+" INTEGER PRIMARY KEY, " + this.keyLat + " DOUBLE,"
+            + keyLong + " DOUBLE, "+this.keyHasStreetParking+" INTEGER, " +keyIsFavorite+" INTEGER, "+this.keyTimesSearched+" INTEGER"+")";
         db.execSQL(CREATE_CONTACTS_TABLE);
 
     }
