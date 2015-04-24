@@ -1,14 +1,18 @@
 package com.csc413.sfsu.csc413_parking;
 
-import com.csc413.sfsu.sfpark_simplified.*;
-
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
-import com.google.android.gms.maps.*;
 import android.widget.Toast;
-import com.google.android.gms.maps.model.*;
+
+import com.csc413.sfsu.sfpark_simplified.SFParkQuery;
+import com.csc413.sfsu.sfpark_simplified.SFParkXMLResponse;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.LatLng;
 
 
 public class MainActivity extends ActionBarActivity implements OnMapReadyCallback {
@@ -30,7 +34,6 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
         query.setRadius(0.5);
         query.setUnitOfMeasurement("MILE");
         response = new SFParkXMLResponse();
-
     }
 
     @Override
