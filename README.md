@@ -93,7 +93,17 @@ The following steps describe how to get started with the SFPark Simplified API:
  </br>
 	
 <li><b>Modify query parameters:</b>
-</br>Append to, update, or delete from the SFParkQuery instance any desired parameters using the <code>addParameter()</code>, <code>updateParameter()</code>, <code>addOrUpdateParameter()</code>, or <code>removeParameter()</code> methods. Consult the official SFPark Availability Service documentation for a list of valid parameters, as invalid parameters will cause the query to return an error status when passed to the database.</li>
+</br>Append to or update the SFParkQuery instance any desired parameters calling mutator methods respective to each query parameter. Parameters may also be removed by calling "resetter" methods, also respective to each query parameter. Manipulable query parameters for which such methods exist are:
+<ul>
+	<li><b>REQUESTID:</b> Request ID</li>
+	<li><b>LONGITUDE:</b> Longitude</li>
+	<li><b>LATITUDE:</b> Latitude</li>
+	<li><b>RADIUS:</b> Search Radius</li>
+	<li><b>UOM:</b> Unit of Measurement</li>
+	<li><b>TYPE:</b> Parking Type</li>
+	<li><b>PRICING:</b> Pricing Information</li>
+	<li><b>UDF1:</b> User Defined Field #1</li>
+</ul>
 </br>
 	
 <li><b>Create a container to hold the data from the response</b>
@@ -112,12 +122,11 @@ The following steps describe how to get started with the SFPark Simplified API:
 <pre style="background-color:lightgray">
 SFParkQuery query = new SFParkQuery(); /* Create empty query */
 
-query.addParameter("long", "-122.98880"); /* Add parameters */
-query.addParameter("lat", "37.8979");
-query.addParameter("radius", "0.5");
-query.addParameter("uom", "mile");
-query.addParameter("response", "xml");
-
+query.setLongitude(-122.98880); /* Add parameters */
+query.setLatitude(37.8979);
+query.setRadius(0.5);
+query.setUnitOfMeasurement("MILE");
+query.setPricingInformation("YES");
 
 SFParkXMLResponse response = new SFParkXMLResponse(); /* Create empty response */
 boolean success = response.populate(query); /* Populate the response with the query */
@@ -138,8 +147,8 @@ if (success) {
     /* Etc... */
 }
 
-query.removeParamter("response"); /* Default response is XML, no need for parameter */
-query.updateParameter("radius", "0.75"); /* Widen the search radius */
+query.resetPricingInformation(); /* Reset parameter to default value */
+query.setRadius(0.75); /* Widen the search radius */
 
 success = response.populate(query); /* Repopulate the response with new query */
 
