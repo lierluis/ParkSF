@@ -25,11 +25,10 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
         mapFragment.getMapAsync(this);
 
         query = new SFParkQuery();
-        query.addParameter("lat", "37.792275");
-        query.addParameter("long", "-122.397089");
-        query.addParameter("radius", "0.5");
-        query.addParameter("uom", "mile");
-        query.addParameter("response", "xml");
+        query.setLatitude(37.792275);
+        query.setLongitude(-122.397089);
+        query.setRadius(0.5);
+        query.setUnitOfMeasurement("MILE");
         response = new SFParkXMLResponse();
 
     }
@@ -45,8 +44,8 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
             @Override
             public void onMapClick(LatLng latLng) {
                 //String msg = "Latitude: " + latLng.latitude + "\nLongitude: " + latLng.longitude;
-                query.addOrUpdateParameter("long", latLng.longitude + "");
-                query.addOrUpdateParameter("lat", latLng.latitude + "");
+                query.setLongitude(latLng.longitude);
+                query.setLatitude(latLng.latitude);
                 String msg;
                 if (response.populate(query)) {
                     msg = "Status: " + response.status();
@@ -55,7 +54,7 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
                         for (int i = 0; i < response.avl(0).pts(); i++) {
                             msg += "\nLocation " + (i+1) + ": ("
                                     + response.avl(0).loc().longitude(i)
-                                    + ","
+                                    + ", "
                                     + response.avl(0).loc().latitude(i)
                                     + ")";
                         }
