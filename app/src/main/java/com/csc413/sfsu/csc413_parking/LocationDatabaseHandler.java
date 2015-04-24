@@ -21,7 +21,7 @@ public class LocationDatabaseHandler extends SQLiteOpenHelper {
     private static final int DATABASE_VERSION = 1;
     /**The name of the locations table.*/
     private static final String tableName= LocationDatabaseContract.LocationEntry.TABLE_LOCATIONS;
-    /**The name of the latitude column key, to be stored as an SQLite DOUBLEs value.*/
+    /**The name of the latitude column key, to be stored as an SQLite DOUBLE value.*/
     private static final String keyLat= LocationDatabaseContract.LocationEntry.KEY_LATITUDE;
     /**The name of the longitude column key, to be stored as an SQLite DOUBLE value.*/
     private static final String keyLong= LocationDatabaseContract.LocationEntry.KEY_LONGITUDE;
@@ -50,9 +50,9 @@ public class LocationDatabaseHandler extends SQLiteOpenHelper {
      */
     @Override
     public void onCreate(SQLiteDatabase db){
-        String CREATE_CONTACTS_TABLE = "CREATE TABLE " + this.tableName + "("+this.locationID+" INTEGER PRIMARY KEY, " + this.keyLat + " DOUBLE,"
+        String CREATE_LOCATIONS_TABLE = "CREATE TABLE " + this.tableName + "("+this.locationID+" INTEGER PRIMARY KEY, " + this.keyLat + " DOUBLE,"
             + keyLong + " DOUBLE, "+this.keyHasStreetParking+" INTEGER, " +keyIsFavorite+" INTEGER, "+this.keyTimesSearched+" INTEGER"+")";
-        db.execSQL(CREATE_CONTACTS_TABLE);
+        db.execSQL(CREATE_LOCATIONS_TABLE);
 
     }
 
