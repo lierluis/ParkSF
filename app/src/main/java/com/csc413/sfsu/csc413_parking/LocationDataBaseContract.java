@@ -22,7 +22,14 @@ public class LocationDatabaseContract {
         public static final String LOCATION_NAME_ENTRY_ID = "locationID";
         public static final String KEY_LATITUDE="lat";
         public static final String KEY_LONGITUDE="long";
+        public static final String KEY_ORIGIN_LATITIUDE="originLat";
+        public static final String KEY_ORIGIN_LONGITUDE="originLong";
+        public static final String KEY_RADIUS="radius";
         public static final String KEY_HAS_STREET_PARKING="hasStreetParking";
+        public static final String KEY_NAME="name";
+        public static final String KEY_DESC="desc";
+        public static final String KEY_OSPID="ospid";
+        public static final String KEY_BFID="bfid";
         public static final String KEY_IS_FAVORITE="isFavorite";
         public static final String KEY_TIMES_SEARCHED="timesSearched";
     }

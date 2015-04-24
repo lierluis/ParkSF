@@ -25,8 +25,22 @@ public class LocationDatabaseHandler extends SQLiteOpenHelper {
     private static final String keyLat= LocationDatabaseContract.LocationEntry.KEY_LATITUDE;
     /**The name of the longitude column key, to be stored as an SQLite DOUBLE value.*/
     private static final String keyLong= LocationDatabaseContract.LocationEntry.KEY_LONGITUDE;
+    /**The name of the latitude column key for the origin of the SFPark query resulting in each location. Stored as a DOUBLE value. */
+    private static final String keyOriginLat=LocationDatabaseContract.LocationEntry.KEY_ORIGIN_LATITIUDE;
+    /**The name of the longitude column key for the origin of the SFPark query resulting in each location. Stored as a DOUBLE value. */
+    private static final String keyOriginLong=LocationDatabaseContract.LocationEntry.KEY_ORIGIN_LONGITUDE;
+    /**The name of the radius column key corresponding to the radius from the origin of the search area from the SFPark database. Stored as a DOUBLE value.*/
+    private static final String keyRadius=LocationDatabaseContract.LocationEntry.KEY_RADIUS;
     /**The name of the hasStreetParking column key, to be stored as an SQLite INTEGER value, 1 or 0 for true or false.*/
     private static final String keyHasStreetParking=LocationDatabaseContract.LocationEntry.KEY_HAS_STREET_PARKING;
+    /**The name of the name column key, corresponding to the name of each location. Stored as a STRING value. */
+    private static final String keyName=LocationDatabaseContract.LocationEntry.KEY_NAME;
+    /**The name of the desc column key, corresponding to the description of each location. Stored as a STRING value.*/
+    private static final String keyDesc=LocationDatabaseContract.LocationEntry.KEY_DESC;
+    /**The name of the ospid column key, corresponding to the off street parking ID of each location. Stored as an INTEGER value.*/
+    private static final String keyOSPID=LocationDatabaseContract.LocationEntry.KEY_OSPID;
+    /**The name of the bfid column key, corresponding to the on street parking ID of each location. Stored as an INTEGER value.*/
+    private static final String keyBFID=LocationDatabaseContract.LocationEntry.KEY_BFID;
     /**The name of the isFavorite column key, to be stored as an SQLite INTEGER value, 1 or 0 for true or false.*/
     private static final String keyIsFavorite= LocationDatabaseContract.LocationEntry.KEY_IS_FAVORITE;
     /**The name of the timesSearched column key, to be stored as an SQLite INTEGER value.*/
@@ -51,7 +65,8 @@ public class LocationDatabaseHandler extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db){
         String CREATE_LOCATIONS_TABLE = "CREATE TABLE " + this.tableName + "("+this.locationID+" INTEGER PRIMARY KEY, " + this.keyLat + " DOUBLE,"
-            + keyLong + " DOUBLE, "+this.keyHasStreetParking+" INTEGER, " +keyIsFavorite+" INTEGER, "+this.keyTimesSearched+" INTEGER"+")";
+            + this.keyLong + " DOUBLE, " + this.keyOriginLat + " DOUBLE, "+ this.keyOriginLong + " DOUBLE, "+this.keyRadius+" DOUBLE, "+this.keyHasStreetParking+" INTEGER, "
+                +this.keyName+" STRING, "+this.keyDesc+" STRING, "+this.keyOSPID+"INTEGER, "+this.keyBFID+" INTEGER, "+keyIsFavorite+" INTEGER, "+this.keyTimesSearched+" INTEGER"+")";
         db.execSQL(CREATE_LOCATIONS_TABLE);
 
     }
