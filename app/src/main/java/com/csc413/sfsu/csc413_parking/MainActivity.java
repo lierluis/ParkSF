@@ -12,9 +12,11 @@ import android.widget.Toast;
 import android.widget.RelativeLayout;
 
 /**
- * Author: Luis Estrada
+ * Author: Luis Estrada + UI Team (Jonathan Raxa & Ishwari)
  *  Class: CSC413
  */
+
+
 public class MainActivity extends ActionBarActivity
         implements OnMapReadyCallback {
 
@@ -97,33 +99,16 @@ public class MainActivity extends ActionBarActivity
                 return true;
             case R.id.parked_icon:
                 Toast.makeText(getBaseContext(), "Parked", Toast.LENGTH_LONG).show();
+
                 return true;
 
-            case R.id.menu_option1:
+            case R.id.checkBox:
                 if(item.isChecked()) {
                     // do nothing, because user shouldn't be allowed to click twice on an option
                 } else {
                     item.setCheckable(true);
                     item.setChecked(false);
-                    Toast.makeText(getBaseContext(), "You chose option 1", Toast.LENGTH_LONG).show();
-                }
-                return true;
-            case R.id.menu_option2:
-                if(item.isChecked()) {
-                    // do nothing
-                } else {
-                    item.setCheckable(true);
-                    item.setChecked(false);
-                    Toast.makeText(getBaseContext(), "You chose option 2", Toast.LENGTH_LONG).show();
-                }
-                return true;
-            case R.id.menu_option3:
-                if(item.isChecked()) {
-                    // do nothing
-                } else {
-                    item.setCheckable(true);
-                    item.setChecked(false);
-                    Toast.makeText(getBaseContext(), "You chose option 3", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getBaseContext(), "Added to favorites", Toast.LENGTH_LONG).show();
                 }
                 return true;
 
