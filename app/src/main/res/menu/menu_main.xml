@@ -19,23 +19,15 @@
         app:showAsAction="always" />
 
 
-    <group android:checkableBehavior="single">
+    <group android:checkableBehavior="all">
         <item
-            android:id="@+id/checkBox"
+            android:id="@+id/favorite"
             android:orderInCategory="1"
             app:showAsAction="never"
-            android:title="@string/addToFav"/>
-
-        <!--<CheckBox-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:text="New CheckBox"-->
-            <!--android:id="@+id/checkBox"-->
-            <!--android:layout_alignParentTop="true"-->
-            <!--android:layout_alignRight="@+id/textSwitcher"-->
-            <!--android:layout_alignEnd="@+id/textSwitcher" />-->
-
+            android:title="@string/favorites"/>
     </group>
+
+
 
 </menu>
 

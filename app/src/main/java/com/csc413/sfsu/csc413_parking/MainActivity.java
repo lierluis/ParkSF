@@ -257,15 +257,15 @@ public class MainActivity extends ActionBarActivity implements
                 return true;
             case R.id.parked_icon:
                 Toast.makeText(getBaseContext(), "Parked", Toast.LENGTH_LONG).show();
-
+                updatePlaces();
                 return true;
 
-            case R.id.checkBox:
-                if(item.isChecked()) {
-                    // do nothing, because user shouldn't be allowed to click twice on an option
-                } else {
-                    item.setCheckable(true);
+            case R.id.favorite:
+                if(item.isChecked()) { // if checked & user clicks on it
                     item.setChecked(false);
+                    Toast.makeText(getBaseContext(), "Removed from favorites", Toast.LENGTH_LONG).show();
+                } else {
+                    item.setChecked(true);
                     Toast.makeText(getBaseContext(), "Added to favorites", Toast.LENGTH_LONG).show();
                 }
                 return true;

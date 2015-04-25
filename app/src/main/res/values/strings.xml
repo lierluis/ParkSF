@@ -6,7 +6,7 @@
     <string name="layers_title">Layers</string>
     <string name="parked_title">Parking</string>
 
-    <string name="addToFav">Add to Favorites?</string>
+    <string name="favorites">Add to Favorites?</string>
 
 
 </resources>
