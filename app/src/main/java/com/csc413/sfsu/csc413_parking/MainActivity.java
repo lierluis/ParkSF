@@ -11,61 +11,219 @@ import android.view.*;
 import android.widget.Toast;
 import android.widget.RelativeLayout;
 
+
+
+import android.app.Dialog;
+import android.content.Context;
+import android.location.Location;
+import android.location.LocationManager;
+import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.CheckBox;
+import android.widget.TextView;
+import android.widget.Toast;
+import android.util.Log;
+
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.FusedLocationProviderApi;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapView;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationServices;
+
 /**
  * Author: Luis Estrada + UI Team (Jonathan Raxa & Ishwari)
  *  Class: CSC413
  */
 
 
-public class MainActivity extends ActionBarActivity
-        implements OnMapReadyCallback {
+public class MainActivity extends ActionBarActivity implements
+        GoogleApiClient.ConnectionCallbacks,
+        GoogleApiClient.OnConnectionFailedListener,
+        LocationListener {
 
-    /**
-     * This is where the activity is initialized
-     * @param savedInstanceState
-     */
+
+    private GoogleMap theMap;
+    private LocationManager locMan;
+    private Marker userMarker;
+    private static final int GPS_ERRORDIALOG_REQUEST = 9001;
+
+    private TextView mLocationView;
+
+    private GoogleApiClient mGoogleApiClient;
+
+    private LocationRequest mLocationRequest;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
 
-        MapFragment mapFragment = (MapFragment) getFragmentManager()
-                .findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);
-    }
 
-    /**
-     * Called when the map is ready to be used
-     * @param map
-     */
-    @Override
-    public void onMapReady(final GoogleMap map) {
-        // North & East are positive, South & West are negative
-        LatLng sanFrancisco = new LatLng(37.7833, -122.4167);
+        if(serevicesOK()){
+            setContentView(R.layout.activity_main);
 
-        map.setMyLocationEnabled(true);
-        map.moveCamera(CameraUpdateFactory.newLatLngZoom(sanFrancisco, 14));
+            if (initMap()){
+                Toast.makeText(this,"Ready to park!", Toast.LENGTH_SHORT).show();
+                mLocationView = new TextView(this);
 
-        map.addMarker(new MarkerOptions()
-                .title("San Francisco")
-                .snippet("That one city")
-                .position(sanFrancisco));
 
-        map.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
-            @Override
-            public void onMapClick(LatLng latLng) {
-                /*
-                String latString = latLng.latitude + "";
-                Double lat = Double.parseDouble(latString);
-                String lonString = latLng.longitude + "";
-                Double lon = Double.parseDouble(lonString);
-                String coordinates = latString + ", " + lonString;
-                */
-                String coordinates = "Latitude: " + latLng.latitude + "\nLongitude: " + latLng.longitude;
-                Toast.makeText(getBaseContext(), coordinates, Toast.LENGTH_SHORT).show();
+            } else{
+                Toast.makeText(this,"Map Unavailable!", Toast.LENGTH_SHORT).show();
+
             }
-        });
+
+        } else {
+            setContentView(R.layout.activity_main);
+        }
+
+        theMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+        updatePlaces();
+
     }
+
+
+
+    @Override
+    public void onConnected(Bundle bundle) {
+        Toast.makeText(this,"Connected to location services", Toast.LENGTH_SHORT).show();
+
+    }
+
+    /*
+    * Implementing the location listener
+    * */
+    @Override
+    public void onConnectionSuspended(int i) {
+        // Log.i(TAG, "GoogleApiClient connection has been suspend");
+        Toast.makeText(this,"Connected to location services", Toast.LENGTH_SHORT).show();
+        LocationRequest request = LocationRequest.create();
+
+        request.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        request.setInterval(60000); //every 5 seconds
+        request.setFastestInterval(1000);
+        LocationServices.FusedLocationApi.requestLocationUpdates(
+                mGoogleApiClient, mLocationRequest, this);    }
+
+    @Override
+    public void onConnectionFailed(ConnectionResult connectionResult) {
+        //  Log.i(TAG, "GoogleApiClient connection has failed");
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+        // mLocationView.setText("Location received: " + location.toString());
+        String msg = "Location: " + location.getLatitude() + "," + location.getLongitude();
+        Toast.makeText(this,msg,Toast.LENGTH_SHORT).show();
+
+    }
+
+    public boolean serevicesOK(){
+        int isAvailable = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
+
+        if(isAvailable == ConnectionResult.SUCCESS){
+            return true;
+        } else if (GooglePlayServicesUtil.isUserRecoverableError(isAvailable)){
+            Dialog dialog = GooglePlayServicesUtil.getErrorDialog(isAvailable, this, GPS_ERRORDIALOG_REQUEST);
+            dialog.show();
+        } else {
+            Toast.makeText(this, "Can't connect to Google Play services", Toast.LENGTH_SHORT).show();
+        }
+        return false;
+    }
+
+    /*
+    * initialze the map object
+    * Checks
+    * no return*/
+    private boolean initMap() {
+        if (theMap == null) {
+            SupportMapFragment mapFrag =
+                    (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
+             theMap = ((MapFragment)getFragmentManager().findFragmentById(R.id.map)).getMap();
+            //theMap = mapFrag.getMap();
+
+        }
+        if (theMap != null) {
+            theMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
+                @Override
+                public View getInfoWindow(Marker marker) {
+                    return null;
+                }
+
+                @Override
+                public View getInfoContents(Marker marker) {
+                    View v = getLayoutInflater().inflate(R.layout.info_window, null);
+                    TextView tvLocality = (TextView)v.findViewById(R.id.tv_locality);
+                    TextView tvLat = (TextView)v.findViewById(R.id.tv_lat);
+                    TextView tvLng = (TextView)v.findViewById(R.id.tv_lng);
+                    TextView tvSnippet = (TextView)v.findViewById(R.id.tv_snippet);
+
+                    // gets latitude and longitude
+                    LatLng ll = marker.getPosition();
+
+                    tvLocality.setText(marker.getTitle());
+                    tvLat.setText("Latitude: "+ll.latitude);
+                    tvLng.setText("Longitude: "+ll.longitude);
+                    tvSnippet.setText(marker.getSnippet());
+
+                    return v;
+
+
+
+                }
+            });
+        }
+        return(theMap != null);
+    }
+
+
+
+
+    private void gotoLocation(double lat, double lng, float zoom) {
+
+        LatLng ll = new LatLng(lat, lng);
+        CameraUpdate update = CameraUpdateFactory.newLatLngZoom(ll,zoom);
+        theMap.moveCamera(update);
+
+    }
+
+    private void updatePlaces(){
+        //update location
+        locMan = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
+        Location lastLoc = locMan.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+
+        double lat = lastLoc.getLatitude();
+        double lng = lastLoc.getLongitude();
+
+        LatLng lastLatLng = new LatLng(lat, lng);
+
+        if(userMarker!=null) userMarker.remove();
+
+        userMarker = theMap.addMarker(new MarkerOptions()
+
+                .position(lastLatLng)
+                .title("Parking Location")
+                .snippet("You are here"));
+
+        CameraUpdate update = CameraUpdateFactory.newLatLngZoom(lastLatLng,14);
+        theMap.moveCamera(update);
+        theMap.animateCamera(CameraUpdateFactory.newLatLng(lastLatLng), 3000, null);
+    }
+
+
 
     /**
      * Initialize the contents of the Activity's standard options menu
