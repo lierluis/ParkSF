@@ -6,7 +6,9 @@
     <string name="layers_title">Layers</string>
     <string name="parked_title">Parking</string>
 
-    <string name="favorites">Add to Favorites?</string>
+    <string name="favorites">Add to Favorites</string>
 
+    <string name="option_1">Option 1</string>
+    <string name="option_2">Option 2</string>
 
 </resources>

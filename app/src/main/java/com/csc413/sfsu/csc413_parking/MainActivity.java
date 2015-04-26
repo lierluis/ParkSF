@@ -1,5 +1,6 @@
 package com.csc413.sfsu.csc413_parking;
 
+import android.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 
@@ -17,8 +18,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
-import android.util.Log;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
@@ -38,8 +37,6 @@ import com.google.android.gms.location.LocationServices;
  * Author: Luis Estrada + UI Team (Jonathan Raxa & Ishwari)
  *  Class: CSC413
  */
-
-
 public class MainActivity extends ActionBarActivity implements
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
@@ -127,7 +124,6 @@ public class MainActivity extends ActionBarActivity implements
         // mLocationView.setText("Location received: " + location.toString());
         String msg = "Location: " + location.getLatitude() + "," + location.getLongitude();
         Toast.makeText(this,msg,Toast.LENGTH_SHORT).show();
-
     }
 
     /**
@@ -167,6 +163,11 @@ public class MainActivity extends ActionBarActivity implements
                     return null;
                 }
 
+                /**
+                 *
+                 * @param marker
+                 * @return
+                 */
                 @Override
                 public View getInfoContents(Marker marker) {
                     View v = getLayoutInflater().inflate(R.layout.info_window, null);
@@ -191,7 +192,12 @@ public class MainActivity extends ActionBarActivity implements
         return(theMap != null);
     }
 
-
+    /**
+     * Moves camera to specified location
+     * @param lat - latitude
+     * @param lng - longitude
+     * @param zoom - zoom level
+     */
     private void gotoLocation(double lat, double lng, float zoom) {
 
         LatLng ll = new LatLng(lat, lng);
@@ -199,6 +205,9 @@ public class MainActivity extends ActionBarActivity implements
         theMap.moveCamera(update);
     }
 
+    /**
+     * Finds coordinates, sets marker & moves camera to marker
+     */
     private void updatePlaces(){
         //update location
         locMan = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
@@ -216,13 +225,13 @@ public class MainActivity extends ActionBarActivity implements
                 .position(lastLatLng)
                 .title("Parking Location")
                 .snippet("You are here"));
+
         userMarker.setDraggable(true);
 
         CameraUpdate update = CameraUpdateFactory.newLatLngZoom(lastLatLng,18);
         theMap.moveCamera(update);
         theMap.animateCamera(CameraUpdateFactory.newLatLng(lastLatLng), 3000, null);
     }
-
 
     /**
      * Initialize the contents of the Activity's standard options menu
@@ -239,21 +248,28 @@ public class MainActivity extends ActionBarActivity implements
 
     /**
      * Called when user clicks on icon in action bar
-     * @param item
-     * @return
+     * @param item - item selected
+     * @return true if option selected
      */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        RelativeLayout main_view = (RelativeLayout) findViewById(R.id.derp);
+        //RelativeLayout main_view = (RelativeLayout) findViewById(R.id.derp);
 
         // handle action bar item clicks
         switch(item.getItemId()) {
             case R.id.search_icon:
-                Toast.makeText(getBaseContext(), "Search", Toast.LENGTH_LONG).show();
+                //Toast.makeText(getBaseContext(), "Search", Toast.LENGTH_LONG).show();
                 return true;
-            case R.id.layers_icon:
-                Toast.makeText(getBaseContext(), "Layers", Toast.LENGTH_LONG).show();
+
+            // layers options
+            case R.id.option_1:
+                Toast.makeText(getBaseContext(), "Option 1", Toast.LENGTH_SHORT).show();
                 return true;
+            case R.id.option_2:
+                Toast.makeText(getBaseContext(), "Option 2", Toast.LENGTH_SHORT).show();
+                return true;
+
+            // parked
             case R.id.parked_icon:
                 if(item.isChecked()) {
                     item.setChecked(false);
@@ -267,6 +283,7 @@ public class MainActivity extends ActionBarActivity implements
                 }
                 return true;
 
+            // action overflow
             case R.id.favorite:
                 if(item.isChecked()) { // if checked & user clicks on it
                     item.setChecked(false);
