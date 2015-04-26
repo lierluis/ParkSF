@@ -1,7 +1,5 @@
 package com.csc413.sfsu.csc413_parking;
 
-// adsflasdkfj;sd
-
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 
@@ -11,21 +9,13 @@ import android.view.*;
 import android.widget.Toast;
 import android.widget.RelativeLayout;
 
-
-
 import android.app.Dialog;
 import android.content.Context;
 import android.location.Location;
 import android.location.LocationManager;
-import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.CheckBox;
-
-
 import android.widget.TextView;
 import android.widget.Toast;
 import android.util.Log;
@@ -33,12 +23,10 @@ import android.util.Log;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.location.FusedLocationProviderApi;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
@@ -57,7 +45,6 @@ public class MainActivity extends ActionBarActivity implements
         GoogleApiClient.OnConnectionFailedListener,
         LocationListener {
 
-
     private GoogleMap theMap;
     private LocationManager locMan;
     private Marker userMarker;
@@ -69,22 +56,22 @@ public class MainActivity extends ActionBarActivity implements
 
     private LocationRequest mLocationRequest;
 
+    /**
+     * Where activity is initialized
+     * @param savedInstanceState
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-
-        if(serevicesOK()){
+        if(servicesOK()){
             setContentView(R.layout.activity_main);
 
             if (initMap()){
                 Toast.makeText(this,"Ready to park!", Toast.LENGTH_SHORT).show();
                 mLocationView = new TextView(this);
-
-
             } else{
                 Toast.makeText(this,"Map Unavailable!", Toast.LENGTH_SHORT).show();
-
             }
 
         } else {
@@ -100,15 +87,20 @@ public class MainActivity extends ActionBarActivity implements
 
     }
 
+    /**
+     * Prints message when called
+     * @param bundle
+     */
     @Override
     public void onConnected(Bundle bundle) {
         Toast.makeText(this,"Connected to location services", Toast.LENGTH_SHORT).show();
 
     }
 
-    /*
-    * Implementing the location listener
-    * */
+    /**
+     * Implementing the location listener
+     * @param i
+     */
     @Override
     public void onConnectionSuspended(int i) {
         // Log.i(TAG, "GoogleApiClient connection has been suspend");
@@ -126,6 +118,10 @@ public class MainActivity extends ActionBarActivity implements
         //  Log.i(TAG, "GoogleApiClient connection has failed");
     }
 
+    /**
+     * Prints location coordinates
+     * @param location
+     */
     @Override
     public void onLocationChanged(Location location) {
         // mLocationView.setText("Location received: " + location.toString());
@@ -134,7 +130,11 @@ public class MainActivity extends ActionBarActivity implements
 
     }
 
-    public boolean serevicesOK(){
+    /**
+     * Checks connection to Google Play Services
+     * @return true if successfully connected, false if not
+     */
+    public boolean servicesOK(){
         int isAvailable = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
 
         if(isAvailable == ConnectionResult.SUCCESS){
@@ -148,11 +148,11 @@ public class MainActivity extends ActionBarActivity implements
         return false;
     }
 
-    /*
-    * initialze the map object
-    * Checks
-    * no return*/
-    private boolean initMap() {
+    /**
+     * Initializes the map object
+     * @return true if map is initialized, false if not
+     */
+     private boolean initMap() {
         if (theMap == null) {
             SupportMapFragment mapFrag =
                     (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
@@ -222,7 +222,6 @@ public class MainActivity extends ActionBarActivity implements
         theMap.moveCamera(update);
         theMap.animateCamera(CameraUpdateFactory.newLatLng(lastLatLng), 3000, null);
     }
-
 
 
     /**
