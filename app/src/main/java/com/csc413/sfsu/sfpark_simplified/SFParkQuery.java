@@ -38,7 +38,7 @@ public class SFParkQuery {
      * @param   param   a Tuple object containing two Strings:
      *                      - a parameter tag name as the first entry
      *                      - a parameter value as the second entry
-     * @return  a String containing a properly-formatted paramter to append to the query
+     * @return  a String containing a properly-formatted parameter to append to the query
      */
     private String createParam (Tuple<String, String> param) {
         return param.first() + "=" + param.last();
@@ -431,10 +431,14 @@ public class SFParkQuery {
      *  being updated.
      *
      * @param   uom     a String containing the new value for the Unit of Measurement parameter
+     * @return  true if new value set successfully, false otherwise
     */
-    public void setUnitOfMeasurement (String uom) {
-        if ((uom = validUOM(uom.toUpperCase())) != null)
+    public boolean setUnitOfMeasurement (String uom) {
+        if ((uom = validUOM(uom.toUpperCase())) != null) {
             addOrUpdateParameter("UOM", uom);
+            return true;
+        }
+        return false;
     }
 
     /** Sets the value for the Parking Type (TYPE) parameter.
@@ -451,11 +455,15 @@ public class SFParkQuery {
      *   All other values will be ignored
      *
      * @param   type    a String containing the new value for the Parking Type parameter
+     * @return  true if new value set successfully, false otherwise
     */
-    public void setParkingType (String type) {
+    public boolean setParkingType (String type) {
         type = type.toUpperCase();
-        if (type.equals("ON") || type.equals("OFF") || type.equals("ALL"))
+        if (type.equals("ON") || type.equals("OFF") || type.equals("ALL")) {
             addOrUpdateParameter("TYPE", type);
+            return true;
+        }
+        return false;
     }
 
     /** Sets the value for the Pricing Information (PRICING) parameter.
@@ -474,10 +482,13 @@ public class SFParkQuery {
      *
      * @param   pricing     a String containing the new value for the Pricing Information parameter
     */
-    public void setPricingInformation (String pricing) {
+    public boolean setPricingInformation (String pricing) {
         pricing = pricing.toUpperCase();
-        if (pricing.equals("YES") || pricing.equals("NO"))
+        if (pricing.equals("YES") || pricing.equals("NO")) {
             addOrUpdateParameter("PRICING", pricing);
+            return true;
+        }
+        return false;
     }
 
     /** Sets the value for the User Defined Field #1 (UDF1) parameter.
