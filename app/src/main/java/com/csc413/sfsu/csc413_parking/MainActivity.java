@@ -24,6 +24,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.CheckBox;
+
+
 import android.widget.TextView;
 import android.widget.Toast;
 import android.util.Log;
@@ -279,6 +281,7 @@ public class MainActivity extends ActionBarActivity implements
                         .title("Parking Location")
                         .snippet(msg));
 
+                userMarker.setDraggable(true);
 
                 CameraUpdate update = CameraUpdateFactory.newLatLngZoom(lastLatLng,16);
                 theMap.moveCamera(update);
@@ -289,6 +292,7 @@ public class MainActivity extends ActionBarActivity implements
 
 
         });
+
 
 
 
@@ -346,7 +350,7 @@ public class MainActivity extends ActionBarActivity implements
                     updatePlaces();
                     item.setChecked(true);
                     Toast.makeText(getBaseContext(), "Parked", Toast.LENGTH_LONG).show();
-                  //  userMarker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.ic_car_position)); // this changes icon
+                    userMarker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.ic_car_position)); // this changes icon
                 }
                 return true;
 
