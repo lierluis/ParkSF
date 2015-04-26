@@ -1,7 +1,5 @@
 package com.csc413.sfsu.csc413_parking;
 
-// adsflasdkfj;sd
-
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 
@@ -84,7 +82,7 @@ public class MainActivity extends ActionBarActivity implements
 
     private SFParkQuery query;
     private SFParkXMLResponse response;
-
+    private boolean parkStatus;
     private LatLng ll;
 
     @Override
@@ -98,7 +96,8 @@ public class MainActivity extends ActionBarActivity implements
             if (initMap()){
                 Toast.makeText(this,"Ready to park!", Toast.LENGTH_SHORT).show();
                 mLocationView = new TextView(this);
-
+                theMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+                updatePlaces();
 
             } else{
                 Toast.makeText(this,"Map Unavailable!", Toast.LENGTH_SHORT).show();
@@ -109,8 +108,7 @@ public class MainActivity extends ActionBarActivity implements
             setContentView(R.layout.activity_main);
         }
 
-        theMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-        updatePlaces();
+
 
 
 
@@ -208,6 +206,7 @@ public class MainActivity extends ActionBarActivity implements
                     tvLat.setText("Latitude: "+ll.latitude);
                     tvLng.setText("Longitude: "+ll.longitude);
                     tvSnippet.setText(marker.getSnippet());
+
 
                     return v;
 
@@ -346,11 +345,13 @@ public class MainActivity extends ActionBarActivity implements
                     item.setChecked(false);
                     Toast.makeText(getBaseContext(), "Not parked", Toast.LENGTH_LONG).show();
                     userMarker.setIcon(BitmapDescriptorFactory.defaultMarker()); // this changes back to default
+
                 } else {
                     updatePlaces();
                     item.setChecked(true);
                     Toast.makeText(getBaseContext(), "Parked", Toast.LENGTH_LONG).show();
-                    userMarker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.ic_car_position)); // this changes icon
+                    userMarker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.car_parked)); // this changes icon
+
                 }
                 return true;
 
