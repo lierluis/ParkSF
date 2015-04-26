@@ -1,7 +1,5 @@
 package com.csc413.sfsu.csc413_parking;
 
-// adsflasdkfj;sd
-
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 
@@ -11,21 +9,15 @@ import android.view.*;
 import android.widget.Toast;
 import android.widget.RelativeLayout;
 
-
-
 import android.app.Dialog;
 import android.content.Context;
 import android.location.Location;
 import android.location.LocationManager;
-import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.CheckBox;
 import android.widget.TextView;
-import android.widget.Toast;
 import android.util.Log;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -48,13 +40,10 @@ import com.google.android.gms.location.LocationServices;
  * Author: Luis Estrada + UI Team (Jonathan Raxa & Ishwari)
  *  Class: CSC413
  */
-
-
 public class MainActivity extends ActionBarActivity implements
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
         LocationListener {
-
 
     private GoogleMap theMap;
     private LocationManager locMan;
@@ -71,14 +60,12 @@ public class MainActivity extends ActionBarActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-
         if(serevicesOK()){
             setContentView(R.layout.activity_main);
 
             if (initMap()){
                 Toast.makeText(this,"Ready to park!", Toast.LENGTH_SHORT).show();
                 mLocationView = new TextView(this);
-
 
             } else{
                 Toast.makeText(this,"Map Unavailable!", Toast.LENGTH_SHORT).show();
@@ -92,19 +79,21 @@ public class MainActivity extends ActionBarActivity implements
         theMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
         updatePlaces();
 
+        // UI stuff
+        theMap.getUiSettings().setZoomControlsEnabled(true); // zoom buttons
+        theMap.setMyLocationEnabled(true); // tracks your location
+        theMap.setIndoorEnabled(false); // off b/c we don't need indoor views for parking
     }
-
-
 
     @Override
     public void onConnected(Bundle bundle) {
         Toast.makeText(this,"Connected to location services", Toast.LENGTH_SHORT).show();
-
     }
 
-    /*
-    * Implementing the location listener
-    * */
+    /**
+     * Implementing the location listener
+     * @param i
+     */
     @Override
     public void onConnectionSuspended(int i) {
         // Log.i(TAG, "GoogleApiClient connection has been suspend");
@@ -127,7 +116,6 @@ public class MainActivity extends ActionBarActivity implements
         // mLocationView.setText("Location received: " + location.toString());
         String msg = "Location: " + location.getLatitude() + "," + location.getLongitude();
         Toast.makeText(this,msg,Toast.LENGTH_SHORT).show();
-
     }
 
     public boolean serevicesOK(){
@@ -144,10 +132,10 @@ public class MainActivity extends ActionBarActivity implements
         return false;
     }
 
-    /*
-    * initialze the map object
-    * Checks
-    * no return*/
+    /**
+     * initialze the map object
+     * @return
+     */
     private boolean initMap() {
         if (theMap == null) {
             SupportMapFragment mapFrag =
@@ -180,17 +168,11 @@ public class MainActivity extends ActionBarActivity implements
                     tvSnippet.setText(marker.getSnippet());
 
                     return v;
-
-
-
                 }
             });
         }
         return(theMap != null);
     }
-
-
-
 
     private void gotoLocation(double lat, double lng, float zoom) {
 
@@ -200,6 +182,9 @@ public class MainActivity extends ActionBarActivity implements
 
     }
 
+    /**
+     * sets marker at current location
+     */
     private void updatePlaces(){
         //update location
         locMan = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
@@ -218,12 +203,10 @@ public class MainActivity extends ActionBarActivity implements
                 .title("Parking Location")
                 .snippet("You are here"));
 
-        CameraUpdate update = CameraUpdateFactory.newLatLngZoom(lastLatLng,14);
+        CameraUpdate update = CameraUpdateFactory.newLatLngZoom(lastLatLng,18);
         theMap.moveCamera(update);
         theMap.animateCamera(CameraUpdateFactory.newLatLng(lastLatLng), 3000, null);
     }
-
-
 
     /**
      * Initialize the contents of the Activity's standard options menu
@@ -256,8 +239,17 @@ public class MainActivity extends ActionBarActivity implements
                 Toast.makeText(getBaseContext(), "Layers", Toast.LENGTH_LONG).show();
                 return true;
             case R.id.parked_icon:
-                Toast.makeText(getBaseContext(), "Parked", Toast.LENGTH_LONG).show();
-                updatePlaces();
+                if(item.isChecked()) {
+                    item.setChecked(false);
+                    Toast.makeText(getBaseContext(), "Not parked", Toast.LENGTH_LONG).show();
+                    //userMarker.remove();
+                    userMarker.setIcon(BitmapDescriptorFactory.defaultMarker());
+                } else {
+                    updatePlaces();
+                    item.setChecked(true);
+                    Toast.makeText(getBaseContext(), "Parked", Toast.LENGTH_LONG).show();
+                    userMarker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.ic_car_position));
+                }
                 return true;
 
             case R.id.favorite:
