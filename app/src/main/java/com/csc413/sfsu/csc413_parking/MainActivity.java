@@ -24,6 +24,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.CheckBox;
+
+
 import android.widget.TextView;
 import android.widget.Toast;
 import android.util.Log;
@@ -217,6 +219,7 @@ public class MainActivity extends ActionBarActivity implements
                 .position(lastLatLng)
                 .title("Parking Location")
                 .snippet("You are here"));
+        userMarker.setDraggable(true);
 
         CameraUpdate update = CameraUpdateFactory.newLatLngZoom(lastLatLng,14);
         theMap.moveCamera(update);
