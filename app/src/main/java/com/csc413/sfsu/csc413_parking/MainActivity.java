@@ -202,6 +202,7 @@ public class MainActivity extends ActionBarActivity implements
                 .position(lastLatLng)
                 .title("Parking Location")
                 .snippet("You are here"));
+        userMarker.setDraggable(true);
 
         CameraUpdate update = CameraUpdateFactory.newLatLngZoom(lastLatLng,18);
         theMap.moveCamera(update);
