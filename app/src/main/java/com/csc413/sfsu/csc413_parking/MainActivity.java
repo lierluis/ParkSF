@@ -36,6 +36,17 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationServices;
 
+
+import com.csc413.sfsu.sfpark_simplified.*;
+
+import android.support.v7.app.ActionBarActivity;
+import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
+import com.google.android.gms.maps.*;
+import android.widget.Toast;
+import com.google.android.gms.maps.model.*;
+
 /**
  * Author: Luis Estrada + UI Team (Jonathan Raxa & Ishwari)
  *  Class: CSC413
@@ -56,6 +67,13 @@ public class MainActivity extends ActionBarActivity implements
 
     private LocationRequest mLocationRequest;
 
+
+
+    private SFParkQuery query;
+    private SFParkXMLResponse response;
+    private boolean parkStatus;
+    private LatLng ll;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -67,6 +85,9 @@ public class MainActivity extends ActionBarActivity implements
                 Toast.makeText(this,"Ready to park!", Toast.LENGTH_SHORT).show();
                 mLocationView = new TextView(this);
 
+                theMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+                updatePlaces();
+
             } else{
                 Toast.makeText(this,"Map Unavailable!", Toast.LENGTH_SHORT).show();
 
@@ -76,8 +97,17 @@ public class MainActivity extends ActionBarActivity implements
             setContentView(R.layout.activity_main);
         }
 
-        theMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-        updatePlaces();
+
+
+
+
+        query = new SFParkQuery();
+        query.setLatitude(37.792275);
+        query.setLongitude(-122.397089);
+        query.setRadius(0.5);
+        query.setUnitOfMeasurement("MILE");
+        response = new SFParkXMLResponse();
+
 
         // UI stuff
         theMap.getUiSettings().setZoomControlsEnabled(true); // zoom buttons
@@ -160,12 +190,13 @@ public class MainActivity extends ActionBarActivity implements
                     TextView tvSnippet = (TextView)v.findViewById(R.id.tv_snippet);
 
                     // gets latitude and longitude
-                    LatLng ll = marker.getPosition();
+                     ll = marker.getPosition();
 
                     tvLocality.setText(marker.getTitle());
                     tvLat.setText("Latitude: "+ll.latitude);
                     tvLng.setText("Longitude: "+ll.longitude);
                     tvSnippet.setText(marker.getSnippet());
+
 
                     return v;
                 }
@@ -186,27 +217,59 @@ public class MainActivity extends ActionBarActivity implements
      * sets marker at current location
      */
     private void updatePlaces(){
-        //update location
-        locMan = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
-        Location lastLoc = locMan.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
 
-        double lat = lastLoc.getLatitude();
-        double lng = lastLoc.getLongitude();
+        theMap.setMyLocationEnabled(true);
+        theMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+            @Override
+            public void onMapClick(LatLng latLng) {
 
-        LatLng lastLatLng = new LatLng(lat, lng);
+                //update location
+                locMan = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
+                Location lastLoc = locMan.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
 
-        if(userMarker!=null) userMarker.remove();
 
-        userMarker = theMap.addMarker(new MarkerOptions()
+                double lat = lastLoc.getLatitude();
+                double lng = lastLoc.getLongitude();
+                LatLng lastLatLng = new LatLng(lat, lng);
+                theMap.moveCamera(CameraUpdateFactory.newLatLngZoom(lastLatLng, 14));
 
-                .position(lastLatLng)
-                .title("Parking Location")
-                .snippet("You are here"));
-        userMarker.setDraggable(true);
+                //String msg = "Latitude: " + latLng.latitude + "\nLongitude: " + latLng.longitude;
+                query.setLongitude(lng);
+                query.setLatitude(lat);
+                String  msg;
+                if (response.populate(query)) {
+                    msg = "Status: " + response.status();
+                    msg += "\nMessage: " + response.message();
+                    if (response.numRecords() > 0) {
+                        for (int i = 0; i < response.avl(0).pts(); i++) {
+                            msg += "\nLocation " + (i+1) + ": ("
+                                    + response.avl(0).loc().longitude(i)
+                                    + ", "
+                                    + response.avl(0).loc().latitude(i)
+                                    + ")";
+                        }
+                    }
+                }
+                else
+                    msg = "failed to populate: " + response.status();
 
-        CameraUpdate update = CameraUpdateFactory.newLatLngZoom(lastLatLng,18);
-        theMap.moveCamera(update);
-        theMap.animateCamera(CameraUpdateFactory.newLatLng(lastLatLng), 3000, null);
+                Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_SHORT).show();
+
+                if(userMarker!=null) userMarker.remove();
+
+                userMarker = theMap.addMarker(new MarkerOptions()
+
+                        .position(lastLatLng)
+                        .title("Parking Location")
+                        .snippet(msg));
+
+                userMarker.setDraggable(true);
+
+                CameraUpdate update = CameraUpdateFactory.newLatLngZoom(lastLatLng,16);
+                theMap.moveCamera(update);
+                theMap.animateCamera(CameraUpdateFactory.newLatLng(lastLatLng), 3000, null);
+            }
+        });
     }
 
     /**
@@ -219,7 +282,16 @@ public class MainActivity extends ActionBarActivity implements
         // Inflate the menu; this adds items to the action bar if it is present.
         MenuInflater mif = getMenuInflater();
         mif.inflate(R.menu.menu_main, menu);
+
+        theMap.getUiSettings().setZoomControlsEnabled(true); // zoom buttons
+        theMap.setMyLocationEnabled(true); // tracks your location
+        theMap.setIndoorEnabled(false); // don't need indoor view for parking
+
+
+
         return super.onCreateOptionsMenu(menu);
+
+
     }
 
     /**
@@ -239,19 +311,23 @@ public class MainActivity extends ActionBarActivity implements
             case R.id.layers_icon:
                 Toast.makeText(getBaseContext(), "Layers", Toast.LENGTH_LONG).show();
                 return true;
+            //in onOptionsItemSelected
             case R.id.parked_icon:
                 if(item.isChecked()) {
                     item.setChecked(false);
                     Toast.makeText(getBaseContext(), "Not parked", Toast.LENGTH_LONG).show();
-                    //userMarker.remove();
-                    userMarker.setIcon(BitmapDescriptorFactory.defaultMarker());
+                    userMarker.setIcon(BitmapDescriptorFactory.defaultMarker()); // this changes back to default
                 } else {
                     updatePlaces();
                     item.setChecked(true);
                     Toast.makeText(getBaseContext(), "Parked", Toast.LENGTH_LONG).show();
+
                     userMarker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.ic_car_position));
+                    userMarker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.car_parked)); // this changes icon
+
                 }
                 return true;
+
 
             case R.id.favorite:
                 if(item.isChecked()) { // if checked & user clicks on it
