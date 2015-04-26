@@ -18,22 +18,27 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
+        <!-- TITLE -->
         <TextView
             android:id="@+id/tv_locality"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="25sp"
             android:textStyle="bold"/>
+
+        <!-- Latitude -->
         <TextView
             android:id="@+id/tv_lat"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 
+        <!-- Longitude -->
         <TextView
             android:id="@+id/tv_lng"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 
+        <!-- Snippet -->
         <TextView
             android:id="@+id/tv_snippet"
             android:layout_width="wrap_content"
