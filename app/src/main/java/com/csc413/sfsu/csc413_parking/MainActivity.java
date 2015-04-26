@@ -28,9 +28,8 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
         query.setLatitude(37.792275);
         query.setLongitude(-122.397089);
         query.setRadius(0.5);
-        query.setUnitOfMeasurement("MILE");
+        query.setUnitOfMeasurement("miles");
         response = new SFParkXMLResponse();
-
     }
 
     @Override
@@ -39,11 +38,9 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
         LatLng sanFrancisco = new LatLng(37.7750, -122.4183);
         map.setMyLocationEnabled(true);
         map.moveCamera(CameraUpdateFactory.newLatLngZoom(sanFrancisco, 14));
-        //map.setOnMapClickListener(new MapListener(map));
         map.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
             public void onMapClick(LatLng latLng) {
-                //String msg = "Latitude: " + latLng.latitude + "\nLongitude: " + latLng.longitude;
                 query.setLongitude(latLng.longitude);
                 query.setLatitude(latLng.latitude);
                 String msg;
@@ -53,9 +50,9 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
                     if (response.numRecords() > 0) {
                         for (int i = 0; i < response.avl(0).pts(); i++) {
                             msg += "\nLocation " + (i+1) + ": ("
-                                    + response.avl(0).loc().longitude(i)
-                                    + ", "
                                     + response.avl(0).loc().latitude(i)
+                                    + ", "
+                                    + response.avl(0).loc().longitude(i)
                                     + ")";
                         }
                     }
