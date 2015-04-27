@@ -232,5 +232,33 @@ public class LocationDatabaseHandler extends SQLiteOpenHelper {
         else {return null;}
     }
 
+    /**
+     * Updates the SQLite database entry with data contained in the ParkingLocation parameter.
+     * Note that if this method returns 0, the caller should call the addLocation() method.
+     * @param location The location to update in the database.
+     * @return The number of rows that were affected by the update. If 0, the caller should call
+     * addLocation()
+     */
+    public int updateLocation(ParkingLocation location) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(this.keyLat, location.getCoords().latitude);
+        values.put(this.keyLong, location.getCoords().longitude);
+        values.put(this.keyOriginLat, location.getOriginLocation().latitude);
+        values.put(this.keyOriginLong, location.getOriginLocation().longitude);
+        values.put(this.keyRadius, location.getRadiusFromOrigin());
+        values.put(this.keyHasStreetParking, (location.hasOnStreetParking())? 1 : 0);
+        values.put(this.keyName, location.getName());
+        values.put(this.keyDesc, location.getDesc());
+        values.put(this.keyOSPID, location.getOspid());
+        values.put(this.keyBFID, location.getBfid());
+        values.put(this.keyIsFavorite, location.isFavorite()? 1 : 0);
+        values.put(this.keyTimesSearched, location.getTimesSearched());
+
+        return db.update(this.tableName, values, location.hasOnStreetParking()? this.keyBFID: this.keyOSPID,
+                new String[] { String.valueOf(location.hasOnStreetParking()? location.getBfid(): location.getOspid()) });
+    }
+
 
 }

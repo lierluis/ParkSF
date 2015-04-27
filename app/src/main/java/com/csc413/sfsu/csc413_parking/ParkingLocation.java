@@ -76,82 +76,82 @@ public class ParkingLocation {
     //Accessors
 
     /**
-     *
+     *The origin location represents the original point from which parking locations were searched for.
      * @return The origin location from which this parking location is near.
      */
-    LatLng getOriginLocation(){
+     public LatLng getOriginLocation(){
         return this.originLocation;
     }
 
     /**
-     *
+     * The radius represents the query's distance from the origin that resulted in this location's generation.
      * @return The radius from the origin from which this parking location is near.
      */
-    double getRadiusFromOrigin(){
+    public double getRadiusFromOrigin(){
         return this.radiusFromOrigin;
     }
 
     /**
-     *
+     * Parking locations with on street parking will exhibit a value of true.
      * @return The value of hasOnStreetParking. True if on street, false otherwise.
      */
-    boolean hasOnStreetParking(){
+    public boolean hasOnStreetParking(){
         return this.hasOnStreetParking;
     }
 
     /**
-     *
+     * The name of the parking lcoation is as string, and will sometimes be an address.
      * @return The name of this location if it exists. Null otherwise.
      */
-    String getName(){
+    public String getName(){
         return this.name;
     }
 
     /**
-     *
+     * The description of the parking location will be supplementary to the name field, and may not exist.
      * @return The description of this location, if it exists. Null otherwise.
      */
-    String getDesc(){
+    public String getDesc(){
         return this.desc;
     }
 
     /**
-     *
+     * The OSPID field is a unique parking ID for off street parking locations.
      * @return The SFMTA off street parking ID, if it exists. 0 otherwise.
      */
-    int getOspid(){
+    public int getOspid(){
         return this.ospid;
     }
 
     /**
-     *
+     * The BFID field is a unique SFMTA on street parking ID.
      * @return The SFMTA on street parking ID, if it exists. 0 otherwise.
      */
-    int getBfid(){
+    public int getBfid(){
         return this.bfid;
     }
 
     /**
-     *
+     *  The coordinates of this parking location.
      * @return The coordinates of this parking location.
      */
-    LatLng getCoords(){
+    public LatLng getCoords(){
         return this.coords;
     }
 
     /**
-     *
+     * Whether this location has been favorited by the user.
      * @return Whether this location is a favorite by the user or not.
      */
-    boolean isFavorite(){
+    public boolean isFavorite(){
         return this.isFavorite;
     }
 
     /**
-     *
+     * The number of times this location has been the result of a search query by this application.
      * @return The number of times this location has been searched.
      */
-    int getTimesSearched(){
+    public int getTimesSearched(){
         return this.timesSearched;
     }
 
