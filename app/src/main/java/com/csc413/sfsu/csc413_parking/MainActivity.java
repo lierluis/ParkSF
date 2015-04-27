@@ -14,6 +14,7 @@ import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -37,15 +38,16 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
         query.setUnitOfMeasurement("MILE");
         response = new SFParkXMLResponse();
 
+        SFParkLocationFactory locationFactory=new SFParkLocationFactory(this);
         LatLng origin=new LatLng(37.792279, -122.39709);
-        LatLng coords=new LatLng(37.79226, -122.39708);
-        ParkingLocation loc=new ParkingLocation(origin, .25, true, "NAME!!", "DESC!!", 21412, 41212, coords, false, 12);
-        LocationDatabaseHandler db = new LocationDatabaseHandler(this);
-        db.addLocation(loc);
-        List<ParkingLocation> locationList=db.getAllLocations();
-        System.out.println("GOT HERE");
-        for(int i=0; i<db.getLocationsCount(); i++){
-            System.out.println(locationList.get(i).toString());
+        double radius=.25;
+        List<ParkingLocation> parkingList=new ArrayList<ParkingLocation>();
+        parkingList=locationFactory.getParkingLocations(origin, radius);
+        System.out.println("PARKING LIST SIZE::::::::"+parkingList.size());
+        for (int i=0; i<parkingList.size(); i++){
+            System.out.println("Parking location: "+i+":");
+            System.out.println("    "+parkingList.get(i).toString());
+            System.out.println();
         }
     }
 
@@ -56,10 +58,13 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
         map.setMyLocationEnabled(true);
         map.moveCamera(CameraUpdateFactory.newLatLngZoom(sanFrancisco, 14));
         //map.setOnMapClickListener(new MapListener(map));
+
+        final SFParkLocationFactory locationFactory=new SFParkLocationFactory(this);
         map.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
             public void onMapClick(LatLng latLng) {
                 //String msg = "Latitude: " + latLng.latitude + "\nLongitude: " + latLng.longitude;
+                List <ParkingLocation> parkingList=new ArrayList<ParkingLocation>();
                 query.setLongitude(latLng.longitude);
                 query.setLatitude(latLng.latitude);
                 String msg;

@@ -18,19 +18,19 @@ public class ParkingLocation {
     /**Whether this location has on street parking. Corresponds to the <TYPE> tag from SFPark responses. The ON value corresponds to true, and the OFF value corresponds to false.*/
     private boolean hasOnStreetParking;
     /**The name of this location. Corresponds to the <NAME> tag from SFPark responses. */
-    private static String name;
+    private String name;
     /**The description of this parking location. This will only contain data for off street parking. Corresponds to the <DESC> tag from SFPark responses. Set to "" if nonexistent for this location. */
-    private static String desc;
+    private String desc;
     /**Unique SFMTA ID for off street parking. Corresponds to the <OSPID> tag from SFPark responses. Set to 0 if nonexistent for this location. */
-    private static int ospid;
+    private int ospid;
     /**Unique SFMTA ID for on street, block facing parking. Corresponds to the <BFID> tag from SFPark responses. Set to 0 if nonexistent for this location. */
-    private static int bfid;
+    private int bfid;
     /**The coordinates of this parking location. Corresponds to the <LOC> tag from SFPark responses. Note: the SFPark database will usually have two points (start and end) for on street parking. In this case, only the first point will be saved.*/
-    private static LatLng coords;
+    private LatLng coords;
     /**Whether this location has been specified as a favorite by the user.*/
     private boolean isFavorite;
     /** The number of times this location has been the subject of a search by the user.*/
-    private static int timesSearched;
+    private int timesSearched;
 
     //Constructors
 
@@ -103,8 +103,8 @@ public class ParkingLocation {
      *
      * @return The name of this location if it exists. Null otherwise.
      */
-    static String getName(){
-        return name;
+    String getName(){
+        return this.name;
     }
 
     /**
@@ -112,7 +112,7 @@ public class ParkingLocation {
      * @return The description of this location, if it exists. Null otherwise.
      */
     String getDesc(){
-        return desc;
+        return this.desc;
     }
 
     /**
@@ -120,7 +120,7 @@ public class ParkingLocation {
      * @return The SFMTA off street parking ID, if it exists. 0 otherwise.
      */
     int getOspid(){
-        return ospid;
+        return this.ospid;
     }
 
     /**
@@ -128,7 +128,7 @@ public class ParkingLocation {
      * @return The SFMTA on street parking ID, if it exists. 0 otherwise.
      */
     int getBfid(){
-        return bfid;
+        return this.bfid;
     }
 
     /**
@@ -136,7 +136,7 @@ public class ParkingLocation {
      * @return The coordinates of this parking location.
      */
     LatLng getCoords(){
-        return coords;
+        return this.coords;
     }
 
     /**
@@ -152,7 +152,7 @@ public class ParkingLocation {
      * @return The number of times this location has been searched.
      */
     int getTimesSearched(){
-        return timesSearched;
+        return this.timesSearched;
     }
 
 

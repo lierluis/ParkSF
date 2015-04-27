@@ -65,9 +65,11 @@ public class LocationDatabaseHandler extends SQLiteOpenHelper {
      */
     @Override
     public void onCreate(SQLiteDatabase db){
-        String CREATE_LOCATIONS_TABLE = "CREATE TABLE " + this.tableName + "("+this.locationID+" INTEGER PRIMARY KEY, " + this.keyLat + " DOUBLE,"
-            + this.keyLong + " DOUBLE, " + this.keyOriginLat + " DOUBLE, "+ this.keyOriginLong + " DOUBLE, "+this.keyRadius+" DOUBLE, "+this.keyHasStreetParking+" INTEGER, "
-                +this.keyName+" STRING, "+this.keyDesc+" STRING, "+this.keyOSPID+" INTEGER, "+this.keyBFID+" INTEGER, "+keyIsFavorite+" INTEGER, "+this.keyTimesSearched+" INTEGER"+")";
+        String CREATE_LOCATIONS_TABLE = "CREATE TABLE " + this.tableName + "("+this.locationID+" INTEGER PRIMARY KEY, "
+                + this.keyLat + " DOUBLE,"+ this.keyLong + " DOUBLE, " + this.keyOriginLat + " DOUBLE, "+ this.keyOriginLong
+                + " DOUBLE, "+this.keyRadius+" DOUBLE, "+this.keyHasStreetParking+" INTEGER, "+this.keyName+" STRING, "
+                +this.keyDesc+" STRING, "+this.keyOSPID+" INTEGER, "+this.keyBFID+" INTEGER, "+keyIsFavorite+" INTEGER, "
+                +this.keyTimesSearched+" INTEGER"+")";
         db.execSQL(CREATE_LOCATIONS_TABLE);
 
     }
@@ -92,6 +94,14 @@ public class LocationDatabaseHandler extends SQLiteOpenHelper {
      * @param loc a ParkingLocation object to be parsed into discrete data to store in database.
      */
     public void addLocation(ParkingLocation loc){
+        if(loc.hasOnStreetParking()){ //Check if OSPID exists in db.
+            if(this.getLocationFromOSPID(loc.getOspid())!=null){ //Duplicate. Don't add to DB.
+                return;
+            }
+        }
+        else if(this.getLocationFromBFID(loc.getBfid())!=null){ //Check if BFID exists in db.
+            return; //Duplicate. Don't add to DB.
+        }
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(this.keyLat, loc.getCoords().latitude);
@@ -157,6 +167,69 @@ public class LocationDatabaseHandler extends SQLiteOpenHelper {
         int count= cursor.getCount();
         cursor.close();
         return count;
+    }
+
+    /**
+     * Retrieves a ParkingLocation object with the specified OSPID field from the database.
+     * @param ospid the ospid field to search for
+     * @return A ParkingLocation object composed of the SQLite row with the specified OSPID.
+     */
+    public ParkingLocation getLocationFromOSPID(int ospid){
+        SQLiteDatabase db=this.getReadableDatabase();
+        Cursor cursor=db.query(this.tableName, new String[]{this.locationID, this.keyLat, this.keyLong,
+                this.keyOriginLat, this.keyOriginLong, this.keyRadius, this.keyHasStreetParking,
+                this.keyName, this.keyDesc, this.keyOSPID, this.keyBFID, this.keyIsFavorite,
+                this.keyTimesSearched}, this.keyOSPID+"=?",new String[]{String.valueOf(ospid)},null,null,null,null);
+
+        if(cursor!=null){
+            cursor.moveToFirst();
+            LatLng coords=new LatLng(cursor.getDouble(1),cursor.getDouble(2));
+            LatLng origin=new LatLng(cursor.getDouble(3),cursor.getDouble(4));
+            Double radius=cursor.getDouble(5);
+            boolean hasStreetParking=((cursor.getInt(6)==1) ? true : false);
+            String name=cursor.getString(7);
+            String desc=cursor.getString(8);
+            int bfid=cursor.getInt(10);
+            boolean isFavorite=(cursor.getInt(11)==1 ? true : false);
+            int timesSearched=(cursor.getInt(12));
+
+            ParkingLocation location=new ParkingLocation(origin, radius, hasStreetParking, name, desc, ospid, bfid, coords, isFavorite, timesSearched);
+            return location;
+        }
+
+        else {return null;}
+
+    }
+
+    /**
+     * Retrieves a ParkingLocation object with the specified BFID from the database.
+     * @param bfid The BFID to search for.
+     * @return A ParkingLocation object composed of the SQLite row with the specified BFID
+     */
+    public ParkingLocation getLocationFromBFID(int bfid){
+        SQLiteDatabase db=this.getReadableDatabase();
+        Cursor cursor=db.query(this.tableName, new String[]{this.locationID, this.keyLat, this.keyLong,
+                this.keyOriginLat, this.keyOriginLong, this.keyRadius, this.keyHasStreetParking,
+                this.keyName, this.keyDesc, this.keyOSPID, this.keyBFID, this.keyIsFavorite,
+                this.keyTimesSearched}, this.keyBFID+"=?",new String[]{String.valueOf(bfid)},null,null,null,null);
+
+        if(cursor!=null){
+            cursor.moveToFirst();
+            LatLng coords=new LatLng(cursor.getDouble(1),cursor.getDouble(2));
+            LatLng origin=new LatLng(cursor.getDouble(3),cursor.getDouble(4));
+            Double radius=cursor.getDouble(5);
+            boolean hasStreetParking=((cursor.getInt(6)==1) ? true : false);
+            String name=cursor.getString(7);
+            String desc=cursor.getString(8);
+            int ospid=cursor.getInt(9);
+            boolean isFavorite=(cursor.getInt(11)==1 ? true : false);
+            int timesSearched=(cursor.getInt(12));
+
+            ParkingLocation location=new ParkingLocation(origin, radius, hasStreetParking, name, desc, ospid, bfid, coords, isFavorite, timesSearched);
+            return location;
+        }
+
+        else {return null;}
     }
 
 

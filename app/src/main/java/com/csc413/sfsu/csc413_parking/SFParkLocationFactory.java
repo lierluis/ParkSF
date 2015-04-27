@@ -13,7 +13,13 @@ import java.util.List;
 public class SFParkLocationFactory
 {
     private LocationDatabaseHandler db;
+    private int entryCount;
 
+
+    SFParkLocationFactory(MainActivity context){
+        this.db=new LocationDatabaseHandler(context);
+        this.entryCount=db.getLocationsCount();
+    }
 
     /**
      * Retrieves all parking locations from SFPark within the specified radius of the origin as a list of discrete ParkingLocation objects
@@ -45,15 +51,14 @@ public class SFParkLocationFactory
                 int bfid=response.avl(i).bfid();
                 boolean isFavorite=false;
                 int timesSearched=0;
-                locationList.add(new ParkingLocation(origin, radius, hasOnStreetParking, name, desc, ospid, bfid, coords, isFavorite, timesSearched));
+                ParkingLocation loc=new ParkingLocation(origin, radius, hasOnStreetParking, name, desc, ospid, bfid, coords, isFavorite, timesSearched);
+                locationList.add(loc);
             }
         }
 
         return locationList;
 
     }
-
-
 
 
 }
