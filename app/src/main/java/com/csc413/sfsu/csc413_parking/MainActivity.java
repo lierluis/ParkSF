@@ -71,6 +71,14 @@ public class MainActivity extends ActionBarActivity implements
             if (initMap()){
                 Toast.makeText(this,"Ready to park!", Toast.LENGTH_SHORT).show();
                 mLocationView = new TextView(this);
+
+                theMap.setMyLocationEnabled(true);
+                theMap.setIndoorEnabled(false);
+                theMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+                theMap.getUiSettings().setZoomControlsEnabled(true);
+
+                updatePlaces();
+
             } else{
                 Toast.makeText(this,"Map Unavailable!", Toast.LENGTH_SHORT).show();
             }
@@ -78,13 +86,6 @@ public class MainActivity extends ActionBarActivity implements
         } else {
             setContentView(R.layout.activity_main);
         }
-
-        theMap.setMyLocationEnabled(true);
-        theMap.setIndoorEnabled(false);
-        theMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-        theMap.getUiSettings().setZoomControlsEnabled(true);
-
-        updatePlaces();
     }
 
     /**
@@ -249,8 +250,23 @@ public class MainActivity extends ActionBarActivity implements
     }
 
     /**
+     * Prints message for some checkable items on action bar
+     * @param item - icon selected on action bar
+     * @param msg - message to be printed in toast
+     */
+    private void checkableToast(MenuItem item, int msg) {
+        if (item.isChecked()) {
+            item.setChecked(false);
+        } else {
+            item.setChecked(true);
+            Toast.makeText(getBaseContext(), msg, Toast.LENGTH_SHORT).show();
+        }
+    }
+    // overloaded
+
+    /**
      * Called when user clicks on icon in action bar
-     * @param item - item selected
+     * @param item - item selected on action bar
      * @return true if option selected
      */
     @Override
@@ -259,55 +275,40 @@ public class MainActivity extends ActionBarActivity implements
 
         // handle action bar item clicks
         switch(item.getItemId()) {
+
+            // search
             case R.id.search_icon:
                 Toast.makeText(getBaseContext(), "Search for a location", Toast.LENGTH_SHORT).show();
                 return true;
 
-            // layers options
+            // layers
+            case R.id.layers_icon:
+                Toast.makeText(getBaseContext(), "Layers", Toast.LENGTH_SHORT).show();
+                return true;
             case R.id.layer_1:
-                if(item.isChecked()) {
-                    item.setChecked(false);
-                } else {
-                    item.setChecked(true);
-                    Toast.makeText(getBaseContext(), R.string.layer_1, Toast.LENGTH_SHORT).show();
-                }
+                checkableToast(item, R.string.layer_1);
                 return true;
             case R.id.layer_2:
-                if(item.isChecked()) {
-                    item.setChecked(false);
-                } else {
-                    item.setChecked(true);
-                    Toast.makeText(getBaseContext(), R.string.layer_2, Toast.LENGTH_SHORT).show();
-                }
+                checkableToast(item, R.string.layer_2);
                 return true;
             case R.id.layer_3:
-                if(item.isChecked()) {
-                    item.setChecked(false);
-                } else {
-                    item.setChecked(true);
-                    Toast.makeText(getBaseContext(), R.string.layer_3, Toast.LENGTH_SHORT).show();
-                }
+                checkableToast(item, R.string.layer_3);
                 return true;
             case R.id.layer_4:
-                if(item.isChecked()) {
-                    item.setChecked(false);
-                } else {
-                    item.setChecked(true);
-                    Toast.makeText(getBaseContext(), R.string.layer_4, Toast.LENGTH_SHORT).show();
-                }
+                checkableToast(item, R.string.layer_4);
                 return true;
 
             // parked
             case R.id.parked_icon:
                 if(item.isChecked()) {
                     item.setChecked(false);
-                    item.setIcon(R.drawable.ic_car_2); // change to uncolored car
+                    //item.setIcon(R.drawable.ic_car_2); // change to uncolored car
                     userMarker.setIcon(BitmapDescriptorFactory.defaultMarker());
                     Toast.makeText(getBaseContext(), "No longer parked", Toast.LENGTH_SHORT).show();
                 } else {
                     updatePlaces();
                     item.setChecked(true);
-                    item.setIcon(R.drawable.ic_car_checked); // change to colored car
+                    //item.setIcon(R.drawable.ic_car_checked); // change to colored car
                     userMarker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.ic_car_position));
                     Toast.makeText(getBaseContext(), "Parked", Toast.LENGTH_SHORT).show();
                 }
@@ -324,6 +325,7 @@ public class MainActivity extends ActionBarActivity implements
                 }
                 return true;
 
+            // settings
             case R.id.settings:
                 Toast.makeText(getBaseContext(), "Settings", Toast.LENGTH_SHORT).show();
 
