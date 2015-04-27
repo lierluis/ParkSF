@@ -229,6 +229,8 @@ public class MainActivity extends ActionBarActivity implements
                 .snippet("You are here"));
 
         userMarker.setDraggable(true);
+        //
+        // userMarker.OnMarkerDragListener(Marker lastLatLng);
 
         CameraUpdate update = CameraUpdateFactory.newLatLngZoom(lastLatLng, 18);
         theMap.moveCamera(update);
