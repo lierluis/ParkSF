@@ -156,6 +156,10 @@ public class ParkingLocation {
     }
 
 
+    public void setTimesSearched(int timesSearched){
+        this.timesSearched=timesSearched;
+    }
+
     public String toString(){
         return "Name: "+getName()+"Desc: "+getDesc()+"Location: "+getCoords()+"Origin: "+this.originLocation.toString()+" Radius: "+this.radiusFromOrigin
                 +" Has Street Parking: "+this.hasOnStreetParking+" OSPID: "+getOspid()+" BFID: "+getBfid()+" IsFavorite: "+isFavorite()

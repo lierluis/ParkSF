@@ -12,64 +12,93 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- *  LocationDataBaseHandler objects create, instantiate, and interface with databases of locations.
- *  Each row represents the data from a ParkingLocation object. The data contained in each row is directly paralleled to the data returned by the SFParkSimplified API
- *  Note that not all fields for each location will contain data.
+ *  LocationDataBaseHandler objects create, instantiate, and interface with databases of locations:
+ *  -Each row represents the data from a ParkingLocation object.
+ *  -The data contained in each row is directly paralleled to the data returned by the
+ *  SFParkSimplified API.
+ *  -Not all fields for each location will contain data.
+ *  -LocationDataBaseHandler objects will automatically remove the least searched locations when
+ *  the size limit is reached.
+ *
+ * @Important Currently the SFParkLocationFactory should be the only point of entry into the
+ * LocationDatabaseHandler class. This is due to the fact that if the timesSearched field of
+ * ParkingLocation objects are set manually and added to the database manually, the database will
+ * not properly remove the least searched locations.
+ *  
  */
 public class LocationDatabaseHandler extends SQLiteOpenHelper {
-
-    /** The version of the database. If changed, it will force the database to call an update method */
+    /**The minimum number of searches performed on a location within the database*/
+    private int minTimesSearched;
+    /**The last ParkingLocation that was found with the least number of searches.
+     * Used for quick deletion when DB becomes full. Note that there may be many values in the DB
+     * with the minTimesSearched value.*/
+    private ParkingLocation leastSearchedLocation;
+    /** The version of the database. If changed, the update method is called.*/
     private static final int DATABASE_VERSION = 1;
+    /** The maximum number of rows to be maintained by the database*/
+    private static final int maxRows=LocationDatabaseContract.MAX_ROWS;
     /**The name of the locations table.*/
     private static final String tableName= LocationDatabaseContract.LocationEntry.TABLE_LOCATIONS;
     /**The name of the latitude column key, to be stored as an SQLite DOUBLE value.*/
     private static final String keyLat= LocationDatabaseContract.LocationEntry.KEY_LATITUDE;
     /**The name of the longitude column key, to be stored as an SQLite DOUBLE value.*/
     private static final String keyLong= LocationDatabaseContract.LocationEntry.KEY_LONGITUDE;
-    /**The name of the latitude column key for the origin of the SFPark query resulting in each location. Stored as a DOUBLE value. */
+    /**The name of the latitude column key for the origin of the SFPark query resulting in each
+     * location. Stored as a DOUBLE value. */
     private static final String keyOriginLat=LocationDatabaseContract.LocationEntry.KEY_ORIGIN_LATITIUDE;
-    /**The name of the longitude column key for the origin of the SFPark query resulting in each location. Stored as a DOUBLE value. */
+    /**The name of the longitude column key for the origin of the SFPark query resulting in each
+     * location. Stored as a DOUBLE value. */
     private static final String keyOriginLong=LocationDatabaseContract.LocationEntry.KEY_ORIGIN_LONGITUDE;
-    /**The name of the radius column key corresponding to the radius from the origin of the search area from the SFPark database. Stored as a DOUBLE value.*/
+    /**The name of the radius column key corresponding to the radius from the origin of the search
+     * area from the SFPark database. Stored as a DOUBLE value.*/
     private static final String keyRadius=LocationDatabaseContract.LocationEntry.KEY_RADIUS;
-    /**The name of the hasStreetParking column key, to be stored as an SQLite INTEGER value, 1 or 0 for true or false.*/
+    /**The name of the hasStreetParking column key, to be stored as an SQLite INTEGER value, 1 or 0
+     * for true or false.*/
     private static final String keyHasStreetParking=LocationDatabaseContract.LocationEntry.KEY_HAS_STREET_PARKING;
-    /**The name of the name column key, corresponding to the name of each location. Stored as a STRING value. */
+    /**The name of the name column key, corresponding to the name of each location. Stored as
+     * a STRING value. */
     private static final String keyName=LocationDatabaseContract.LocationEntry.KEY_NAME;
-    /**The name of the desc column key, corresponding to the description of each location. Stored as a STRING value.*/
+    /**The name of the desc column key, corresponding to the description of each location.
+     * Stored as a STRING value.*/
     private static final String keyDesc=LocationDatabaseContract.LocationEntry.KEY_DESC;
-    /**The name of the ospid column key, corresponding to the off street parking ID of each location. Stored as an INTEGER value.*/
+    /**The name of the ospid column key, corresponding to the off street parking ID of each
+     * location. Stored as an INTEGER value.*/
     private static final String keyOSPID=LocationDatabaseContract.LocationEntry.KEY_OSPID;
-    /**The name of the bfid column key, corresponding to the on street parking ID of each location. Stored as an INTEGER value.*/
+    /**The name of the bfid column key, corresponding to the on street parking ID of each location.
+     * Stored as an INTEGER value.*/
     private static final String keyBFID=LocationDatabaseContract.LocationEntry.KEY_BFID;
-    /**The name of the isFavorite column key, to be stored as an SQLite INTEGER value, 1 or 0 for true or false.*/
+    /**The name of the isFavorite column key, to be stored as an SQLite INTEGER value, 1 or 0 for
+     * true or false.*/
     private static final String keyIsFavorite= LocationDatabaseContract.LocationEntry.KEY_IS_FAVORITE;
     /**The name of the timesSearched column key, to be stored as an SQLite INTEGER value.*/
     private static final String keyTimesSearched= LocationDatabaseContract.LocationEntry.KEY_TIMES_SEARCHED;
-    /**The name of the ID key for each entry, to be stored automatically as an INTEGER PRIMARY KEY value*/
+    /**The name of the ID key for each entry, to be stored automatically as an INTEGER PRIMARY KEY*/
     private static final String locationID= LocationDatabaseContract.LocationEntry.LOCATION_NAME_ENTRY_ID;
 
 
     /**
      * Constructor
-     * @param context An object specific to Android containing information about the application environment.
+     * @param context An object specific to Android containing information about the application
+     *                environment.
      */
     public LocationDatabaseHandler(Context context){
-        super(context, LocationDatabaseContract.LocationEntry.TABLE_LOCATIONS, null, DATABASE_VERSION);
+        super(context, this.tableName, null, DATABASE_VERSION);
     }
 
     /**
      * Upon first initialization of the database, onCreate() is called.
-     * All rows and row titles are instantiated within this method using the static names declared in LocationDatabaseContract class
+     * All rows and row titles are instantiated within this method using the static names declared
+     * in LocationDatabaseContract class
      * @param db The SQLiteDatabase object is automatically passed after it is instantiated.
      */
     @Override
     public void onCreate(SQLiteDatabase db){
-        String CREATE_LOCATIONS_TABLE = "CREATE TABLE " + this.tableName + "("+this.locationID+" INTEGER PRIMARY KEY, "
-                + this.keyLat + " DOUBLE,"+ this.keyLong + " DOUBLE, " + this.keyOriginLat + " DOUBLE, "+ this.keyOriginLong
-                + " DOUBLE, "+this.keyRadius+" DOUBLE, "+this.keyHasStreetParking+" INTEGER, "+this.keyName+" STRING, "
-                +this.keyDesc+" STRING, "+this.keyOSPID+" INTEGER, "+this.keyBFID+" INTEGER, "+keyIsFavorite+" INTEGER, "
-                +this.keyTimesSearched+" INTEGER"+")";
+        String CREATE_LOCATIONS_TABLE = "CREATE TABLE " + this.tableName + "("+this.locationID
+                +" INTEGER PRIMARY KEY, "+ this.keyLat + " DOUBLE,"+ this.keyLong + " DOUBLE, "
+                +this.keyOriginLat + " DOUBLE, "+ this.keyOriginLong+ " DOUBLE, "+this.keyRadius
+                +" DOUBLE, "+this.keyHasStreetParking+" INTEGER, "+this.keyName+" STRING, "
+                +this.keyDesc+" STRING, "+this.keyOSPID+" INTEGER, "+this.keyBFID+" INTEGER, "
+                +keyIsFavorite+" INTEGER, "+this.keyTimesSearched+" INTEGER"+")";
         db.execSQL(CREATE_LOCATIONS_TABLE);
 
     }
@@ -83,44 +112,58 @@ public class LocationDatabaseHandler extends SQLiteOpenHelper {
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         // Drop older table if existed
-        db.execSQL("DROP TABLE IF EXISTS " + LocationDatabaseContract.LocationEntry.TABLE_LOCATIONS);
+        db.execSQL("DROP TABLE IF EXISTS "+this.tableName);
 
         // Create tables again
         onCreate(db);
     }
 
     /**
-     * Adds a ParkingLocation object's data fields into a row of the LocationDatabase
+     * Adds a ParkingLocation object's data fields into a row of the LocationDatabase.
+     * Note: if location already exists in database, the timesSearched field will be incremented.
      * @param loc a ParkingLocation object to be parsed into discrete data to store in database.
      */
     public void addLocation(ParkingLocation loc){
         if(loc.hasOnStreetParking()){ //Check if OSPID exists in db.
-            if(this.getLocationFromOSPID(loc.getOspid())!=null){ //Duplicate. Don't add to DB.
+            if(this.getLocationFromOSPID(loc.getOspid())!=null){ //Duplicate. Update timesSearched
+                loc.setTimesSearched(loc.getTimesSearched()+1);
+                this.updateLocation(loc);
                 return;
             }
         }
         else if(this.getLocationFromBFID(loc.getBfid())!=null){ //Check if BFID exists in db.
-            return; //Duplicate. Don't add to DB.
+            loc.setTimesSearched(loc.getTimesSearched()+1);//Duplicate. Update timesSearched
+            this.updateLocation(loc);
+            return;
         }
-        SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues values = new ContentValues();
-        values.put(this.keyLat, loc.getCoords().latitude);
-        values.put(this.keyLong, loc.getCoords().longitude);
-        values.put(this.keyOriginLat, loc.getOriginLocation().latitude);
-        values.put(this.keyOriginLong, loc.getOriginLocation().longitude);
-        values.put(this.keyRadius, loc.getRadiusFromOrigin());
+        else { //New entry, add to DB.
+            if(this.getLocationsCount()==this.maxRows){ //Delete the least searched location.
+                this.deleteLocation(this.leastSearchedLocation);
+                this.leastSearchedLocation=loc;
+            }
+            SQLiteDatabase db = this.getWritableDatabase();
+            ContentValues values = new ContentValues();
+            values.put(this.keyLat, loc.getCoords().latitude);
+            values.put(this.keyLong, loc.getCoords().longitude);
+            values.put(this.keyOriginLat, loc.getOriginLocation().latitude);
+            values.put(this.keyOriginLong, loc.getOriginLocation().longitude);
+            values.put(this.keyRadius, loc.getRadiusFromOrigin());
 
-        //convert boolean to 1 or 0 to store in Database
-        values.put(this.keyHasStreetParking,((loc.hasOnStreetParking()) ? 1 : 0));
-        values.put(this.keyName, loc.getName());
-        values.put(this.keyDesc, loc.getDesc());
-        values.put(this.keyOSPID, loc.getOspid());
-        values.put(this.keyBFID, loc.getBfid());
-        values.put(this.keyIsFavorite, ((loc.isFavorite())? 1 : 0));
-        values.put(this.keyTimesSearched, loc.getTimesSearched());
+            //convert boolean to 1 or 0 to store in Database
+            values.put(this.keyHasStreetParking, ((loc.hasOnStreetParking()) ? 1 : 0));
+            values.put(this.keyName, loc.getName());
+            values.put(this.keyDesc, loc.getDesc());
+            values.put(this.keyOSPID, loc.getOspid());
+            values.put(this.keyBFID, loc.getBfid());
+            values.put(this.keyIsFavorite, ((loc.isFavorite()) ? 1 : 0));
+            values.put(this.keyTimesSearched, loc.getTimesSearched());
 
-        db.insert(this.tableName, null, values);
-        db.close();
+            db.insert(this.tableName, null, values);
+            db.close();
+            if (loc.getTimesSearched()<this.minTimesSearched){ //Maintain min number of searches.
+                minTimesSearched=loc.getTimesSearched();
+            }
+        }
     }
 
     /**
@@ -146,7 +189,8 @@ public class LocationDatabaseHandler extends SQLiteOpenHelper {
                 boolean isFavorite=(cursor.getInt(11)==1 ? true : false);
                 int timesSearched=(cursor.getInt(12));
 
-                ParkingLocation location=new ParkingLocation(origin, radius, hasStreetParking, name, desc, ospid, bfid, coords, isFavorite, timesSearched);
+                ParkingLocation location=new ParkingLocation(origin, radius, hasStreetParking, name,
+                        desc, ospid, bfid, coords, isFavorite, timesSearched);
                 locationList.add(location);
             } while(cursor.moveToNext());
         }
@@ -179,7 +223,8 @@ public class LocationDatabaseHandler extends SQLiteOpenHelper {
         Cursor cursor=db.query(this.tableName, new String[]{this.locationID, this.keyLat, this.keyLong,
                 this.keyOriginLat, this.keyOriginLong, this.keyRadius, this.keyHasStreetParking,
                 this.keyName, this.keyDesc, this.keyOSPID, this.keyBFID, this.keyIsFavorite,
-                this.keyTimesSearched}, this.keyOSPID+"=?",new String[]{String.valueOf(ospid)},null,null,null,null);
+                this.keyTimesSearched}, this.keyOSPID+"=?",new String[]{String.valueOf(ospid)},
+                null,null,null,null);
 
         if(cursor!=null){
             cursor.moveToFirst();
@@ -193,7 +238,8 @@ public class LocationDatabaseHandler extends SQLiteOpenHelper {
             boolean isFavorite=(cursor.getInt(11)==1 ? true : false);
             int timesSearched=(cursor.getInt(12));
 
-            ParkingLocation location=new ParkingLocation(origin, radius, hasStreetParking, name, desc, ospid, bfid, coords, isFavorite, timesSearched);
+            ParkingLocation location=new ParkingLocation(origin, radius, hasStreetParking,
+                    name, desc, ospid, bfid, coords, isFavorite, timesSearched);
             return location;
         }
 
@@ -208,10 +254,11 @@ public class LocationDatabaseHandler extends SQLiteOpenHelper {
      */
     public ParkingLocation getLocationFromBFID(int bfid){
         SQLiteDatabase db=this.getReadableDatabase();
-        Cursor cursor=db.query(this.tableName, new String[]{this.locationID, this.keyLat, this.keyLong,
-                this.keyOriginLat, this.keyOriginLong, this.keyRadius, this.keyHasStreetParking,
-                this.keyName, this.keyDesc, this.keyOSPID, this.keyBFID, this.keyIsFavorite,
-                this.keyTimesSearched}, this.keyBFID+"=?",new String[]{String.valueOf(bfid)},null,null,null,null);
+        Cursor cursor=db.query(this.tableName, new String[]{this.locationID, this.keyLat,
+                        this.keyLong,this.keyOriginLat, this.keyOriginLong, this.keyRadius,
+                        this.keyHasStreetParking,this.keyName, this.keyDesc, this.keyOSPID,
+                        this.keyBFID, this.keyIsFavorite,this.keyTimesSearched},
+                        this.keyBFID+"=?",new String[]{String.valueOf(bfid)},null,null,null,null);
 
         if(cursor!=null){
             cursor.moveToFirst();
@@ -225,7 +272,8 @@ public class LocationDatabaseHandler extends SQLiteOpenHelper {
             boolean isFavorite=(cursor.getInt(11)==1 ? true : false);
             int timesSearched=(cursor.getInt(12));
 
-            ParkingLocation location=new ParkingLocation(origin, radius, hasStreetParking, name, desc, ospid, bfid, coords, isFavorite, timesSearched);
+            ParkingLocation location=new ParkingLocation(origin, radius, hasStreetParking, name,
+                    desc, ospid, bfid, coords, isFavorite, timesSearched);
             return location;
         }
 
@@ -257,18 +305,21 @@ public class LocationDatabaseHandler extends SQLiteOpenHelper {
         values.put(this.keyTimesSearched, location.getTimesSearched());
 
         return db.update(this.tableName, values, location.hasOnStreetParking()? this.keyBFID: this.keyOSPID,
-                new String[] { String.valueOf(location.hasOnStreetParking()? location.getBfid(): location.getOspid()) });
+                new String[] { String.valueOf(
+                        location.hasOnStreetParking()? location.getBfid(): location.getOspid()) });
     }
 
     /**
      * Deletes the specified location from the SQLite database.
-     * Note that the database uses the BFID or OSPID data fields to find the location to delete.
+     * Note that the database uses the BFID or OSPID data fields to find the location to delete
      * @param location The location to delete.
      */
     public void deleteLocation(ParkingLocation location) {
         SQLiteDatabase db = this.getWritableDatabase();
-        db.delete(this.tableName, location.hasOnStreetParking()? this.keyBFID : this.keyOSPID + " = ?",
-                new String[] { String.valueOf(location.hasOnStreetParking()? location.getBfid() : location.getOspid()) });
+        db.delete(this.tableName,
+                location.hasOnStreetParking()? this.keyBFID : this.keyOSPID + " = ?",
+                new String[] { String.valueOf(
+                        location.hasOnStreetParking()? location.getBfid() : location.getOspid()) });
         db.close();
     }
 
