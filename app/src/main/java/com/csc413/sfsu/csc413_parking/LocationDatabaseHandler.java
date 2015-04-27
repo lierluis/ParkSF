@@ -260,5 +260,17 @@ public class LocationDatabaseHandler extends SQLiteOpenHelper {
                 new String[] { String.valueOf(location.hasOnStreetParking()? location.getBfid(): location.getOspid()) });
     }
 
+    /**
+     * Deletes the specified location from the SQLite database.
+     * Note that the database uses the BFID or OSPID data fields to find the location to delete.
+     * @param location The location to delete.
+     */
+    public void deleteLocation(ParkingLocation location) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.delete(this.tableName, location.hasOnStreetParking()? this.keyBFID : this.keyOSPID + " = ?",
+                new String[] { String.valueOf(location.hasOnStreetParking()? location.getBfid() : location.getOspid()) });
+        db.close();
+    }
+
 
 }
