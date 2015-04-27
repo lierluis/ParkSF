@@ -13,5 +13,9 @@
     <string name="layer_2">Parking restriction</string>
     <string name="layer_3">Parking safety</string>
     <string name="layer_4">Parking structure</string>
+    <string name="title_activity_second">SecondActivity</string>
+
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
 
 </resources>

@@ -1,11 +1,14 @@
 package com.csc413.sfsu.csc413_parking;
 
+import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 
 import com.google.android.gms.maps.*;
 import com.google.android.gms.maps.model.*;
 import android.view.*;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Toast;
 import android.widget.RelativeLayout;
 
@@ -85,13 +88,12 @@ public class MainActivity extends ActionBarActivity implements
     }
 
     /**
-     * Prints message when called
+     * Prints message if connected to location services
      * @param bundle
      */
     @Override
     public void onConnected(Bundle bundle) {
         Toast.makeText(this,"Connected to location services", Toast.LENGTH_SHORT).show();
-
     }
 
     /**
@@ -185,7 +187,6 @@ public class MainActivity extends ActionBarActivity implements
                     tvSnippet.setText(marker.getSnippet());
 
                     return v;
-
                 }
             });
         }
@@ -228,7 +229,7 @@ public class MainActivity extends ActionBarActivity implements
 
         userMarker.setDraggable(true);
 
-        CameraUpdate update = CameraUpdateFactory.newLatLngZoom(lastLatLng,18);
+        CameraUpdate update = CameraUpdateFactory.newLatLngZoom(lastLatLng, 18);
         theMap.moveCamera(update);
         theMap.animateCamera(CameraUpdateFactory.newLatLng(lastLatLng), 3000, null);
     }
