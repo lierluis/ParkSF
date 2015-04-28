@@ -57,17 +57,14 @@ public class MainActivity extends ActionBarActivity implements
         GoogleApiClient.OnConnectionFailedListener,
         LocationListener {
 
-
     private GoogleMap theMap;
     private LocationManager locMan;
     private Marker userMarker;
     private static final int GPS_ERRORDIALOG_REQUEST = 9001;
-
     private TextView mLocationView;
-
     private GoogleApiClient mGoogleApiClient;
-
     private LocationRequest mLocationRequest;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -263,7 +260,7 @@ public class MainActivity extends ActionBarActivity implements
                 } else {
                     updatePlaces();
                     item.setChecked(true);
-                    userMarker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.ic_car_position));
+                    userMarker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.car_parked));
                     Toast.makeText(getBaseContext(), "Parked", Toast.LENGTH_LONG).show();
                 }
                 return true;
