@@ -13,33 +13,33 @@
 
     <!-- Layers -->
     <item
-        android:id="@+id/layers_icon"
+        android:id="@+id/filter_icon"
         android:icon="@drawable/ic_layers_2"
-        android:title="@string/layers"
+        android:title="@string/filter"
         app:showAsAction="always">
 
         <!-- layers items -->
         <menu>
             <item
                 android:checkable="true"
-                android:id="@+id/layer_1"
+                android:id="@+id/filter_1"
                 app:showAsAction="never"
-                android:title="@string/layer_1"/>
+                android:title="@string/filter_1"/>
             <item
                 android:checkable="true"
-                android:id="@+id/layer_2"
+                android:id="@+id/filter_2"
                 app:showAsAction="never"
-                android:title="@string/layer_2"/>
+                android:title="@string/filter_2"/>
             <item
                 android:checkable="true"
-                android:id="@+id/layer_3"
+                android:id="@+id/filter_3"
                 app:showAsAction="never"
-                android:title="@string/layer_3"/>
+                android:title="@string/filter_3"/>
             <item
                 android:checkable="true"
-                android:id="@+id/layer_4"
+                android:id="@+id/filter_4"
                 app:showAsAction="never"
-                android:title="@string/layer_4"/>
+                android:title="@string/filter_4"/>
         </menu>
 
     </item>
@@ -54,28 +54,29 @@
 
     <!-- Action overflow -->
     <item
-        android:id="@+id/overflow"
-        android:icon="@drawable/ic_action_overflow"
-        android:title="@string/action_overflow"
-        android:orderInCategory="100"
-        app:showAsAction="always">
-
-        <!-- overflow items -->
+        android:checkable="true"
+        android:id="@+id/favorite"
+        android:orderInCategory="1"
+        app:showAsAction="never"
+        android:title="@string/favorites"/>
+    <item
+        android:checkable="false"
+        android:id="@+id/settings"
+        android:orderInCategory="12"
+        app:showAsAction="never"
+        android:title="@string/settings"/>
+    <item
+        android:id="@+id/action_layers"
+        android:title="@string/layers"
+        android:orderInCategory="2"
+        app:showAsAction="never">
         <menu>
-            <item
-                android:checkable="true"
-                android:id="@+id/favorite"
-                android:orderInCategory="1"
-                app:showAsAction="never"
-                android:title="@string/favorites"/>
-            <item
-                android:checkable="false"
-                android:id="@+id/settings"
-                android:orderInCategory="2"
-                app:showAsAction="never"
-                android:title="@string/settings"/>
+            <group android:checkableBehavior="single">
+                <item android:id="@+id/layersMenu_1" android:title="@string/normal"  app:showAsAction="never" android:checked="true"/>
+                <item android:id="@+id/layersMenu_2" android:title="@string/satellite"  app:showAsAction="never"  />
+                <item android:id="@+id/layersMenu_3" android:title="@string/terrain"  app:showAsAction="never" />
+                <item android:id="@+id/layersMenu_4" android:title="@string/hybrid"  app:showAsAction="never" />
+            </group>
         </menu>
-
     </item>
-
 </menu>

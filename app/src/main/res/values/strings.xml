@@ -2,17 +2,22 @@
     <string name="app_name">Parking App</string>
 
     <string name="search">Search</string>
-    <string name="layers">Layers</string>
+    <string name="filter">Filter</string>
     <string name="parked">Parking</string>
     <string name="action_overflow">Action overflow</string>
 
     <string name="favorites">Add to favorites</string>
     <string name="settings">Settings</string>
 
-    <string name="layer_1">Parking likelihood rating</string>
-    <string name="layer_2">Parking restriction</string>
-    <string name="layer_3">Parking safety</string>
-    <string name="layer_4">Parking structure</string>
+    <string name="filter_1">Parking likelihood rating</string>
+    <string name="filter_2">Parking restriction</string>
+    <string name="filter_3">Parking safety</string>
+    <string name="filter_4">Parking structure</string>
+    <string name="layers">Layers</string>
+    <string name="normal">Normal</string>
+    <string name="satellite">Satellite</string>
+    <string name="terrain">Terrain</string>
+    <string name="hybrid">Hybrid</string>
 
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
