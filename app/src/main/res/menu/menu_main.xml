@@ -2,45 +2,88 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".MainActivity">
+
+    <!-- Search -->
     <item
         android:id="@+id/search_icon"
         android:icon="@drawable/ic_action_search"
-        android:title="@string/search_title"
-        app:showAsAction="always" />
+        android:title="@string/search"
+        app:showAsAction="always|collapseActionView"
+        app:actionViewClass="android.support.v7.widget.SearchView" />
+
+    <!-- Layers -->
     <item
-        android:id="@+id/layers_icon"
-        android:icon="@drawable/ic_layers"
-        android:title="@string/layers_title"
-        app:showAsAction="always"/>
+        android:id="@+id/filter_icon"
+        android:icon="@drawable/ic_layers_2"
+        android:title="@string/filter"
+        app:showAsAction="always">
+
+        <!-- layers items -->
+        <menu>
+            <item
+                android:checkable="true"
+                android:id="@+id/filter_1"
+                app:showAsAction="never"
+                android:title="@string/filter_1"/>
+            <item
+                android:checkable="true"
+                android:id="@+id/filter_2"
+                app:showAsAction="never"
+                android:title="@string/filter_2"/>
+            <item
+                android:checkable="true"
+                android:id="@+id/filter_3"
+                app:showAsAction="never"
+                android:title="@string/filter_3"/>
+            <item
+                android:checkable="true"
+                android:id="@+id/filter_4"
+                app:showAsAction="never"
+                android:title="@string/filter_4"/>
+        </menu>
+
+    </item>
+
+    <!-- Parking -->
     <item
         android:id="@+id/parked_icon"
-        android:icon="@drawable/ic_car"
-        android:title="@string/parked_title"
-        app:showAsAction="always" />
+        android:icon="@drawable/ic_car_2"
+        android:title="@string/parked"
+        app:showAsAction="always">
+    </item>
+
+        <!-- overflow items -->
+    <!-- Action overflow -->
+
+            <item
+                android:checkable="true"
+                android:id="@+id/favorite"
+                android:orderInCategory="1"
+                app:showAsAction="never"
+                android:title="@string/favorites"/>
+            <item
+                android:checkable="false"
+                android:id="@+id/settings"
+                android:orderInCategory="12"
+                app:showAsAction="never"
+                android:title="@string/settings"/>
+            <item android:id="@+id/action_layers" android:title="Layers"
+                android:orderInCategory="2" app:showAsAction="never">
 
 
-    <group android:checkableBehavior="all">
-        <item
-            android:id="@+id/favorite"
-            android:orderInCategory="1"
-            app:showAsAction="never"
-            android:title="@string/favorites"/>
-    </group>
+                <menu>
+                    <group android:checkableBehavior="single">
+                        <item android:id="@+id/layersMenu_1" android:title="@string/normal"  app:showAsAction="never" android:checked="true"/>
+                        <item android:id="@+id/layersMenu_2" android:title="@string/satellite"  app:showAsAction="never"  />
+                        <item android:id="@+id/layersMenu_3" android:title="@string/terrain"  app:showAsAction="never"
+                            />
+                        <item android:id="@+id/layersMenu_4" android:title="@string/hybrid"  app:showAsAction="never"
+                            />
+                    </group>
+                </menu>
+            </item>
+
+        </menu>
 
 
 
-</menu>
-
-<!--
-android:layout_width="match_parent"
-android:layout_height="match_parent">
-
-
-<item
-        android:id="@+id/settings_icon"
-        android:icon="@drawable/ic_action_overflow"
-        android:title="@string/settings_title"
-        android:orderInCategory="100"
-        app:showAsAction="always" />
-
--->

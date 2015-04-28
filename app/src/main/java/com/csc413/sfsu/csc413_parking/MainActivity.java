@@ -1,6 +1,6 @@
 package com.csc413.sfsu.csc413_parking;
 
-// adsflasdkfj;sd
+
 
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -243,14 +243,36 @@ public class MainActivity extends ActionBarActivity implements
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         RelativeLayout main_view = (RelativeLayout) findViewById(R.id.derp);
+        
+            int id = item.getItemId();
 
-        // handle action bar item clicks
+
+            if(id==R.id.layersMenu_1){
+                theMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+                return true;
+            }
+
+            if(id==R.id.layersMenu_2){
+                theMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
+                return true;
+            }
+
+            if(id==R.id.layersMenu_3){
+                theMap.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
+                return true;
+            }
+            if(id==R.id.layersMenu_4){
+                theMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
+                return true;
+            }
+
+
         switch(item.getItemId()) {
             case R.id.search_icon:
                 Toast.makeText(getBaseContext(), "Search", Toast.LENGTH_LONG).show();
                 return true;
-            case R.id.layers_icon:
-                Toast.makeText(getBaseContext(), "Layers", Toast.LENGTH_LONG).show();
+            case R.id.filter_icon:
+                Toast.makeText(getBaseContext(), "Filter", Toast.LENGTH_LONG).show();
                 return true;
             case R.id.parked_icon:
                 if(item.isChecked()) {
