@@ -1,5 +1,7 @@
 package com.csc413.sfsu.csc413_parking;
 
+// adsflasdkfj;sd
+
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 
@@ -9,22 +11,34 @@ import android.view.*;
 import android.widget.Toast;
 import android.widget.RelativeLayout;
 
+
+
 import android.app.Dialog;
 import android.content.Context;
 import android.location.Location;
 import android.location.LocationManager;
+import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.CheckBox;
+
+
 import android.widget.TextView;
+import android.widget.Toast;
+import android.util.Log;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.FusedLocationProviderApi;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
@@ -36,6 +50,8 @@ import com.google.android.gms.location.LocationServices;
  * Author: Luis Estrada + UI Team (Jonathan Raxa & Ishwari)
  *  Class: CSC413
  */
+
+
 public class MainActivity extends ActionBarActivity implements
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
@@ -45,31 +61,27 @@ public class MainActivity extends ActionBarActivity implements
     private LocationManager locMan;
     private Marker userMarker;
     private static final int GPS_ERRORDIALOG_REQUEST = 9001;
-
     private TextView mLocationView;
-
     private GoogleApiClient mGoogleApiClient;
-
     private LocationRequest mLocationRequest;
 
-    MenuItem item; // action bar icon
 
-    /**
-     * Where activity is initialized
-     * @param savedInstanceState
-     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if(servicesOK()){
+
+        if(serevicesOK()){
             setContentView(R.layout.activity_main);
 
             if (initMap()){
                 Toast.makeText(this,"Ready to park!", Toast.LENGTH_SHORT).show();
                 mLocationView = new TextView(this);
+
+
             } else{
                 Toast.makeText(this,"Map Unavailable!", Toast.LENGTH_SHORT).show();
+
             }
 
         } else {
@@ -82,22 +94,18 @@ public class MainActivity extends ActionBarActivity implements
         theMap.getUiSettings().setZoomControlsEnabled(true);
 
         updatePlaces();
+
     }
 
-    /**
-     * Prints message when called
-     * @param bundle
-     */
     @Override
     public void onConnected(Bundle bundle) {
         Toast.makeText(this,"Connected to location services", Toast.LENGTH_SHORT).show();
 
     }
 
-    /**
-     * Implementing the location listener
-     * @param i
-     */
+    /*
+    * Implementing the location listener
+    * */
     @Override
     public void onConnectionSuspended(int i) {
         // Log.i(TAG, "GoogleApiClient connection has been suspend");
@@ -115,22 +123,15 @@ public class MainActivity extends ActionBarActivity implements
         //  Log.i(TAG, "GoogleApiClient connection has failed");
     }
 
-    /**
-     * Prints location coordinates
-     * @param location
-     */
     @Override
     public void onLocationChanged(Location location) {
         // mLocationView.setText("Location received: " + location.toString());
         String msg = "Location: " + location.getLatitude() + "," + location.getLongitude();
         Toast.makeText(this,msg,Toast.LENGTH_SHORT).show();
+
     }
 
-    /**
-     * Checks connection to Google Play Services
-     * @return true if successfully connected, false if not
-     */
-    public boolean servicesOK(){
+    public boolean serevicesOK(){
         int isAvailable = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
 
         if(isAvailable == ConnectionResult.SUCCESS){
@@ -144,11 +145,11 @@ public class MainActivity extends ActionBarActivity implements
         return false;
     }
 
-    /**
-     * Initializes the map object
-     * @return true if map is initialized, false if not
-     */
-     private boolean initMap() {
+    /*
+    * initialze the map object
+    * Checks
+    * no return*/
+    private boolean initMap() {
         if (theMap == null) {
             SupportMapFragment mapFrag =
                     (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
@@ -163,11 +164,6 @@ public class MainActivity extends ActionBarActivity implements
                     return null;
                 }
 
-                /**
-                 *
-                 * @param marker
-                 * @return
-                 */
                 @Override
                 public View getInfoContents(Marker marker) {
                     View v = getLayoutInflater().inflate(R.layout.info_window, null);
@@ -192,12 +188,7 @@ public class MainActivity extends ActionBarActivity implements
         return(theMap != null);
     }
 
-    /**
-     * Moves camera to specified location
-     * @param lat - latitude
-     * @param lng - longitude
-     * @param zoom - zoom level
-     */
+
     private void gotoLocation(double lat, double lng, float zoom) {
 
         LatLng ll = new LatLng(lat, lng);
@@ -205,9 +196,6 @@ public class MainActivity extends ActionBarActivity implements
         theMap.moveCamera(update);
     }
 
-    /**
-     * Finds coordinates, sets marker & moves camera to marker
-     */
     private void updatePlaces(){
         //update location
         locMan = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
@@ -225,18 +213,17 @@ public class MainActivity extends ActionBarActivity implements
                 .position(lastLatLng)
                 .title("Parking Location")
                 .snippet("You are here"));
-
         userMarker.setDraggable(true);
-        //
-        // userMarker.OnMarkerDragListener(Marker lastLatLng);
 
-                CameraUpdate update = CameraUpdateFactory.newLatLngZoom(lastLatLng, 18);
+        CameraUpdate update = CameraUpdateFactory.newLatLngZoom(lastLatLng,18);
         theMap.moveCamera(update);
         theMap.animateCamera(CameraUpdateFactory.newLatLng(lastLatLng), 3000, null);
     }
 
+
+
     /**
-     * Initialize the contents of the Activity's standard options menu (only called once)
+     * Initialize the contents of the Activity's standard options menu
      * @param menu
      * @return
      */
@@ -245,88 +232,72 @@ public class MainActivity extends ActionBarActivity implements
         // Inflate the menu; this adds items to the action bar if it is present.
         MenuInflater mif = getMenuInflater();
         mif.inflate(R.menu.menu_main, menu);
-        item = menu.findItem(R.id.parked_icon); // get parked icon
         return super.onCreateOptionsMenu(menu);
     }
 
     /**
      * Called when user clicks on icon in action bar
-     * @param item - item selected
-     * @return true if option selected
+     * @param item
+     * @return
      */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        //RelativeLayout main_view = (RelativeLayout) findViewById(R.id.derp);
+        RelativeLayout main_view = (RelativeLayout) findViewById(R.id.derp);
+        
+            int id = item.getItemId();
+
+            //noinspection SimplifiableIfStatement
+
+            //when user clicks layers-> Normal, Map type will changed to normal
+            if(id==R.id.menu_2_choice_1){
+                theMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+                return true;
+            }
+            //when user clicks layers-> Satellite, Map type will changed to satellite
+            if(id==R.id.menu_2_choice_2){
+                theMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
+                return true;
+            }
+            //when user clicks layers-> Terrain, Map type will changed to Terrain
+            if(id==R.id.menu_2_choice_3){
+                theMap.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
+                return true;
+            }
+            if(id==R.id.menu_2_choice_4){
+                theMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
+                return true;
+            }
 
         // handle action bar item clicks
         switch(item.getItemId()) {
             case R.id.search_icon:
-                Toast.makeText(getBaseContext(), "Search for a location", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getBaseContext(), "Search", Toast.LENGTH_LONG).show();
                 return true;
-
-            // layers options
-            case R.id.layer_1:
-                if(item.isChecked()) {
-                    item.setChecked(false);
-                } else {
-                    item.setChecked(true);
-                    Toast.makeText(getBaseContext(), R.string.layer_1, Toast.LENGTH_SHORT).show();
-                }
+            case R.id.filter_icon:
+                Toast.makeText(getBaseContext(), "Filter", Toast.LENGTH_LONG).show();
                 return true;
-            case R.id.layer_2:
-                if(item.isChecked()) {
-                    item.setChecked(false);
-                } else {
-                    item.setChecked(true);
-                    Toast.makeText(getBaseContext(), R.string.layer_2, Toast.LENGTH_SHORT).show();
-                }
-                return true;
-            case R.id.layer_3:
-                if(item.isChecked()) {
-                    item.setChecked(false);
-                } else {
-                    item.setChecked(true);
-                    Toast.makeText(getBaseContext(), R.string.layer_3, Toast.LENGTH_SHORT).show();
-                }
-                return true;
-            case R.id.layer_4:
-                if(item.isChecked()) {
-                    item.setChecked(false);
-                } else {
-                    item.setChecked(true);
-                    Toast.makeText(getBaseContext(), R.string.layer_4, Toast.LENGTH_SHORT).show();
-                }
-                return true;
-
-            // parked
             case R.id.parked_icon:
                 if(item.isChecked()) {
                     item.setChecked(false);
-                    item.setIcon(R.drawable.ic_car_2); // change to uncolored car
                     userMarker.setIcon(BitmapDescriptorFactory.defaultMarker());
-                    Toast.makeText(getBaseContext(), "No longer parked", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getBaseContext(), "No longer parked", Toast.LENGTH_LONG).show();
                 } else {
                     updatePlaces();
                     item.setChecked(true);
-                    item.setIcon(R.drawable.ic_car_checked); // change to colored car
-                    userMarker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.ic_car_position));
-                    Toast.makeText(getBaseContext(), "Parked", Toast.LENGTH_SHORT).show();
+                    userMarker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.car_parked));
+                    Toast.makeText(getBaseContext(), "Parked", Toast.LENGTH_LONG).show();
                 }
                 return true;
 
-            // action overflow
             case R.id.favorite:
                 if(item.isChecked()) { // if checked & user clicks on it
                     item.setChecked(false);
-                    Toast.makeText(getBaseContext(), "Removed from favorites", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getBaseContext(), "Removed from favorites", Toast.LENGTH_LONG).show();
                 } else {
                     item.setChecked(true);
-                    Toast.makeText(getBaseContext(), "Added to favorites", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getBaseContext(), "Added to favorites", Toast.LENGTH_LONG).show();
                 }
                 return true;
-
-            case R.id.settings:
-                Toast.makeText(getBaseContext(), "Settings", Toast.LENGTH_SHORT).show();
 
             default:
                 return super.onOptionsItemSelected(item);
