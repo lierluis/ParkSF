@@ -1,6 +1,6 @@
 package com.csc413.sfsu.csc413_parking;
 
-// adsflasdkfj;sd
+
 
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -246,29 +246,27 @@ public class MainActivity extends ActionBarActivity implements
         
             int id = item.getItemId();
 
-            //noinspection SimplifiableIfStatement
 
-            //when user clicks layers-> Normal, Map type will changed to normal
-            if(id==R.id.menu_2_choice_1){
+            if(id==R.id.layersMenu_1){
                 theMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
                 return true;
             }
-            //when user clicks layers-> Satellite, Map type will changed to satellite
-            if(id==R.id.menu_2_choice_2){
+
+            if(id==R.id.layersMenu_2){
                 theMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
                 return true;
             }
-            //when user clicks layers-> Terrain, Map type will changed to Terrain
-            if(id==R.id.menu_2_choice_3){
+
+            if(id==R.id.layersMenu_3){
                 theMap.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
                 return true;
             }
-            if(id==R.id.menu_2_choice_4){
+            if(id==R.id.layersMenu_4){
                 theMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
                 return true;
             }
 
-        // handle action bar item clicks
+
         switch(item.getItemId()) {
             case R.id.search_icon:
                 Toast.makeText(getBaseContext(), "Search", Toast.LENGTH_LONG).show();

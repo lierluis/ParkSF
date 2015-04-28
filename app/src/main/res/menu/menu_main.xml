@@ -73,11 +73,11 @@
 
                 <menu>
                     <group android:checkableBehavior="single">
-                        <item android:id="@+id/menu_2_choice_1" android:title="@string/normal"  app:showAsAction="never" android:checked="true"/>
-                        <item android:id="@+id/menu_2_choice_2" android:title="@string/satellite"  app:showAsAction="never"  />
-                        <item android:id="@+id/menu_2_choice_3" android:title="@string/terrain"  app:showAsAction="never"
+                        <item android:id="@+id/layersMenu_1" android:title="@string/normal"  app:showAsAction="never" android:checked="true"/>
+                        <item android:id="@+id/layersMenu_2" android:title="@string/satellite"  app:showAsAction="never"  />
+                        <item android:id="@+id/layersMenu_3" android:title="@string/terrain"  app:showAsAction="never"
                             />
-                        <item android:id="@+id/menu_2_choice_4" android:title="@string/hybrid"  app:showAsAction="never"
+                        <item android:id="@+id/layersMenu_4" android:title="@string/hybrid"  app:showAsAction="never"
                             />
                     </group>
                 </menu>
