@@ -1,14 +1,11 @@
 package com.csc413.sfsu.csc413_parking;
 
-import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 
 import com.google.android.gms.maps.*;
 import com.google.android.gms.maps.model.*;
 import android.view.*;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.Toast;
 import android.widget.RelativeLayout;
 
@@ -59,7 +56,7 @@ public class MainActivity extends ActionBarActivity implements
 
     /**
      * Where activity is initialized
-     * @param savedInstanceState
+     * @param savedInstanceState - method, to finish the intent, call the startActivity() method, passing it the Intent object created in step 1.
      */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
