@@ -221,6 +221,13 @@ public class MainActivity extends ActionBarActivity implements
     }
 
 
+    // test method
+    public void findParking(){
+        
+
+    }
+
+
 
     /**
      * Initialize the contents of the Activity's standard options menu
