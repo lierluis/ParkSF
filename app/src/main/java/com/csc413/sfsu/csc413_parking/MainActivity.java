@@ -305,24 +305,28 @@ public class MainActivity extends ActionBarActivity implements
                 if (!item.isChecked()) {
                     item.setChecked(true);
                     theMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+                    Toast.makeText(getBaseContext(), "Normal View", Toast.LENGTH_SHORT).show();
                 }
                 return true;
             case R.id.layersMenu_2:
                 if (!item.isChecked()) {
                     item.setChecked(true);
                     theMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
+                    Toast.makeText(getBaseContext(), "Satellite View", Toast.LENGTH_SHORT).show();
                 }
                 return true;
             case R.id.layersMenu_3:
                 if (!item.isChecked()) {
                     item.setChecked(true);
                     theMap.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
+                    Toast.makeText(getBaseContext(), "Terrain View", Toast.LENGTH_SHORT).show();
                 }
                 return true;
             case R.id.layersMenu_4:
                 if (!item.isChecked()) {
                     item.setChecked(true);
                     theMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
+                    Toast.makeText(getBaseContext(), "Hybrid View", Toast.LENGTH_SHORT).show();
                 }
                 return true;
 

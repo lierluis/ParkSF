@@ -67,7 +67,7 @@
         android:title="@string/settings"/>
     <item
         android:id="@+id/action_layers"
-        android:title="@string/layers"
+        android:title="@string/map_view"
         android:orderInCategory="2"
         app:showAsAction="never">
         <menu>

@@ -13,7 +13,7 @@
     <string name="filter_2">Parking restriction</string>
     <string name="filter_3">Parking safety</string>
     <string name="filter_4">Parking structure</string>
-    <string name="layers">Layers</string>
+    <string name="map_view">Map View</string>
     <string name="normal">Normal</string>
     <string name="satellite">Satellite</string>
     <string name="terrain">Terrain</string>
