@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Toast;
 
 import com.csc413.sfsu.sfpark_simplified.SFParkQuery;
 import com.csc413.sfsu.sfpark_simplified.SFParkXMLResponse;
@@ -65,26 +64,27 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
             public void onMapClick(LatLng latLng) {
                 //String msg = "Latitude: " + latLng.latitude + "\nLongitude: " + latLng.longitude;
                 List <ParkingLocation> parkingList=new ArrayList<ParkingLocation>();
-                query.setLongitude(latLng.longitude);
-                query.setLatitude(latLng.latitude);
-                String msg;
-                if (response.populate(query)) {
-                    msg = "Status: " + response.status();
-                    msg += "\nMessage: " + response.message();
-                    if (response.numRecords() > 0) {
-                        for (int i = 0; i < response.avl(0).pts(); i++) {
-                            msg += "\nLocation " + (i+1) + ": ("
-                                    + response.avl(0).loc().longitude(i)
-                                    + ", "
-                                    + response.avl(0).loc().latitude(i)
-                                    + ")";
-                        }
-                    }
-                }
-                else
-                    msg = "failed to populate: " + response.status();
-
-                Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_SHORT).show();
+                parkingList=locationFactory.getParkingLocations(latLng,.25);
+//                query.setLongitude(latLng.longitude);
+//                query.setLatitude(latLng.latitude);
+//                String msg;
+//                if (response.populate(query)) {
+//                    msg = "Status: " + response.status();
+//                    msg += "\nMessage: " + response.message();
+//                    if (response.numRecords() > 0) {
+//                        for (int i = 0; i < response.avl(0).pts(); i++) {
+//                            msg += "\nLocation " + (i+1) + ": ("
+//                                    + response.avl(0).loc().longitude(i)
+//                                    + ", "
+//                                    + response.avl(0).loc().latitude(i)
+//                                    + ")";
+//                        }
+//                    }
+//                }
+//                else
+//                    msg = "failed to populate: " + response.status();
+//
+//                Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_SHORT).show();
             }
         });
     }

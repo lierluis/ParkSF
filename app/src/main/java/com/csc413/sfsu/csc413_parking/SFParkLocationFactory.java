@@ -19,12 +19,10 @@ import java.util.List;
 public class SFParkLocationFactory
 {
     private LocationDatabaseHandler db;
-    private int entryCount;
 
 
     SFParkLocationFactory(MainActivity context){
         this.db=new LocationDatabaseHandler(context);
-        this.entryCount=db.getLocationsCount();
     }
 
     /**
@@ -59,9 +57,10 @@ public class SFParkLocationFactory
                 int ospid=response.avl(i).ospid();
                 int bfid=response.avl(i).bfid();
                 boolean isFavorite=false;
-                int timesSearched=0;
+                int timesSearched=1;
                 ParkingLocation loc=new ParkingLocation(origin, radius, hasOnStreetParking, name,
                         desc, ospid, bfid, coords, isFavorite, timesSearched);
+                this.db.addLocation(loc);
                 locationList.add(loc);
             }
         }

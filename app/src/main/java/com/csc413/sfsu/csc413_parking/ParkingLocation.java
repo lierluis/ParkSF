@@ -156,7 +156,12 @@ public class ParkingLocation {
     }
 
 
-    public void setTimesSearched(int timesSearched){
+    /**
+     * Sets the times searched field of this location-A data field used by the ParkingLocation database.
+     * Note: If storing this location in a database, DO NOT SET
+     * @param timesSearched
+     */
+    protected void setTimesSearched(int timesSearched){
         this.timesSearched=timesSearched;
     }
 
