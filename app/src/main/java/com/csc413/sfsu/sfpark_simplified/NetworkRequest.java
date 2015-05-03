@@ -10,7 +10,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
  * Networking operations in Android are not permitted on the main thread, so this class is
  * necessary for their execution.
 */
-class NetworkRequest extends AsyncTask<String, Void, Document> {
+public class NetworkRequest extends AsyncTask<String, Void, Document> {
     /** Creates and returns an org.w3c.dom.Document containing data parsed from a network location.
      *
      * @param   url     a String containing a URL from which to parse data

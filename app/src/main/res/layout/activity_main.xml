@@ -1,7 +1,57 @@
 <?xml version="1.0" encoding="utf-8"?>
-<fragment xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/map"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:name="com.google.android.gms.maps.MapFragment"
-    class="com.google.android.gms.maps.MapFragment"/>
+<fragment
+xmlns:android="http://schemas.android.com/apk/res/android"
+android:id="@+id/map"
+android:layout_width="match_parent"
+android:layout_height="match_parent"
+android:name="com.google.android.gms.maps.MapFragment"
+class="com.google.android.gms.maps.MapFragment">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:id="@+id/button_holder"
+            android:layout_width="match_parent"
+            android:layout_height="75dp"
+            android:layout_alignParentBottom="true"
+            android:gravity="center"
+            style="?android:buttonBarStyle">
+
+            <Button
+                android:id="@+id/button1"
+                style="?android:attr/buttonBarButtonStyle"
+                android:text="Parking"
+                android:layout_width="wrap_content"
+                android:layout_height="50dp"
+                android:onClick="onClick_setAsParking"/>
+
+            <Button
+                android:id="@+id/button2"
+                style="?android:attr/buttonBarButtonStyle"
+                android:text="Crime"
+                android:layout_width="wrap_content"
+                android:layout_height="50dp"
+                android:onClick="onClick_setAsCrime"/>
+
+            </LinearLayout>
+
+        <TextView
+            android:id="@+id/my_text_view"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:text="Parking Data"
+            android:background="@drawable/rounded_rectangle"
+            android:gravity="center"
+            android:paddingLeft="25dp"
+            android:paddingRight="25dp"
+            android:textColor="@color/primary_material_light"
+            android:layout_above="@id/button_holder"/>
+
+    </RelativeLayout>
+
+</fragment>
+
+
+
