@@ -33,9 +33,6 @@ public class SFCrimeHandler {
         query.setStartYear(startYear);
         query.setCount(count);
         query.setOffset(offset);
-
-        System.out.println(query);
-
         return (responsePopulated = response.populate(query));
     }
 
