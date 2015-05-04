@@ -1,4 +1,4 @@
-package com.csc413.sfsu.SFParkLocationData;
+package com.csc413.sfsu.sfpark_locationdata;
 
 import com.google.android.gms.maps.model.LatLng;
 
