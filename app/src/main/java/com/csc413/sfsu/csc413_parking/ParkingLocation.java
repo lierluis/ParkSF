@@ -166,9 +166,8 @@ public class ParkingLocation {
     }
 
     public String toString(){
-        return "Name: "+getName()+" Desc: "+getDesc()+" Location: "+getCoords()+"Origin: "+this.originLocation.toString()+" Radius: "+this.radiusFromOrigin
-                +" Has Street Parking: "+this.hasOnStreetParking+" OSPID: "+getOspid()+" BFID: "+getBfid()+" IsFavorite: "+isFavorite()
-                +" Times Searched: "+getTimesSearched();
+        return "Name: "+getName()+" Times Searched: "+getTimesSearched()+" Desc: "+getDesc()+" Location: "+getCoords()+"Origin: "+this.originLocation.toString()+" Radius: "+this.radiusFromOrigin
+                +" Has Street Parking: "+this.hasOnStreetParking+" OSPID: "+getOspid()+" BFID: "+getBfid()+" IsFavorite: "+isFavorite();
     }
 
 
