@@ -41,8 +41,7 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
         query.setRadius(0.5);
         query.setUnitOfMeasurement("MILE");
         response = new SFParkXMLResponse();
-//        this.deleteDatabase("locations");
-        SFParkLocationFactory factory=new SFParkLocationFactory(this);
+
 
 
     }
@@ -63,7 +62,6 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
                 SFParkLocationFactory locationFactory=new SFParkLocationFactory(MainActivity.this);
                 List <ParkingLocation> parkingList=new ArrayList<ParkingLocation>();
                 parkingList=locationFactory.getParkingLocations(latLng,.25);
-
                 locationFactory.printAllDB();
 
 

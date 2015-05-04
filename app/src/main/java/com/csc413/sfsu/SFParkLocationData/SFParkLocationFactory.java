@@ -28,10 +28,13 @@ public class SFParkLocationFactory
     }
 
     /**
-     * Retrieves all parking locations from SFPark within the specified radius of the origin as a
-     * list of discrete ParkingLocation objects.
+     * Retrieves all parking locations from SFPark within the specified radius of the origin as an
+     * array list of discrete ParkingLocation objects.
+     *
      * This method will also add or update all locations found to an internal database.
+     *
      * If the internal database reaches capacity, the least searched locations are deleted.
+     *
      * @param origin Center of search for parking locations.
      * @param radius radius to search for parking locations in miles.
      * @return list of ParkingLocation objects within the radius of the origin.
@@ -149,6 +152,40 @@ public class SFParkLocationFactory
         db.updateLocation(location);
 
         return location;
+    }
+
+
+    /**
+     * Updates the list of locations with the current data stored in the database.
+     * This method should be called whenever the data in the database may have changed, especially
+     * if the locations in the list are being accessed through more than one entry point.
+     *
+     * Note that if a location in the parameter list does not exist in the database, it will be
+     * automatically added.
+     *
+     * @param locs The array list of ParkingLocations to update
+     * @return An array list of ParkingLocations equal to the parameter list, but with updated data.
+     */
+    public List<ParkingLocation> updateDataFromDatabase(List<ParkingLocation> locs){
+        List<ParkingLocation>updatedList=new ArrayList<ParkingLocation>();
+        for(int i=0; i<locs.size(); i++){
+            ParkingLocation locToUpdate=locs.get(i);
+            ParkingLocation updatedLocation;
+            if(locToUpdate.hasOnStreetParking()){
+                updatedLocation=db.getLocationFromBFID(locToUpdate.getBfid());
+            }
+            else{
+                updatedLocation=db.getLocationFromOSPID(locToUpdate.getOspid());
+            }
+
+            if(updatedLocation==null){ //location didn't exist in Database. Add it to database.
+                db.addLocation(locToUpdate);
+                updatedLocation=locToUpdate;
+            }
+            updatedList.add(updatedLocation);
+        }
+
+        return updatedList;
     }
 
 
