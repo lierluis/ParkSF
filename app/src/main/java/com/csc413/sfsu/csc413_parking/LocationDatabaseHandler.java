@@ -20,7 +20,7 @@ import java.util.List;
  *  -LocationDataBaseHandler objects will automatically remove the least searched locations when
  *  the size limit is reached.
  *
- * @Important Currently the SFParkLocationFactory should be the only point of entry into the
+ * Currently the SFParkLocationFactory should be the only point of entry into the
  * LocationDatabaseHandler class. This is due to the fact that if the timesSearched field of
  * ParkingLocation objects are set manually and added to the database manually, the database will
  * not properly remove the least searched locations.

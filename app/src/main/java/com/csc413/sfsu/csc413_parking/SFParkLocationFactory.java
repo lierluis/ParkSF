@@ -11,10 +11,11 @@ import java.util.List;
  * The SFParkLocationFactory class is responsible for retrieving and storing location data from the
  * SFParkSimplified API.
  *
- * @Important Currently the SFParkLocationFactory should be the only point of entry into the
+ * Currently the SFParkLocationFactory should be the only point of entry into the
  * LocationDatabaseHandler class. If the timesSearched field of
  * ParkingLocation objects are set manually and added to the database manually, the database will
  * not properly remove the least searched locations.
+ *
  */
 public class SFParkLocationFactory
 {
@@ -90,6 +91,65 @@ public class SFParkLocationFactory
 
         return locationList;
     }
+
+    /**
+     * Toggles the isFavorite field of the database to be the opposite of its current state.
+     *
+     * Note that this method will not update any data other than the isFavorite field, even if data
+     * in the parameter location is different than in the database. This is to prevent unintended
+     * side effects.
+     *
+     * The opposite of the current value of isFavorite in the database will
+     * ALWAYS be used, regardless of the parameter values. It is a good idea for the user of this
+     * method to store the return value, to keep the data updated.
+     *
+     * @param location The location to toggle the isFavorite field.
+     */
+    public ParkingLocation toggleFavorite(ParkingLocation location){
+        //Get database location data first, so as not to overwrite values other than the isFavorite
+        if(location.hasOnStreetParking()){
+            location=db.getLocationFromBFID(location.getBfid());
+        }
+        else{
+            location=db.getLocationFromOSPID(location.getOspid());
+        }
+
+        location.setIsFavorite(!location.isFavorite());
+        db.updateLocation(location);
+
+        return location;
+
+    }
+
+
+    /**
+     * Toggles the parkedHere field of the database to be the opposite of its current state.
+     *
+     * Note that this method will not update any data other than the isFavorite field, even if data
+     * in the parameter location is different than in the database. This is to prevent unintended
+     * side effects.
+     *
+     * The opposite of the current value of isFavorite in the database will
+     * ALWAYS be used, regardless of the parameter values. It is a good idea for the user of this
+     * method to store the return value, to keep the data updated.
+     *
+     * @param location The location to toggle the parkedHere field.
+     */
+    public ParkingLocation toggleParkedHere(ParkingLocation location){
+        //Get database location data first, so as not to overwrite values other than the parkedHere
+        if(location.hasOnStreetParking()){
+            location=db.getLocationFromBFID(location.getBfid());
+        }
+        else{
+            location=db.getLocationFromOSPID(location.getOspid());
+        }
+
+        location.setParkedHere(!location.getParkedHere());
+        db.updateLocation(location);
+
+        return location;
+    }
+
 
     /**
      * Prints the values of all locations in the database to the console.

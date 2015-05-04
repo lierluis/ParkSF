@@ -189,18 +189,36 @@ public class ParkingLocation {
 
     /**
      * Sets the location's isFavorite field.
+     *
      * Note: This method should only be accessible by the SFParkLocationFactory and
      * LocationDatabaseHandler classes-hence this method has an access modifier of protected.
      * DO NOT SET THIS FIELD FROM ANY OTHER CLASS.
      * Use the SFParkLocationFactory class to set this field to prevent unintended side-effects.
+     *
+     * @param isFavorite The boolean value to set on the isFavorite data field.
      */
     protected void setIsFavorite(boolean isFavorite){
         this.isFavorite=isFavorite;
     }
 
     /**
+     * Sets the location's parkedHere field.
+     *
+     * Note: This method should only be accessible by the SFParkLocationFactory and
+     * LocationDatabaseHandler classes-hence this method has an access modifier of protected.
+     * DO NOT SET THIS FIELD FROM ANY OTHER CLASS.
+     * Use the SFParkLocationFactory class to set this field to prevent unintended side-effects.
+     *
+     * @param parkedHere The boolean value to set on the parkedHere data field.
+     */
+    protected void setParkedHere(boolean parkedHere){
+        this.parkedHere=parkedHere;
+    }
+
+    /**
      * Sets the times searched field of this location-A data field used by the ParkingLocation
      * database.
+     *
      * Note: This method should only be accessible by the SFParkLocationFactory and
      * LocationDatabaseHandler classes-hence this method has an access modifier of protected.
      * DO NOT SET THIS FIELD FROM ANY OTHER CLASS.

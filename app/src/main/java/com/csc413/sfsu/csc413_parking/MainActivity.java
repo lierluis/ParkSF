@@ -42,6 +42,7 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
 //        this.deleteDatabase("locations");
         SFParkLocationFactory factory=new SFParkLocationFactory(this);
 
+
     }
 
     @Override
