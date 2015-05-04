@@ -6,6 +6,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.csc413.sfsu.SFParkLocationData.ParkingLocation;
+import com.csc413.sfsu.SFParkLocationData.SFParkLocationFactory;
 import com.csc413.sfsu.sfpark_simplified.SFParkQuery;
 import com.csc413.sfsu.sfpark_simplified.SFParkXMLResponse;
 import com.google.android.gms.maps.CameraUpdateFactory;

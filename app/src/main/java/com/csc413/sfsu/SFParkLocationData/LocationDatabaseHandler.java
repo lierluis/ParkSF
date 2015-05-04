@@ -1,4 +1,4 @@
-package com.csc413.sfsu.csc413_parking;
+package com.csc413.sfsu.SFParkLocationData;
 
 import android.content.ContentValues;
 import android.content.Context;

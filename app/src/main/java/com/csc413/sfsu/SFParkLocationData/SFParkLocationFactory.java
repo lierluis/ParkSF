@@ -1,5 +1,6 @@
-package com.csc413.sfsu.csc413_parking;
+package com.csc413.sfsu.SFParkLocationData;
 
+import com.csc413.sfsu.csc413_parking.MainActivity;
 import com.csc413.sfsu.sfpark_simplified.SFParkQuery;
 import com.csc413.sfsu.sfpark_simplified.SFParkXMLResponse;
 import com.google.android.gms.maps.model.LatLng;
@@ -22,7 +23,7 @@ public class SFParkLocationFactory
     private LocationDatabaseHandler db;
 
 
-    SFParkLocationFactory(MainActivity context){
+    public SFParkLocationFactory(MainActivity context){
         this.db=new LocationDatabaseHandler(context);
     }
 
