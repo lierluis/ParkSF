@@ -35,15 +35,6 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
         MapFragment mapFragment = (MapFragment)getFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-        query = new SFParkQuery();
-        query.setLatitude(37.792275);
-        query.setLongitude(-122.397089);
-        query.setRadius(0.5);
-        query.setUnitOfMeasurement("MILE");
-        response = new SFParkXMLResponse();
-
-
-
     }
 
     @Override

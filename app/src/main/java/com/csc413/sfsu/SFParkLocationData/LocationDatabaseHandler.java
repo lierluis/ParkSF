@@ -322,6 +322,86 @@ public class LocationDatabaseHandler extends SQLiteOpenHelper {
     }
 
     /**
+     * Retrieves a list of all locations with the isFavorite value set to 1 (true).
+     * @return An array list of ParkingLocations that are favorites in the database.
+     */
+    public List<ParkingLocation> getFavorites(){
+        SQLiteDatabase db=this.getReadableDatabase();
+        String query="SELECT * FROM "+this.tableName+" WHERE "+this.keyIsFavorite+" = 1";
+        Cursor cursor=db.rawQuery(query, null);
+        List<ParkingLocation> favorites=new ArrayList<ParkingLocation>();
+
+        if(cursor.moveToFirst()){
+            do {
+                LatLng coords = new LatLng(cursor.getDouble(1), cursor.getDouble(2));
+                LatLng origin = new LatLng(cursor.getDouble(3), cursor.getDouble(4));
+                Double radius = cursor.getDouble(5);
+                boolean hasStreetParking = ((cursor.getInt(6) == 1) ? true : false);
+                String name = cursor.getString(7);
+                String desc = cursor.getString(8);
+                int ospid = cursor.getInt(9);
+                int bfid=cursor.getInt(10);
+                boolean isFavorite = (cursor.getInt(11) == 1 ? true : false);
+                int timesSearched = (cursor.getInt(12));
+                boolean parkedHere = (cursor.getInt(13) == 1 ? true : false);
+
+                ParkingLocation location = new ParkingLocation(origin, radius, hasStreetParking, name,
+                        desc, ospid, bfid, coords, isFavorite, timesSearched, parkedHere);
+                favorites.add(location);
+
+            }while(cursor.moveToNext());
+            cursor.close();
+            return favorites;
+        }
+
+
+        cursor.close();
+        return null;
+
+    }
+
+    /**
+     * Retrieves a list of all locations with the parkedHere value set to 1 (true).
+     * @return An array list of ParkingLocations that have been parked at by the user.
+     */
+    public List<ParkingLocation> getParkedLocations(){
+        SQLiteDatabase db=this.getReadableDatabase();
+        String query="SELECT * FROM "+this.tableName+" WHERE "+this.keyParkedHere+" = 1";
+        Cursor cursor=db.rawQuery(query, null);
+        List<ParkingLocation> parkedList=new ArrayList<ParkingLocation>();
+
+        if(cursor.moveToFirst()){
+            do {
+                LatLng coords = new LatLng(cursor.getDouble(1), cursor.getDouble(2));
+                LatLng origin = new LatLng(cursor.getDouble(3), cursor.getDouble(4));
+                Double radius = cursor.getDouble(5);
+                boolean hasStreetParking = ((cursor.getInt(6) == 1) ? true : false);
+                String name = cursor.getString(7);
+                String desc = cursor.getString(8);
+                int ospid = cursor.getInt(9);
+                int bfid=cursor.getInt(10);
+                boolean isFavorite = (cursor.getInt(11) == 1 ? true : false);
+                int timesSearched = (cursor.getInt(12));
+                boolean parkedHere = (cursor.getInt(13) == 1 ? true : false);
+
+                ParkingLocation location = new ParkingLocation(origin, radius, hasStreetParking, name,
+                        desc, ospid, bfid, coords, isFavorite, timesSearched, parkedHere);
+                parkedList.add(location);
+
+            }while(cursor.moveToNext());
+            cursor.close();
+            return parkedList;
+        }
+
+
+        cursor.close();
+        return null;
+
+    }
+
+
+
+    /**
      * Updates the SQLite database entry with data contained in the ParkingLocation parameter.
      * Note that if this method returns 0, the caller should call the addLocation() method.
      * @param location The location to update in the database.

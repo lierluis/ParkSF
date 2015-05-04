@@ -62,9 +62,9 @@ public class SFParkLocationFactory
                 String desc=response.avl(i).desc();
                 int ospid=response.avl(i).ospid();
                 int bfid=response.avl(i).bfid();
-                boolean isFavorite=false;
+                boolean isFavorite=true;
                 int timesSearched=1;
-                boolean parkedHere=false;
+                boolean parkedHere=true;
 
                 ParkingLocation loc=new ParkingLocation(origin, radius, hasOnStreetParking, name,
                         desc, ospid, bfid, coords, isFavorite, timesSearched, parkedHere);
@@ -186,6 +186,27 @@ public class SFParkLocationFactory
         }
 
         return updatedList;
+    }
+
+    /**
+     * Retrieves all items in the database that are favorites.
+     *
+     * @return An array list of ParkingLocation objects with isFavorite set to true from the
+     * database.
+     */
+    public List<ParkingLocation> getFavorites(){
+        return this.db.getFavorites();
+    }
+
+
+    /**
+     * Retrieves all items in the database that are parked locations.
+     *
+     * @return An array list of ParkingLocation objects with parkedHere set to true from the
+     * database.
+     */
+    public List<ParkingLocation> getParkedLocations(){
+        return this.db.getParkedLocations();
     }
 
 

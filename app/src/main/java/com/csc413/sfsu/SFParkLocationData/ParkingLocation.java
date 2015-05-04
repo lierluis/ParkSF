@@ -5,11 +5,14 @@ import com.google.android.gms.maps.model.LatLng;
 /**
  * The ParkingLocation class is intended to store data about parking locations returned from the
  * SFParkSimplified API. ParkingLocation objects are associated with an origin location and will be
- * within a radius measurement of that origin.
+ * within a radius measurement of that origin. The data of ParkingLocation objects is populated
+ * using the SFParkLocationFactory class as an entry point. ParkingLocation objects should not be
+ * created manually, as this may cause unintended side effects with other DataBase classes.
  *
  * Note that once created, ParkingLocation objects are static, and do not provide mutators on
- * internal data members. If the need arises to change data on a ParkingLocation object, a new
- * object must be created.
+ * internal data members, except as protected methods for classes in the same package.
+ * If the need arises to change data on a ParkingLocation object, the methods within the
+ * SFParkLocationFactory class should be utilized.
  *
  * @author Devin Clary
  */
@@ -47,7 +50,6 @@ public class ParkingLocation {
     private boolean parkedHere;
 
     /**
-     * Constructor
      * Note that calling the empty constructor may have unintended side effects of blank or null data.
      */
     ParkingLocation(){
