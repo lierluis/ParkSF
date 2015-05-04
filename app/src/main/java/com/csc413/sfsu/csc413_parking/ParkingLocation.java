@@ -43,6 +43,8 @@ public class ParkingLocation {
     private boolean isFavorite;
     /** The number of times this location has been the subject of a search by the user.*/
     private int timesSearched;
+    /**Whether the user has parked at this location.*/
+    private boolean parkedHere;
 
     /**
      * Constructor
@@ -79,7 +81,7 @@ public class ParkingLocation {
      */
     ParkingLocation(LatLng origin, Double radiusFromOrigin, boolean hasOnStreetParking, String name,
                     String desc, int ospid, int bfid, LatLng coords, boolean isFavorite,
-                    int timesSearched){
+                    int timesSearched, boolean parkedHere){
         this.originLocation=origin;
         this.radiusFromOrigin=radiusFromOrigin;
         this.hasOnStreetParking=hasOnStreetParking;
@@ -90,6 +92,7 @@ public class ParkingLocation {
         this.coords=coords;
         this.isFavorite=isFavorite;
         this.timesSearched=timesSearched;
+        this.parkedHere=parkedHere;
     }
 
     //Accessors
@@ -177,11 +180,31 @@ public class ParkingLocation {
         return this.timesSearched;
     }
 
+    /**
+     * Whether the user has parked at this location.
+     * @return A boolean for whether the user has parked at this location.
+     */
+    public boolean getParkedHere() { return this.parkedHere; }
+
+
+    /**
+     * Sets the location's isFavorite field.
+     * Note: This method should only be accessible by the SFParkLocationFactory and
+     * LocationDatabaseHandler classes-hence this method has an access modifier of protected.
+     * DO NOT SET THIS FIELD FROM ANY OTHER CLASS.
+     * Use the SFParkLocationFactory class to set this field to prevent unintended side-effects.
+     */
+    protected void setIsFavorite(boolean isFavorite){
+        this.isFavorite=isFavorite;
+    }
 
     /**
      * Sets the times searched field of this location-A data field used by the ParkingLocation
      * database.
-     * Note: If storing this location in a database, DO NOT SET
+     * Note: This method should only be accessible by the SFParkLocationFactory and
+     * LocationDatabaseHandler classes-hence this method has an access modifier of protected.
+     * DO NOT SET THIS FIELD FROM ANY OTHER CLASS.
+     * Use the SFParkLocationFactory class to set this field to prevent unintended side-effects.
      * @param timesSearched
      */
     protected void setTimesSearched(int timesSearched){
@@ -193,7 +216,7 @@ public class ParkingLocation {
                 +"\n\t Location: "+getCoords()+" \tOrigin: "+this.originLocation.toString()
                 +" \n\t\t Radius: "+this.radiusFromOrigin+" \tHas Street Parking: "
                 +this.hasOnStreetParking+" \tOSPID: "+getOspid()+" \tBFID: "+getBfid()
-                +" \tIsFavorite: "+isFavorite();
+                +" \tIsFavorite: "+isFavorite()+" Parked Here: "+this.parkedHere;
     }
 
 

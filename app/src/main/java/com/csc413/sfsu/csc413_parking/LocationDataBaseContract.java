@@ -35,6 +35,7 @@ public class LocationDatabaseContract {
         public static final String KEY_BFID="bfid";
         public static final String KEY_IS_FAVORITE="isFavorite";
         public static final String KEY_TIMES_SEARCHED="timesSearched";
+        public static final String KEY_PARKED_HERE="parkedHere";
     }
 
 }

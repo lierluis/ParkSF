@@ -39,6 +39,7 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
         query.setRadius(0.5);
         query.setUnitOfMeasurement("MILE");
         response = new SFParkXMLResponse();
+//        this.deleteDatabase("locations");
         SFParkLocationFactory factory=new SFParkLocationFactory(this);
 
     }

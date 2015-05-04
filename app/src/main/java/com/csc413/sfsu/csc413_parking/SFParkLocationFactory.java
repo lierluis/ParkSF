@@ -59,9 +59,10 @@ public class SFParkLocationFactory
                 int bfid=response.avl(i).bfid();
                 boolean isFavorite=false;
                 int timesSearched=1;
+                boolean parkedHere=false;
 
                 ParkingLocation loc=new ParkingLocation(origin, radius, hasOnStreetParking, name,
-                        desc, ospid, bfid, coords, isFavorite, timesSearched);
+                        desc, ospid, bfid, coords, isFavorite, timesSearched, parkedHere);
 
                 this.db.addLocation(loc);
 
