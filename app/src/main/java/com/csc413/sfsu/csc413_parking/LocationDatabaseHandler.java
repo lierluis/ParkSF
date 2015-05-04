@@ -121,18 +121,26 @@ public class LocationDatabaseHandler extends SQLiteOpenHelper {
     /**
      * Adds a ParkingLocation object's data fields into a row of the LocationDatabase.
      * Note: if location already exists in database, the timesSearched field will be incremented.
+     * If the capacity of the database is reached, the minimally searched location will be deleted.
      * @param loc a ParkingLocation object to be parsed into discrete data to store in database.
      */
     public void addLocation(ParkingLocation loc){
+        //Make sure minimum is set properly.
         this.updateMinTimesSearched();
-        if(loc.hasOnStreetParking()&&this.getLocationFromBFID(loc.getBfid())!=null&&loc.getBfid()!=-1){ //Check if BFID exists in db.
-            //Duplicate. Update timesSearched
+
+        //Check if BFID exists in db.
+        if(loc.hasOnStreetParking()&&this.getLocationFromBFID(loc.getBfid())!=null
+                &&loc.getBfid()!=-1){
+            //Duplicate on street location. Update timesSearched, do not add location to database.
             this.incrementTimesSearched(loc);
             this.updateMinTimesSearched();
             return;
 
         }
-        else if(!loc.hasOnStreetParking()&&this.getLocationFromOSPID(loc.getOspid())!=null&&loc.getOspid()!=-1){ //Check if OSPID exists in db.
+        //Check if OSPID exists in db.
+        else if(!loc.hasOnStreetParking()&&this.getLocationFromOSPID(loc.getOspid())!=null
+                &&loc.getOspid()!=-1){
+            //Duplicate off street location. Update timesSearched, do not add location to database.
             this.incrementTimesSearched(loc);
             this.updateMinTimesSearched();
             return;
@@ -200,27 +208,6 @@ public class LocationDatabaseHandler extends SQLiteOpenHelper {
     }
 
     /**
-     * Increments the timesSearched field of the given location in the database.
-     * Note that the timesSearched field of the location parameter may not be up to date with the
-     * database. Therefore, the timesSearched field in the database will be used.
-     * @param loc The ParkingLocation to increment the timesSearched field on.
-     */
-    public void incrementTimesSearched(ParkingLocation loc){
-        if(loc.hasOnStreetParking()&&this.getLocationFromBFID(loc.getBfid())!=null&&loc.getBfid()!=-1){ //Check if BFID exists in db.
-            //Duplicate. Update timesSearched
-            loc=this.getLocationFromBFID(loc.getBfid()); //Use value of locationCount stored in DB.
-            loc.setTimesSearched(loc.getTimesSearched()+1);
-            this.updateLocation(loc);
-
-        }
-        else if(!loc.hasOnStreetParking()&&this.getLocationFromOSPID(loc.getOspid())!=null&&loc.getOspid()!=-1){ //Check if BFID exists in db.
-            loc=this.getLocationFromOSPID(loc.getOspid());
-            loc.setTimesSearched(loc.getTimesSearched()+1);
-            this.updateLocation(loc);
-        }
-    }
-
-    /**
      * Retrieves the number of entries in the SQLite LocationDatabase
      * @return An integer count representing the number of rows (locations) in the database
      */
@@ -236,8 +223,30 @@ public class LocationDatabaseHandler extends SQLiteOpenHelper {
     }
 
     /**
+     * Increments the timesSearched field of the given location in the database.
+     * Note that the timesSearched field of the location parameter may not be up to date with the
+     * database. Therefore, the timesSearched field in the database will be used.
+     * @param loc The ParkingLocation to increment the timesSearched field on.
+     */
+    public void incrementTimesSearched(ParkingLocation loc){
+        if(loc.hasOnStreetParking()&&this.getLocationFromBFID(loc.getBfid())!=null
+                &&loc.getBfid()!=-1){ //Check if BFID location exists in database.
+            loc=this.getLocationFromBFID(loc.getBfid()); //Use value of locationCount stored in DB.
+            loc.setTimesSearched(loc.getTimesSearched()+1);
+            this.updateLocation(loc);
+
+        }
+        else if(!loc.hasOnStreetParking()&&this.getLocationFromOSPID(loc.getOspid())!=null
+                &&loc.getOspid()!=-1){ //Check if OSPID location exists in database.
+            loc=this.getLocationFromOSPID(loc.getOspid());//Use value of locationCount stored in DB.
+            loc.setTimesSearched(loc.getTimesSearched()+1);
+            this.updateLocation(loc);
+        }
+    }
+
+    /**
      * Retrieves a ParkingLocation object with the specified OSPID field from the database.
-     * @param ospid the ospid field to search for
+     * @param ospid the ospid field to search for.
      * @return A ParkingLocation object composed of the SQLite row with the specified OSPID.
      */
     public ParkingLocation getLocationFromOSPID(int ospid){
@@ -330,9 +339,11 @@ public class LocationDatabaseHandler extends SQLiteOpenHelper {
         values.put(this.keyOSPID, location.getOspid());
         values.put(this.keyIsFavorite, location.isFavorite()? 1 : 0);
         values.put(this.keyTimesSearched, location.getTimesSearched());
-//        System.out.println("TIMES SEARCHED: "+location.getTimesSearched());
 
-        return db.update(this.tableName, values, (location.hasOnStreetParking()? this.keyBFID: this.keyOSPID)+"=?",new String[] { (String.valueOf(location.hasOnStreetParking()? location.getBfid(): location.getOspid())) });
+        return db.update(this.tableName, values, (location.hasOnStreetParking()?
+                this.keyBFID: this.keyOSPID)+"=?",new String[] {
+                (String.valueOf(location.hasOnStreetParking()?
+                        location.getBfid(): location.getOspid())) });
     }
 
     /**
@@ -343,8 +354,10 @@ public class LocationDatabaseHandler extends SQLiteOpenHelper {
     public void deleteLocation(ParkingLocation location) {
         if(location!=null) {
             SQLiteDatabase db = this.getWritableDatabase();
-            String columnName=location.hasOnStreetParking() ? this.keyBFID+" = ?" : this.keyOSPID + " = ?";
-            String id= location.hasOnStreetParking() ? Integer.toString(location.getBfid()) : Integer.toString(location.getOspid()) ;
+            String columnName=location.hasOnStreetParking() ? this.keyBFID+" = ?" : this.keyOSPID
+                    + " = ?";
+            String id= location.hasOnStreetParking() ? Integer.toString(location.getBfid())
+                    : Integer.toString(location.getOspid()) ;
             db.delete(this.tableName, columnName,new String[]{String.valueOf(id)});
             db.close();
         }
@@ -357,11 +370,13 @@ public class LocationDatabaseHandler extends SQLiteOpenHelper {
      */
     public void updateMinTimesSearched(){
         SQLiteDatabase db=this.getReadableDatabase();
-        Cursor cursor = db.rawQuery("select * from locations where timesSearched = (select MIN(timesSearched) from locations)", null);
+        Cursor cursor = db.rawQuery("select * from locations where timesSearched = " +
+                "(select MIN(timesSearched) from locations)", null);
 
 
         if(cursor.moveToFirst()&&cursor!=null) {//Store the least searched location.
-            this.leastSearchedLocation = ((cursor.getInt(6) == 1) ? this.getLocationFromBFID(cursor.getInt(10))
+            this.leastSearchedLocation = ((cursor.getInt(6) == 1) ?
+                    this.getLocationFromBFID(cursor.getInt(10))
                     : this.getLocationFromOSPID(cursor.getInt(9)));
 
             this.minTimesSearched = cursor.getInt(12);

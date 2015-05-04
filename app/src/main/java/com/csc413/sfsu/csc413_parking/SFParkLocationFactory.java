@@ -12,7 +12,7 @@ import java.util.List;
  * SFParkSimplified API.
  *
  * @Important Currently the SFParkLocationFactory should be the only point of entry into the
- * LocationDatabaseHandler class. This is due to the fact that if the timesSearched field of
+ * LocationDatabaseHandler class. If the timesSearched field of
  * ParkingLocation objects are set manually and added to the database manually, the database will
  * not properly remove the least searched locations.
  */
@@ -28,9 +28,10 @@ public class SFParkLocationFactory
     /**
      * Retrieves all parking locations from SFPark within the specified radius of the origin as a
      * list of discrete ParkingLocation objects.
-     * Note: This method will also add or update all locations found to an internal database.
+     * This method will also add or update all locations found to an internal database.
+     * If the internal database reaches capacity, the least searched locations are deleted.
      * @param origin Center of search for parking locations.
-     * @param radius radius to search for parking locations.
+     * @param radius radius to search for parking locations in miles.
      * @return list of ParkingLocation objects within the radius of the origin.
      */
     public List<ParkingLocation> getParkingLocations(LatLng origin, double radius){
@@ -77,23 +78,38 @@ public class SFParkLocationFactory
 
 
         }
+
+        System.out.println("---------------Locations within range of your tap---------------");
+        for(int i=0; i<locationList.size(); i++){
+            System.out.println("Entry "+(i+1)+": ");
+            System.out.println("Location "+i+" "+locationList.get(i));
+            System.out.println("----------");
+        }
+
+
         return locationList;
     }
 
-
+    /**
+     * Prints the values of all locations in the database to the console.
+     */
     public void printAllDB(){
 
         System.out.println("---------------Current Database Contents---------------");
-        List<ParkingLocation> list=db.getAllLocations();
+        List<ParkingLocation> l=db.getAllLocations();
         if (db.getLocationsCount()==0){
             System.out.println("    The parking location database is empty.");
         }
         else{
             System.out.println("    There are "+db.getLocationsCount()+" entries in the database.");
+            for(int i=0; i<db.getLocationsCount(); i++){
+                System.out.println("Entry "+(i+1)+": ");
+                ParkingLocation p=l.get(i);
+                System.out.println(p.toString());
+                System.out.println("----------");
+            }
         }
-        for(int i=0; i<db.getLocationsCount(); i++){
-            System.out.println("    Entry: "+(i+1)+": "+list.get(i).toString());
-        }
+
     }
 
 
