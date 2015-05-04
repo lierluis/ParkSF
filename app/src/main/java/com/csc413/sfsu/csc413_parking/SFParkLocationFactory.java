@@ -58,15 +58,42 @@ public class SFParkLocationFactory
                 int bfid=response.avl(i).bfid();
                 boolean isFavorite=false;
                 int timesSearched=1;
+
                 ParkingLocation loc=new ParkingLocation(origin, radius, hasOnStreetParking, name,
                         desc, ospid, bfid, coords, isFavorite, timesSearched);
+
                 this.db.addLocation(loc);
-                locationList.add(loc);
+
+                if(loc.hasOnStreetParking()){
+                    locationList.add(db.getLocationFromBFID(bfid));
+                }
+                else{
+                    locationList.add(db.getLocationFromOSPID(ospid));
+                }
+
+
             }
+
+
+
         }
-
         return locationList;
+    }
 
+
+    public void printAllDB(){
+
+        System.out.println("---------------Current Database Contents---------------");
+        List<ParkingLocation> list=db.getAllLocations();
+        if (db.getLocationsCount()==0){
+            System.out.println("    The parking location database is empty.");
+        }
+        else{
+            System.out.println("    There are "+db.getLocationsCount()+" entries in the database.");
+        }
+        for(int i=0; i<db.getLocationsCount(); i++){
+            System.out.println("    Entry: "+(i+1)+": "+list.get(i).toString());
+        }
     }
 
 

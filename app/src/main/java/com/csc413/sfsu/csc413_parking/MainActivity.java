@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.csc413.sfsu.sfpark_simplified.SFParkQuery;
 import com.csc413.sfsu.sfpark_simplified.SFParkXMLResponse;
@@ -12,6 +13,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,6 +23,7 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
     private GoogleMap map;
     private SFParkQuery query;
     private SFParkXMLResponse response;
+    private List<Marker> activeMarkers;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,18 +39,8 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
         query.setRadius(0.5);
         query.setUnitOfMeasurement("MILE");
         response = new SFParkXMLResponse();
+        SFParkLocationFactory factory=new SFParkLocationFactory(this);
 
-        SFParkLocationFactory locationFactory=new SFParkLocationFactory(this);
-        LatLng origin=new LatLng(37.792279, -122.39709);
-        double radius=.25;
-        List<ParkingLocation> parkingList=new ArrayList<ParkingLocation>();
-        parkingList=locationFactory.getParkingLocations(origin, radius);
-        System.out.println("PARKING LIST SIZE::::::::"+parkingList.size());
-        for (int i=0; i<parkingList.size(); i++){
-            System.out.println("Parking location: "+i+":");
-            System.out.println("    "+parkingList.get(i).toString());
-            System.out.println();
-        }
     }
 
     @Override
@@ -58,33 +51,40 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
         map.moveCamera(CameraUpdateFactory.newLatLngZoom(sanFrancisco, 14));
         //map.setOnMapClickListener(new MapListener(map));
 
-        final SFParkLocationFactory locationFactory=new SFParkLocationFactory(this);
+
         map.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
             public void onMapClick(LatLng latLng) {
-                //String msg = "Latitude: " + latLng.latitude + "\nLongitude: " + latLng.longitude;
+                String msg = "Latitude: " + latLng.latitude + "\nLongitude: " + latLng.longitude;
+                SFParkLocationFactory locationFactory=new SFParkLocationFactory(MainActivity.this);
                 List <ParkingLocation> parkingList=new ArrayList<ParkingLocation>();
                 parkingList=locationFactory.getParkingLocations(latLng,.25);
-//                query.setLongitude(latLng.longitude);
-//                query.setLatitude(latLng.latitude);
-//                String msg;
-//                if (response.populate(query)) {
-//                    msg = "Status: " + response.status();
-//                    msg += "\nMessage: " + response.message();
-//                    if (response.numRecords() > 0) {
-//                        for (int i = 0; i < response.avl(0).pts(); i++) {
-//                            msg += "\nLocation " + (i+1) + ": ("
-//                                    + response.avl(0).loc().longitude(i)
-//                                    + ", "
-//                                    + response.avl(0).loc().latitude(i)
-//                                    + ")";
-//                        }
-//                    }
-//                }
-//                else
-//                    msg = "failed to populate: " + response.status();
-//
-//                Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_SHORT).show();
+                System.out.println("---------------Locations within range of your tap---------------");
+                for(int i=0; i<parkingList.size(); i++){
+                    System.out.println("Location "+i+" "+parkingList.get(i));
+                }
+                locationFactory.printAllDB();
+
+
+                query.setLongitude(latLng.longitude);
+                query.setLatitude(latLng.latitude);
+                if (response.populate(query)) {
+                    msg = "Status: " + response.status();
+                    msg += "\nMessage: " + response.message();
+                    if (response.numRecords() > 0) {
+                        for (int i = 0; i < response.avl(0).pts(); i++) {
+                            msg += "\nLocation " + (i+1) + ": ("
+                                    + response.avl(0).loc().longitude(i)
+                                    + ", "
+                                    + response.avl(0).loc().latitude(i)
+                                    + ")";
+                        }
+                    }
+                }
+                else
+                    msg = "failed to populate: " + response.status();
+
+                Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_SHORT).show();
             }
         });
     }
