@@ -46,6 +46,9 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationServices;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.List.*;
 import com.csc413.sfsu.csc413_parking_data.*;
 
 
@@ -67,6 +70,11 @@ public class MainActivity extends ActionBarActivity implements
     private TextView mLocationView;
     private GoogleApiClient mGoogleApiClient;
     private LocationRequest mLocationRequest;
+
+
+    double radius = 5.0;
+    SFParkLocationFactory locationFactory = new SFParkLocationFactory(this);
+    List<ParkingLocation> parkingList=new ArrayList<ParkingLocation>();
 
 
     @Override
@@ -96,6 +104,9 @@ public class MainActivity extends ActionBarActivity implements
         theMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
         theMap.getUiSettings().setZoomControlsEnabled(true);
 
+
+
+
         updatePlaces();
 
     }
@@ -103,6 +114,7 @@ public class MainActivity extends ActionBarActivity implements
     @Override
     public void onConnected(Bundle bundle) {
         Toast.makeText(this,"Connected to location services", Toast.LENGTH_SHORT).show();
+
 
     }
 
@@ -183,6 +195,10 @@ public class MainActivity extends ActionBarActivity implements
                     tvLng.setText("Longitude: "+ll.longitude);
                     tvSnippet.setText(marker.getSnippet());
 
+
+
+
+
                     return v;
 
                 }
@@ -192,12 +208,12 @@ public class MainActivity extends ActionBarActivity implements
     }
 
 
-    private void gotoLocation(double lat, double lng, float zoom) {
-
-        LatLng ll = new LatLng(lat, lng);
-        CameraUpdate update = CameraUpdateFactory.newLatLngZoom(ll,zoom);
-        theMap.moveCamera(update);
-    }
+//    private void gotoLocation(double lat, double lng, float zoom) {
+//
+//        LatLng ll = new LatLng(lat, lng);
+//        CameraUpdate update = CameraUpdateFactory.newLatLngZoom(ll,zoom);
+//        theMap.moveCamera(update);
+//    }
 
     private void updatePlaces(){
         //update location
@@ -209,6 +225,11 @@ public class MainActivity extends ActionBarActivity implements
 
         LatLng lastLatLng = new LatLng(lat, lng);
 
+
+
+
+
+
         if(userMarker!=null) userMarker.remove();
 
         userMarker = theMap.addMarker(new MarkerOptions()
@@ -216,19 +237,30 @@ public class MainActivity extends ActionBarActivity implements
                 .position(lastLatLng)
                 .title("Parking Location")
                 .snippet("You are here"));
+
         userMarker.setDraggable(true);
 
         CameraUpdate update = CameraUpdateFactory.newLatLngZoom(lastLatLng,18);
         theMap.moveCamera(update);
         theMap.animateCamera(CameraUpdateFactory.newLatLng(lastLatLng), 3000, null);
+
+
+
+        parkingList = locationFactory.getParkingLocations(lastLatLng, radius);
+
+        System.out.println("PARKING LIST SIZE::::::::" + parkingList.size());
+
+        for (int i=0; i<parkingList.size(); i++){
+
+            System.out.println("Parking location: "+i+":");
+            System.out.println("    " + parkingList.get(i).toString());
+            System.out.println("\n");
+        }
+
     }
 
 
-    // test method
-    public void findParking(){
-        
 
-    }
 
 
 

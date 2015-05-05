@@ -11,7 +11,7 @@ import android.provider.BaseColumns;
  *
  *  @author Devin Clary
  */
-public class LocationDatabaseContract {
+class LocationDatabaseContract {
 
     // Constructor is empty if someone creates an instance.
     public LocationDatabaseContract() {}

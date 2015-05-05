@@ -135,7 +135,7 @@ public class ParkingLocation {
      *
      * @return The coordinates of this parking location.
      */
-    LatLng getCoords(){
+    public LatLng getCoords(){
         return coords;
     }
 
@@ -157,9 +157,16 @@ public class ParkingLocation {
 
 
     public String toString(){
-        return "Name: "+getName()+"Desc: "+getDesc()+"Location: "+getCoords()+"Origin: "+this.originLocation.toString()+" Radius: "+this.radiusFromOrigin
-                +" Has Street Parking: "+this.hasOnStreetParking+" OSPID: "+getOspid()+" BFID: "+getBfid()+" IsFavorite: "+isFavorite()
-                +" Times Searched: "+getTimesSearched();
+        return "Name: "+getName()+ "\n"+
+                "Desc: "+getDesc()+ "\n"+
+                "Location: "+getCoords()+"\n"+
+                "Origin: "+this.originLocation.toString()+"\n"+
+                " Radius: "+this.radiusFromOrigin+"\n"+
+                " Has Street Parking: "+this.hasOnStreetParking+"\n"+
+                " OSPID: "+getOspid()+"\n"+
+                " BFID: "+getBfid()+"\n"+
+                " IsFavorite: "+isFavorite()+"\n"+
+                " Times Searched: "+getTimesSearched();
     }
 
 
