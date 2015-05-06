@@ -112,6 +112,9 @@ public class SFParkLocationFactory
      * did not exist in the database, the return value will be null.
      */
     public ParkingLocation toggleFavorite(ParkingLocation location){
+        if(db.getNumFav()>10){ //too many favorites in db.
+            return null;
+        }
         //Get database location data first, so as not to overwrite values other than the isFavorite
         if(location.hasOnStreetParking()){
             location=db.getLocationFromBFID(location.getBfid());
@@ -150,6 +153,11 @@ public class SFParkLocationFactory
      * did not exist in the database, the return value will be null.
      */
     public ParkingLocation toggleParkedHere(ParkingLocation location){
+        if(db.getNumParkedHere()>20){ //delete parked here location to make room
+            db.deleteLocation(db.getParkedHereToDelete());
+            db.updateparkedHereCount();
+        }
+
         //Get database location data first, so as not to overwrite values other than the parkedHere
         if(location.hasOnStreetParking()){
             location=db.getLocationFromBFID(location.getBfid());
