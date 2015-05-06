@@ -108,6 +108,8 @@ public class SFParkLocationFactory
      * method to store the return value, to keep the data updated.
      *
      * @param location The location to toggle the isFavorite field.
+     * @return The updated location object data after toggling the favorite field. If the location
+     * did not exist in the database, the return value will be null.
      */
     public ParkingLocation toggleFavorite(ParkingLocation location){
         //Get database location data first, so as not to overwrite values other than the isFavorite
@@ -116,6 +118,10 @@ public class SFParkLocationFactory
         }
         else{
             location=db.getLocationFromOSPID(location.getOspid());
+        }
+
+        if(location==null){ //location did not exist in database. Return location unchanged.
+            return null;
         }
 
         location.setIsFavorite(!location.isFavorite());
@@ -135,9 +141,13 @@ public class SFParkLocationFactory
      *
      * The opposite of the current value of isFavorite in the database will
      * ALWAYS be used, regardless of the parameter values. It is a good idea for the user of this
-     * method to store the return value, to keep the data updated.
+     * method to store the return value, to keep the data updated. If the return value is null this
+     * means the location no longer exists in the database. In this case, it is a good idea to call
+     * accessor methods for updated lists of locations that currently exist in the database.
      *
      * @param location The location to toggle the parkedHere field.
+     * @return The updated location object data after toggling the parkedHere field. If the location
+     * did not exist in the database, the return value will be null.
      */
     public ParkingLocation toggleParkedHere(ParkingLocation location){
         //Get database location data first, so as not to overwrite values other than the parkedHere
@@ -146,6 +156,10 @@ public class SFParkLocationFactory
         }
         else{
             location=db.getLocationFromOSPID(location.getOspid());
+        }
+
+        if(location==null){ //location did not exist in database. Return location unchanged.
+            return null;
         }
 
         location.setParkedHere(!location.getParkedHere());
@@ -160,11 +174,15 @@ public class SFParkLocationFactory
      * This method should be called whenever the data in the database may have changed, especially
      * if the locations in the list are being accessed through more than one entry point.
      *
-     * Note that if a location in the parameter list does not exist in the database, it will be
-     * automatically added.
+     * Note that if a location in the parameter list does not exist in the database, the original
+     * location object parameters will be returned unchanged. It is advisable to only maintain
+     * lists of locations for short periods of time, unless the locations are set as favorites or
+     * parkedHere.
+     *
      *
      * @param locs The array list of ParkingLocations to update
      * @return An array list of ParkingLocations equal to the parameter list, but with updated data.
+     *
      */
     public List<ParkingLocation> updateDataFromDatabase(List<ParkingLocation> locs){
         List<ParkingLocation>updatedList=new ArrayList<ParkingLocation>();
@@ -178,8 +196,7 @@ public class SFParkLocationFactory
                 updatedLocation=db.getLocationFromOSPID(locToUpdate.getOspid());
             }
 
-            if(updatedLocation==null){ //location didn't exist in Database. Add it to database.
-                db.addLocation(locToUpdate);
+            if(updatedLocation==null){ //didn't exist in Database. Return location unchanged.
                 updatedLocation=locToUpdate;
             }
             updatedList.add(updatedLocation);
@@ -211,6 +228,7 @@ public class SFParkLocationFactory
 
 
     /**
+     * A debugging method, not for use in a production environment for security reasons.
      * Prints the values of all locations in the database to the console.
      */
     public void printAllDB(){

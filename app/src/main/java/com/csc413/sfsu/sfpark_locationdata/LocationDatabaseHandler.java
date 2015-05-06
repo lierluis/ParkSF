@@ -426,10 +426,12 @@ public class LocationDatabaseHandler extends SQLiteOpenHelper {
         values.put(this.keyTimesSearched, location.getTimesSearched());
         values.put(this.keyParkedHere, location.getParkedHere()? 1: 0);
 
-        return db.update(this.tableName, values, (location.hasOnStreetParking()?
+        int rowsAffected=db.update(this.tableName, values, (location.hasOnStreetParking()?
                 this.keyBFID: this.keyOSPID)+"=?",new String[] {
                 (String.valueOf(location.hasOnStreetParking()?
                         location.getBfid(): location.getOspid())) });
+        this.updateMinTimesSearched();
+        return rowsAffected;
     }
 
     /**
@@ -453,22 +455,25 @@ public class LocationDatabaseHandler extends SQLiteOpenHelper {
      * Finds the minimally searched entry in the database.
      * Updates the minTimesSearched field with the value of the least number of searches.
      * Updates the leastSearchedLocation to reference the least searched location.
+     * This method will NOT consider locations that have favorite or parkedHere set to true.
      */
     public void updateMinTimesSearched(){
         SQLiteDatabase db=this.getReadableDatabase();
         Cursor cursor = db.rawQuery("select * from locations where timesSearched = " +
                 "(select MIN(timesSearched) from locations)", null);
 
-
+        this.minTimesSearched=0;
+        this.leastSearchedLocation=null;
         if(cursor.moveToFirst()&&cursor!=null) {//Store the least searched location.
-            this.leastSearchedLocation = ((cursor.getInt(6) == 1) ?
-                    this.getLocationFromBFID(cursor.getInt(10))
-                    : this.getLocationFromOSPID(cursor.getInt(9)));
+            do { //find location that is not a favorite or parkedHere in the minimally searched list
+                if (!(cursor.getInt(11) == 1) || !(cursor.getInt(13) == 1)) {
+                    this.leastSearchedLocation = ((cursor.getInt(6) == 1) ?
+                            this.getLocationFromBFID(cursor.getInt(10))
+                            : this.getLocationFromOSPID(cursor.getInt(9)));
 
-            this.minTimesSearched = cursor.getInt(12);
-        }
-        else{
-            this.minTimesSearched=0;
+                    this.minTimesSearched = cursor.getInt(12);
+                }
+            }while(cursor.moveToNext());
         }
     }
 
