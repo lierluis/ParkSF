@@ -34,6 +34,14 @@
             </intent-filter>
         </activity>
 
+        <!--<activity-->
+            <!--android:name=".CrimeSettings"-->
+            <!--android:label="CRIME" >-->
+            <!--<intent-filter>-->
+                <!--<action android:name="android.intent.action.default" />-->
+                <!--<category android:name="android.intent.category.ACTIVITY" />-->
+            <!--</intent-filter>-->
+        <!--</activity>-->
 
         <activity
             android:name=".MainActivity"
