@@ -1,4 +1,4 @@
-package com.csc413.sfsu.csc413_parking_data;
+package com.csc413.sfsu.csc413_parking;
 
 import com.google.android.gms.maps.model.LatLng;
 
@@ -18,19 +18,19 @@ public class ParkingLocation {
     /**Whether this location has on street parking. Corresponds to the <TYPE> tag from SFPark responses. The ON value corresponds to true, and the OFF value corresponds to false.*/
     private boolean hasOnStreetParking;
     /**The name of this location. Corresponds to the <NAME> tag from SFPark responses. */
-    private static String name;
+    private String name;
     /**The description of this parking location. This will only contain data for off street parking. Corresponds to the <DESC> tag from SFPark responses. Set to "" if nonexistent for this location. */
-    private static String desc;
+    private String desc;
     /**Unique SFMTA ID for off street parking. Corresponds to the <OSPID> tag from SFPark responses. Set to 0 if nonexistent for this location. */
-    private static int ospid;
+    private int ospid;
     /**Unique SFMTA ID for on street, block facing parking. Corresponds to the <BFID> tag from SFPark responses. Set to 0 if nonexistent for this location. */
-    private static int bfid;
+    private int bfid;
     /**The coordinates of this parking location. Corresponds to the <LOC> tag from SFPark responses. Note: the SFPark database will usually have two points (start and end) for on street parking. In this case, only the first point will be saved.*/
-    private static LatLng coords;
+    private LatLng coords;
     /**Whether this location has been specified as a favorite by the user.*/
     private boolean isFavorite;
     /** The number of times this location has been the subject of a search by the user.*/
-    private static int timesSearched;
+    private int timesSearched;
 
     //Constructors
 
@@ -76,97 +76,106 @@ public class ParkingLocation {
     //Accessors
 
     /**
-     *
+     *The origin location represents the original point from which parking locations were searched for.
      * @return The origin location from which this parking location is near.
      */
-    LatLng getOriginLocation(){
+    public LatLng getOriginLocation(){
         return this.originLocation;
     }
 
     /**
-     *
+     * The radius represents the query's distance from the origin that resulted in this location's generation.
      * @return The radius from the origin from which this parking location is near.
      */
-    double getRadiusFromOrigin(){
+    public double getRadiusFromOrigin(){
         return this.radiusFromOrigin;
     }
 
     /**
-     *
+     * Parking locations with on street parking will exhibit a value of true.
      * @return The value of hasOnStreetParking. True if on street, false otherwise.
      */
-    boolean hasOnStreetParking(){
+    public boolean hasOnStreetParking(){
         return this.hasOnStreetParking;
     }
 
     /**
-     *
+     * The name of the parking lcoation is as string, and will sometimes be an address.
      * @return The name of this location if it exists. Null otherwise.
      */
-    static String getName(){
-        return name;
+    public String getName(){
+        return this.name;
     }
 
     /**
-     *
+     * The description of the parking location will be supplementary to the name field, and may not exist.
      * @return The description of this location, if it exists. Null otherwise.
      */
-    String getDesc(){
-        return desc;
+    public String getDesc(){
+        return this.desc;
     }
 
     /**
-     *
+     * The OSPID field is a unique parking ID for off street parking locations.
      * @return The SFMTA off street parking ID, if it exists. 0 otherwise.
      */
-    int getOspid(){
-        return ospid;
+    public int getOspid(){
+        return this.ospid;
     }
 
     /**
-     *
+     * The BFID field is a unique SFMTA on street parking ID.
      * @return The SFMTA on street parking ID, if it exists. 0 otherwise.
      */
-    int getBfid(){
-        return bfid;
+    public int getBfid(){
+        return this.bfid;
     }
 
     /**
-     *
+     *  The coordinates of this parking location.
      * @return The coordinates of this parking location.
      */
     public LatLng getCoords(){
-        return coords;
+        return this.coords;
     }
 
     /**
-     *
+     * Whether this location has been favorited by the user.
      * @return Whether this location is a favorite by the user or not.
      */
-    boolean isFavorite(){
+    public boolean isFavorite(){
         return this.isFavorite;
     }
 
     /**
-     *
+     * The number of times this location has been the result of a search query by this application.
      * @return The number of times this location has been searched.
      */
-    int getTimesSearched(){
-        return timesSearched;
+    public int getTimesSearched(){
+        return this.timesSearched;
     }
 
 
+    /**
+     * Sets the times searched field of this location-A data field used by the ParkingLocation database.
+     * Note: If storing this location in a database, DO NOT SET
+     * @param timesSearched
+     */
+    protected void setTimesSearched(int timesSearched){
+        this.timesSearched=timesSearched;
+    }
+
     public String toString(){
-        return "Name: "+getName()+ "\n"+
-                "Desc: "+getDesc()+ "\n"+
-                "Location: "+getCoords()+"\n"+
-                "Origin: "+this.originLocation.toString()+"\n"+
-                " Radius: "+this.radiusFromOrigin+"\n"+
-                " Has Street Parking: "+this.hasOnStreetParking+"\n"+
-                " OSPID: "+getOspid()+"\n"+
-                " BFID: "+getBfid()+"\n"+
-                " IsFavorite: "+isFavorite()+"\n"+
-                " Times Searched: "+getTimesSearched();
+        return "Name: " + getName() + "\n"
+                + "Desc: " + getDesc() + "\n"
+                + "Location: " + getCoords() + "\n"
+                + "Origin: " + this.originLocation.toString() + "\n"
+                + "Radius: " + this.radiusFromOrigin + "\n"
+                + "Has Street Parking: " + this.hasOnStreetParking + "\n"
+                + "OSPID: " + getOspid() + "\n"
+                + "BFID: " + getBfid() + "\n"
+                + "IsFavorite: " + isFavorite() + "\n"
+                + "Times Searched: "+getTimesSearched() + "\n";
     }
 
 

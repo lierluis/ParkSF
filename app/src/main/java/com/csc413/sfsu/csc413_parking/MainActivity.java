@@ -1,157 +1,318 @@
 package com.csc413.sfsu.csc413_parking;
 
-
-
-import android.support.v7.app.ActionBarActivity;
+import android.graphics.Bitmap;
 import android.os.Bundle;
-
-import com.google.android.gms.maps.*;
-import com.google.android.gms.maps.model.*;
-import android.view.*;
-import android.widget.Toast;
-import android.widget.RelativeLayout;
-
-
-
 import android.app.Dialog;
+import android.content.Intent;
+import android.content.res.Configuration;
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.view.MenuItemCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarActivity;
 import android.location.Location;
 import android.location.LocationManager;
-import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.CheckBox;
 
-
-import android.widget.TextView;
-import android.widget.Toast;
-import android.util.Log;
-
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GooglePlayServicesUtil;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.location.FusedLocationProviderApi;
-import com.google.android.gms.location.LocationRequest;
+import com.csc413.sfsu.sfpark_simplified.SFParkQuery;
+import com.csc413.sfsu.sfpark_simplified.SFParkXMLResponse;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.FusedLocationProviderApi;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.android.gms.common.api.GoogleApiClient;
+
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.Window;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
+import android.widget.SearchView;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.List.*;
-import com.csc413.sfsu.csc413_parking_data.*;
-
 
 /**
  * Author: Luis Estrada + UI Team (Jonathan Raxa & Ishwari)
- *  Class: CSC413
+ * Class: CSC413
  */
-
-
 public class MainActivity extends ActionBarActivity implements
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
         LocationListener {
 
     private GoogleMap theMap;
+    private SFParkQuery query;
+    private SFParkXMLResponse response;
+
     private LocationManager locMan;
-    private Marker userMarker;
+    ArrayList<Marker> userMarkers = new ArrayList<>();
+
+    private Marker userMarker; // user position
+    private Marker userMarker2; // car position
+
+//    private Marker userMarker3; // test
+
     private static final int GPS_ERRORDIALOG_REQUEST = 9001;
     private TextView mLocationView;
     private GoogleApiClient mGoogleApiClient;
     private LocationRequest mLocationRequest;
+    LatLng lastLatLng; // last known location
 
+    // navigation drawer
+    private DrawerLayout mDrawerLayout;
+    private ListView mDrawerList;
+    private android.support.v7.app.ActionBarDrawerToggle mDrawerToggle;
+    int previousPosition; // keeps track of which item in navigation drawer is already selected
 
-    double radius = 5.0;
-    SFParkLocationFactory locationFactory = new SFParkLocationFactory(this);
-    List<ParkingLocation> parkingList=new ArrayList<ParkingLocation>();
-
-
+    /**
+     * Where activity is initialized
+     *
+     * @param savedInstanceState
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
 
+        if (servicesOK()) {
 
-        if(serevicesOK()){
-            setContentView(R.layout.activity_main);
-
-            if (initMap()){
-                Toast.makeText(this,"Ready to park!", Toast.LENGTH_SHORT).show();
+            if (initMap()) {
+                Toast.makeText(this, "Ready to park!", Toast.LENGTH_SHORT).show();
                 mLocationView = new TextView(this);
-
-
-            } else{
-                Toast.makeText(this,"Map Unavailable!", Toast.LENGTH_SHORT).show();
-
+            } else {
+                Toast.makeText(this, "Map Unavailable!", Toast.LENGTH_SHORT).show();
             }
 
-        } else {
-            setContentView(R.layout.activity_main);
         }
 
+        setActionBar();
+        setMap();
+        updatePlaces();
+
+        query = new SFParkQuery();
+        query.setLatitude(37.792275);
+        query.setLongitude(-122.397089);
+        query.setRadius(0.5);
+        query.setUnitOfMeasurement("MILE");
+        response = new SFParkXMLResponse();
+
+        SFParkLocationFactory locationFactory=new SFParkLocationFactory(this);
+        LatLng origin=new LatLng(37.792279, -122.39709);
+        double radius=.25;
+        List<ParkingLocation> parkingList=new ArrayList<ParkingLocation>();
+        parkingList=locationFactory.getParkingLocations(origin, radius);
+
+        Toast.makeText(getBaseContext(), "PARKING LIST SIZE: " + parkingList.size(), Toast.LENGTH_SHORT).show();
+
+        theMap.addMarker(new MarkerOptions()
+                .position(parkingList.get(1).getOriginLocation())
+                .title("Origin")
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
+
+        for (int i = 0; i < parkingList.size(); i++) {
+
+            theMap.addMarker(new MarkerOptions()
+                    .position(parkingList.get(i).getCoords())
+                    .title("Parking Spot")
+                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE))
+                    .snippet("Parking location: " + i + "\n"
+                            + parkingList.get(i).toString()));
+        }
+
+        /* navigation drawer stuff */
+        String[] mNavigationTitles = getResources().getStringArray(R.array.nav_titles_array);
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        mDrawerList = (ListView) findViewById(R.id.left_drawer);
+
+        // set a custom shadow that overlays the main content when the drawer opens
+        mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
+        // set up the drawer's list view with items and click listener
+        mDrawerList.setAdapter(new ArrayAdapter<String>(this,
+                R.layout.drawer_list_item, mNavigationTitles));
+        mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
+
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        mDrawerToggle = new android.support.v7.app.ActionBarDrawerToggle(
+                this,             // host Activity
+                mDrawerLayout,    // DrawerLayout object
+                R.string.drawer_open,    // "open drawer" description for accessibility
+                R.string.drawer_close   // "close drawer" description for accessibility
+        ) {
+
+            // called when drawer has settled in a completely closed state
+            public void onDrawerClosed(View view) {
+                super.onDrawerClosed(view);
+                //getSupportActionBar().setTitle(mTitle);
+            }
+
+            // called when drawer has settled in a completely open state
+            public void onDrawerOpened(View drawerView) {
+                super.onDrawerOpened(drawerView);
+                //getSupportActionBar().setTitle(mDrawerTitle);
+
+            }
+        };
+        mDrawerLayout.setDrawerListener(mDrawerToggle);
+        if (savedInstanceState == null) {
+            selectItem(0);
+        }
+    }
+
+    public void setMap(){
+         /* map stuff */
         theMap.setMyLocationEnabled(true);
         theMap.setIndoorEnabled(false);
+        theMap.setBuildingsEnabled(false); // optional for user in filter
         theMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
         theMap.getUiSettings().setZoomControlsEnabled(true);
 
+    }
 
+public void setActionBar(){
+         /* action bar stuff */
+    getSupportActionBar().setHomeButtonEnabled(true);
+    getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+    getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.DKGRAY));
+    //getSupportActionBar().setTitle("Parking");
+    getSupportActionBar().setSubtitle("CSC413");
+    //getSupportActionBar().setDisplayUseLogoEnabled(true); // show logo
+    //getSupportActionBar().setDisplayHomeAsUpEnabled(true); // if child page
 
+}
+    /**
+     * The click listener for ListView in the navigation drawer
+     */
+    private class DrawerItemClickListener implements ListView.OnItemClickListener {
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            selectItem(position);
+        }
+    }
 
-        updatePlaces();
+    /**
+     * Select item in navigation drawer
+     *
+     * @param position of item in navigation drawer
+     */
+    private void selectItem(int position) {
+        // update selected item, then close the drawer
+        mDrawerList.setItemChecked(position, true);
+        switch (position) {
+            case 0:
+                if (position != previousPosition)
+                    theMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+                break;
+            case 1:
+                if (position != previousPosition)
+                    theMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
+                break;
+            case 2:
+                if (position != previousPosition)
+                    theMap.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
+                break;
+            case 3:
+                if (position != previousPosition)
+                    theMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
+                break;
+            default:
+        }
+        previousPosition = position; // keeps track of position so item can't be selected twice
+        mDrawerLayout.closeDrawer(mDrawerList);
+    }
 
+    /**
+     * When using the ActionBarDrawerToggle, you must call it during
+     * onPostCreate() and onConfigurationChanged()...
+     */
+    @Override
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        // Sync the toggle state after onRestoreInstanceState has occurred.
+        mDrawerToggle.syncState();
     }
 
     @Override
-    public void onConnected(Bundle bundle) {
-        Toast.makeText(this,"Connected to location services", Toast.LENGTH_SHORT).show();
-
-
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        // Pass any configuration change to the drawer toggles
+        mDrawerToggle.onConfigurationChanged(newConfig);
     }
 
-    /*
-    * Implementing the location listener
-    * */
+    /**
+     * Prints message if connected to location services
+     *
+     * @param bundle
+     */
+    @Override
+    public void onConnected(Bundle bundle) {
+        Toast.makeText(this, "Connected to location services", Toast.LENGTH_SHORT).show();
+    }
+
+    /**
+     * Implementing the location listener
+     *
+     * @param i
+     */
     @Override
     public void onConnectionSuspended(int i) {
         // Log.i(TAG, "GoogleApiClient connection has been suspend");
-        Toast.makeText(this,"Connected to location services", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Connected to location services", Toast.LENGTH_SHORT).show();
         LocationRequest request = LocationRequest.create();
 
         request.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         request.setInterval(60000); //every 5 seconds
         request.setFastestInterval(1000);
         LocationServices.FusedLocationApi.requestLocationUpdates(
-                mGoogleApiClient, mLocationRequest, this);    }
+                mGoogleApiClient, mLocationRequest, this);
+    }
 
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
         //  Log.i(TAG, "GoogleApiClient connection has failed");
     }
 
+    /**
+     * Prints location coordinates
+     *
+     * @param location
+     */
     @Override
     public void onLocationChanged(Location location) {
         // mLocationView.setText("Location received: " + location.toString());
         String msg = "Location: " + location.getLatitude() + "," + location.getLongitude();
-        Toast.makeText(this,msg,Toast.LENGTH_SHORT).show();
-
+        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
     }
 
-    public boolean serevicesOK(){
+    /**
+     * Checks if connection to Google Play Services is successful
+     *
+     * @return true if connection is successful, false if not
+     */
+    public boolean servicesOK() {
         int isAvailable = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
 
-        if(isAvailable == ConnectionResult.SUCCESS){
+        if (isAvailable == ConnectionResult.SUCCESS) {
             return true;
-        } else if (GooglePlayServicesUtil.isUserRecoverableError(isAvailable)){
+        } else if (GooglePlayServicesUtil.isUserRecoverableError(isAvailable)) {
             Dialog dialog = GooglePlayServicesUtil.getErrorDialog(isAvailable, this, GPS_ERRORDIALOG_REQUEST);
             dialog.show();
         } else {
@@ -160,17 +321,17 @@ public class MainActivity extends ActionBarActivity implements
         return false;
     }
 
-    /*
-    * initialze the map object
-    * Checks
-    * no return*/
+    /**
+     * Initialize the map object
+     *
+     * @return true if map is not null
+     */
     private boolean initMap() {
         if (theMap == null) {
             SupportMapFragment mapFrag =
                     (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
-            theMap = ((MapFragment)getFragmentManager().findFragmentById(R.id.map)).getMap();
+            theMap = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
             //theMap = mapFrag.getMap();
-
         }
         if (theMap != null) {
             theMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
@@ -182,90 +343,62 @@ public class MainActivity extends ActionBarActivity implements
                 @Override
                 public View getInfoContents(Marker marker) {
                     View v = getLayoutInflater().inflate(R.layout.info_window, null);
-                    TextView tvLocality = (TextView)v.findViewById(R.id.tv_locality);
-                    TextView tvLat = (TextView)v.findViewById(R.id.tv_lat);
-                    TextView tvLng = (TextView)v.findViewById(R.id.tv_lng);
-                    TextView tvSnippet = (TextView)v.findViewById(R.id.tv_snippet);
+                    TextView tvLocality = (TextView) v.findViewById(R.id.tv_locality);
+                    //TextView tvLat = (TextView) v.findViewById(R.id.tv_lat);
+                    //TextView tvLng = (TextView) v.findViewById(R.id.tv_lng);
+                    TextView tvSnippet = (TextView) v.findViewById(R.id.tv_snippet);
 
                     // gets latitude and longitude
                     LatLng ll = marker.getPosition();
 
                     tvLocality.setText(marker.getTitle());
-                    tvLat.setText("Latitude: "+ll.latitude);
-                    tvLng.setText("Longitude: "+ll.longitude);
+                    //tvLat.setText("Latitude: " + ll.latitude);
+                    //tvLng.setText("Longitude: " + ll.longitude);
                     tvSnippet.setText(marker.getSnippet());
 
-
-
-
-
                     return v;
-
                 }
             });
         }
-        return(theMap != null);
+        return (theMap != null);
     }
 
+    private void gotoLocation(double lat, double lng, float zoom) {
 
-//    private void gotoLocation(double lat, double lng, float zoom) {
-//
-//        LatLng ll = new LatLng(lat, lng);
-//        CameraUpdate update = CameraUpdateFactory.newLatLngZoom(ll,zoom);
-//        theMap.moveCamera(update);
-//    }
+        LatLng ll = new LatLng(lat, lng);
+        CameraUpdate update = CameraUpdateFactory.newLatLngZoom(ll, zoom);
+        theMap.moveCamera(update);
+    }
 
-    private void updatePlaces(){
+    /**
+     * Updates location, including marker position
+     */
+    private void updatePlaces() {
         //update location
-        locMan = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
+        locMan = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         Location lastLoc = locMan.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
 
         double lat = lastLoc.getLatitude();
         double lng = lastLoc.getLongitude();
 
-        LatLng lastLatLng = new LatLng(lat, lng);
+        //LatLng lastLatLng = new LatLng(lat, lng);
+        lastLatLng = new LatLng(lat, lng);
 
-
-
-
-
-
-        if(userMarker!=null) userMarker.remove();
+        if (userMarker != null) userMarker.remove();
 
         userMarker = theMap.addMarker(new MarkerOptions()
-
                 .position(lastLatLng)
-                .title("Parking Location")
-                .snippet("You are here"));
+                .title("User Location")
+                .draggable(true));
 
-        userMarker.setDraggable(true);
-
-        CameraUpdate update = CameraUpdateFactory.newLatLngZoom(lastLatLng,18);
+        CameraUpdate update = CameraUpdateFactory.newLatLngZoom(lastLatLng, 14);
         theMap.moveCamera(update);
         theMap.animateCamera(CameraUpdateFactory.newLatLng(lastLatLng), 3000, null);
-
-
-
-        parkingList = locationFactory.getParkingLocations(lastLatLng, radius);
-
-        System.out.println("PARKING LIST SIZE::::::::" + parkingList.size());
-
-        for (int i=0; i<parkingList.size(); i++){
-
-            System.out.println("Parking location: "+i+":");
-            System.out.println("    " + parkingList.get(i).toString());
-            System.out.println("\n");
-        }
-
     }
-
-
-
-
-
 
     /**
      * Initialize the contents of the Activity's standard options menu
+     *
      * @param menu
      * @return
      */
@@ -279,64 +412,156 @@ public class MainActivity extends ActionBarActivity implements
 
     /**
      * Called when user clicks on icon in action bar
-     * @param item
-     * @return
+     *
+     * @param item - item selected on action bar
+     * @return - true if option selected
      */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        RelativeLayout main_view = (RelativeLayout) findViewById(R.id.derp);
-        
-            int id = item.getItemId();
 
+        // if navigation drawer button clicked on
+        if (mDrawerToggle.onOptionsItemSelected(item))
+            return true;
 
-            if(id==R.id.layersMenu_1){
-                theMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-                return true;
-            }
+        // checks which action bar icon is clicked on
+        switch (item.getItemId()) {
 
-            if(id==R.id.layersMenu_2){
-                theMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
-                return true;
-            }
-
-            if(id==R.id.layersMenu_3){
-                theMap.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
-                return true;
-            }
-            if(id==R.id.layersMenu_4){
-                theMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
-                return true;
-            }
-
-
-        switch(item.getItemId()) {
+            // search
             case R.id.search_icon:
-                Toast.makeText(getBaseContext(), "Search", Toast.LENGTH_LONG).show();
                 return true;
-            case R.id.filter_icon:
-                Toast.makeText(getBaseContext(), "Filter", Toast.LENGTH_LONG).show();
-                return true;
-            case R.id.parked_icon:
-                if(item.isChecked()) {
+
+            /*
+             * checkbox logic:     if item is already checked, un-check item.
+             *                     else if item is not checked, check item.
+             * radio button logic: if item is already selected, disallow re-selecting (do nothing)
+             *                     else if item is not selected, select item
+             */
+
+            // filter (checkbox)
+            case R.id.filter_1: // parking likelihood rating
+                if (item.isChecked()) {
                     item.setChecked(false);
-                    userMarker.setIcon(BitmapDescriptorFactory.defaultMarker());
-                    Toast.makeText(getBaseContext(), "No longer parked", Toast.LENGTH_LONG).show();
                 } else {
-                    updatePlaces();
                     item.setChecked(true);
-                    userMarker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.car_parked));
-                    Toast.makeText(getBaseContext(), "Parked", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getBaseContext(), R.string.filter_1, Toast.LENGTH_SHORT).show();
+                }
+                return true;
+            case R.id.filter_2: // parking restriction
+                if (item.isChecked()) {
+                    item.setChecked(false);
+                } else {
+                    item.setChecked(true);
+                    Toast.makeText(getBaseContext(), R.string.filter_2, Toast.LENGTH_SHORT).show();
+                }
+                return true;
+            case R.id.filter_3: // parking safety
+                if (item.isChecked()) {
+                    item.setChecked(false);
+                } else {
+                    item.setChecked(true);
+                    Toast.makeText(getBaseContext(), R.string.filter_3, Toast.LENGTH_SHORT).show();
+                    //parkingSaftey();
+                }
+                return true;
+            case R.id.filter_4: // parking structure
+                if (item.isChecked()) {
+                    item.setChecked(false);
+                } else {
+                    item.setChecked(true);
+                    Toast.makeText(getBaseContext(), R.string.filter_4, Toast.LENGTH_SHORT).show();
+                }
+                return true;
+            case R.id.filter_5: // traffic
+                if (item.isChecked()) {
+                    item.setChecked(false);
+                    theMap.setTrafficEnabled(false);
+                } else {
+                    item.setChecked(true);
+                    Toast.makeText(getBaseContext(), R.string.filter_5, Toast.LENGTH_SHORT).show();
+                    theMap.setTrafficEnabled(true);
+                }
+                return true;
+            case R.id.filter_6: // buildings
+                if (item.isChecked()) {
+                    item.setChecked(false);
+                    theMap.setBuildingsEnabled(false);
+                } else {
+                    item.setChecked(true);
+                    Toast.makeText(getBaseContext(), R.string.filter_6, Toast.LENGTH_SHORT).show();
+                    theMap.setBuildingsEnabled(true);
                 }
                 return true;
 
-            case R.id.favorite:
-                if(item.isChecked()) { // if checked & user clicks on it
+
+            /*
+             * parked icon (radio button logic)
+             *
+             * 1. prints whether user is now parked or no longer parked
+             * 2. places undraggable car icon at current location to indicate where user is parked
+             */
+            case R.id.parked_icon:
+                if (item.isChecked()) {
                     item.setChecked(false);
-                    Toast.makeText(getBaseContext(), "Removed from favorites", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getBaseContext(), "No longer parked", Toast.LENGTH_SHORT).show();
+                    userMarker2.remove();
+                } else {
+                    //updatePlaces();
+                    item.setChecked(true);
+                    Toast.makeText(getBaseContext(), "Parked", Toast.LENGTH_SHORT).show();
+
+                    userMarker2 = theMap.addMarker(new MarkerOptions()
+                            .position(lastLatLng)
+                            .title("Parking Location")
+                            .snippet("You are parked here")
+                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.car_parked)));
+                }
+                return true;
+
+            // favorite (checkbox)
+            case R.id.favorite:
+                if (item.isChecked()) {
+                    item.setChecked(false);
+                    Toast.makeText(getBaseContext(), "Removed from favorites", Toast.LENGTH_SHORT).show();
                 } else {
                     item.setChecked(true);
-                    Toast.makeText(getBaseContext(), "Added to favorites", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getBaseContext(), "Added to favorites", Toast.LENGTH_SHORT).show();
                 }
+                return true;
+
+            // layers (radio buttons) - map views
+            case R.id.layersMenu_1:
+                if (!item.isChecked()) {
+                    item.setChecked(true);
+                    theMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+                    Toast.makeText(getBaseContext(), "Normal View", Toast.LENGTH_SHORT).show();
+                }
+                return true;
+            case R.id.layersMenu_2:
+                if (!item.isChecked()) {
+                    item.setChecked(true);
+                    theMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
+                    Toast.makeText(getBaseContext(), "Satellite View", Toast.LENGTH_SHORT).show();
+                }
+                return true;
+            case R.id.layersMenu_3:
+                if (!item.isChecked()) {
+                    item.setChecked(true);
+                    theMap.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
+                    Toast.makeText(getBaseContext(), "Terrain View", Toast.LENGTH_SHORT).show();
+                }
+                return true;
+            case R.id.layersMenu_4:
+                if (!item.isChecked()) {
+                    item.setChecked(true);
+                    theMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
+                    Toast.makeText(getBaseContext(), "Hybrid View", Toast.LENGTH_SHORT).show();
+                }
+                return true;
+
+            // settings (new activity)
+            case R.id.settings:
+                Intent intent = new Intent(MainActivity.this, Settings.class);
+                MainActivity.this.startActivity(intent); // starting settings activity
                 return true;
 
             default:

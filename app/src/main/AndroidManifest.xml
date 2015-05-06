@@ -1,39 +1,143 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.csc413.sfsu.csc413_parking" >
 
-    <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+
+
     <uses-feature
         android:glEsVersion="0x00020000"
-        android:required="true"/>
+        android:required="true" />
 
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_car_checked"
-        android:label="@string/app_name" >
+        android:label="@string/app_name"
+        android:theme="@style/AppTheme" >
+
+
+        <!--<activity-->
+            <!--android:name="com.example.helloandroid.app.MainActivity"-->
+            <!--android:label="@string/title_activity_main" >-->
+        <!--</activity>-->
+        <!-- -->
         <activity
-            android:name=".MainActivity"
-            android:label="@string/app_name"
-            android:configChanges="orientation|screenSize"
-            android:theme="@style/AppTheme">
+            android:name=".SplashScreen"
+            android:label="SPLASH" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+
+        <activity
+            android:name=".MainActivity"
+            android:label="@string/app_name"
+            android:launchMode="singleTop">
+            <intent-filter>
+                <action android:name="android.intent.action.default" />
+                <category android:name="android.intent.category.ACTIVITY" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".Settings"
+            android:label="Settings"
+            android:theme="@style/SettingsTheme"
+            android:parentActivityName="com.csc413.sfsu.csc413_parking.MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.csc413.sfsu.csc413_parking.MainActivity" />
+        </activity>
+
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyBB-0lVWmM7XH_Hg_I2BBbbSwCjjO-bknU"/>
+            android:value="AIzaSyBB-0lVWmM7XH_Hg_I2BBbbSwCjjO-bknU" />
     </application>
 
 </manifest>
 
-<!-- android:theme="@style/Theme.Styled" -->
+
+
+    <!--<?xml version="1.0" encoding="utf-8"?>-->
+
+<!--<manifest xmlns:android="http://schemas.android.com/apk/res/android"-->
+
+<!--package="com.alejandrolai.sfpark" >-->
+
+
+<!--<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />-->
+
+<!--<uses-permission android:name="android.permission.INTERNET" />-->
+
+<!--<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />-->
+
+<!--<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />-->
+
+<!--<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />-->
+
+<!--<uses-permission android:name="android.permission.VIBRATE"/>-->
+
+
+<!--<uses-feature-->
+
+    <!--android:glEsVersion="0x00020000"-->
+
+    <!--android:required="true" />-->
+
+
+<!--<application-->
+    <!--android:allowBackup="true"-->
+    <!--android:icon="@mipmap/ic_launcher"-->
+    <!--android:label="@string/app_name"-->
+    <!--android:theme="@style/AppTheme" >-->
+    <!--<activity-->
+        <!--android:name=".MainActivity"-->
+        <!--android:label="@string/app_name"-->
+        <!--android:screenOrientation="portrait" >-->
+        <!--<intent-filter>-->
+            <!--<action android:name="android.intent.action.default" /> &lt;!&ndash; "default" changed from "MAIN" &ndash;&gt;-->
+            <!--<category android:name="android.intent.category.LAUNCHER" />-->
+        <!--</intent-filter>-->
+    <!--</activity>-->
+    <!--<activity android:name=".Splash" > &lt;!&ndash; added activity Splash &ndash;&gt;-->
+        <!--<intent-filter>-->
+            <!--<action android:name="android.intent.action.MAIN" />-->
+            <!--<category android:name="android.intent.category.LAUNCHER" />-->
+        <!--</intent-filter>-->
+    <!--</activity>-->
+    <!--&lt;!&ndash; add your own key inside value &ndash;&gt;-->
+    <!--<meta-data-->
+        <!--android:name="com.google.android.geo.API_KEY"-->
+        <!--android:value="AIzaSyAsKb5zNCqShfZ5m6O-ARAntQypV-8qgH4" />-->
+    <!-- -->
+    <!--<activity-->
+        <!--android:name=".SettingsActivity"-->
+        <!--android:label="@string/title_activity_settings" >-->
+    <!--</activity>-->
+    <!--<activity-->
+        <!--android:name=".Timer.ReminderActivity"-->
+        <!--android:label="@string/title_activity_reminder" >-->
+    <!--</activity>-->
+    <!--<activity-->
+        <!--android:name=".SettingsActivity2"-->
+        <!--android:label="@string/title_activity_settings_activity2" >-->
+    <!--</activity>-->
+    <!--<activity-->
+        <!--android:name=".SettingsActivity3"-->
+        <!--android:label="@string/title_activity_settings_activity3" >-->
+    <!--</activity>-->
+    <!--<activity-->
+        <!--android:name=".LocationDatabaseActivity"-->
+        <!--android:label="@string/location_database_activity" >-->
+    <!--</activity>-->
+    <!--&lt;!&ndash; Commit! &ndash;&gt;-->
+<!--</application>-->
+<!--</manifest>-->
