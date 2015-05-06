@@ -90,7 +90,7 @@ public class SFCrimeHandler {
      *
      * @param   secs    the timeout value in seconds
      */
-    protected void setTimeout (int secs) {
+    public void setTimeout(int secs) {
         response.setTimeout(secs);
     }
 }

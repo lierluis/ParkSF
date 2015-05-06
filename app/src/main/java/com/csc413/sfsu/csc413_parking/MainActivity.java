@@ -17,6 +17,8 @@ import android.location.LocationManager;
 
 import com.csc413.sfsu.sfpark_simplified.SFParkQuery;
 import com.csc413.sfsu.sfpark_simplified.SFParkXMLResponse;
+import com.csc413.sfsu.sf_vehicle_crime.*;
+
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -49,6 +51,9 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.List;
 
+
+
+
 /**
  * Author: Luis Estrada + UI Team (Jonathan Raxa & Ishwari)
  * Class: CSC413
@@ -56,7 +61,8 @@ import java.util.List;
 public class MainActivity extends ActionBarActivity implements
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
-        LocationListener {
+        LocationListener
+         {
 
     private GoogleMap theMap;
     private SFParkQuery query;
@@ -81,6 +87,10 @@ public class MainActivity extends ActionBarActivity implements
     private ListView mDrawerList;
     private android.support.v7.app.ActionBarDrawerToggle mDrawerToggle;
     int previousPosition; // keeps track of which item in navigation drawer is already selected
+
+
+
+
 
     /**
      * Where activity is initialized
@@ -128,8 +138,11 @@ public class MainActivity extends ActionBarActivity implements
                 .title("Origin")
                 .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
 
+
+
         for (int i = 0; i < parkingList.size(); i++) {
 
+            // populate the parking information here
             theMap.addMarker(new MarkerOptions()
                     .position(parkingList.get(i).getCoords())
                     .title("Parking Spot")
@@ -177,7 +190,7 @@ public class MainActivity extends ActionBarActivity implements
         }
     }
 
-    public void setMap(){
+    public void setMap() {
          /* map stuff */
         theMap.setMyLocationEnabled(true);
         theMap.setIndoorEnabled(false);
@@ -363,12 +376,7 @@ public void setActionBar(){
         return (theMap != null);
     }
 
-    private void gotoLocation(double lat, double lng, float zoom) {
 
-        LatLng ll = new LatLng(lat, lng);
-        CameraUpdate update = CameraUpdateFactory.newLatLngZoom(ll, zoom);
-        theMap.moveCamera(update);
-    }
 
     /**
      * Updates location, including marker position
@@ -460,7 +468,11 @@ public void setActionBar(){
                 } else {
                     item.setChecked(true);
                     Toast.makeText(getBaseContext(), R.string.filter_3, Toast.LENGTH_SHORT).show();
-                    //parkingSaftey();
+                    try {
+                        parkingSaftey();
+                    } catch (EmptyResponseException e) {
+                        e.printStackTrace();
+                    }
                 }
                 return true;
             case R.id.filter_4: // parking structure
@@ -568,4 +580,47 @@ public void setActionBar(){
                 return super.onOptionsItemSelected(item);
         } // end switch
     } // end onOptionsItemSelected
+
+
+
+ SFCrimeHandler crimeHandler = new SFCrimeHandler(); /* Initialize empty handler */
+ boolean success = crimeHandler.generateReports(null, -1, -1, -1, -1); /* Generate reports with all default values */
+
+    /*
+       displays crime information when true
+     */
+    public void parkingSaftey() throws EmptyResponseException {
+        if (success) {
+    /* Iterate through reports returned */
+            for (int i = 0; i < crimeHandler.numReports(); i++) {
+        /* Print the location and date of each, for instance */
+                System.out.println("Report #: " + (i+1));
+                System.out.println("Date: " + crimeHandler.date(i));
+                System.out.println("Location: " + crimeHandler.location(i));
+            }
+        }
+      
+        LatLng origin = new LatLng(37.728271, -122.433385); /* Create a new LatLng object to pass to the handler */
+        double radius = 0.5; /* Radius from the origin in miles */
+        int startYear = 2011; /* Retrieve reports as far back as 2011 */
+        int count = 1000; /* Grab the first 1000 reports */
+        int offset = 200; /* Start after the 200th report */
+
+        crimeHandler.setTimeout(30); /* Increase the number of seconds before timeout from 20 to 30 */
+
+/* Generate a new report list with the new parameters */
+        success = crimeHandler.generateReports(origin, radius, startYear, count, offset);
+
+/* Retrieve report data on a successful query */
+        if (success) {
+    /* The number of reports returned will be at most "count", but may be fewer given narrowed parameter values */
+            System.out.println("Number of reports: " + crimeHandler.numReports());
+        }
+
+        crimeHandler = new SFCrimeHandler(); /* Reset the handler */
+
+    }
+
+
+
 } // end MainActivity
