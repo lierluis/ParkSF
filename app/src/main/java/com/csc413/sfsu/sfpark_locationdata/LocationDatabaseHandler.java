@@ -195,8 +195,9 @@ public class LocationDatabaseHandler extends SQLiteOpenHelper {
             return;
         }
         else{
-            if(this.numParkedHere>=20){ //delete a parked here location, and add this new one
-                this.deleteLocation(this.parkedHereToDelete);
+            if(this.numParkedHere>=20){ //delete a parked here location (mark parkedHere as false)
+                this.parkedHereToDelete.setParkedHere(false);
+                this.updateLocation(this.parkedHereToDelete);
             }
             SQLiteDatabase db = this.getWritableDatabase();
             ContentValues values = new ContentValues();

@@ -6,6 +6,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.csc413.sfsu.sfpark_locationdata.ParkingLocation;
+import com.csc413.sfsu.sfpark_locationdata.SFParkLocationFactory;
 import com.csc413.sfsu.sfpark_simplified.SFParkQuery;
 import com.csc413.sfsu.sfpark_simplified.SFParkXMLResponse;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -15,6 +17,7 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -49,10 +52,10 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
             @Override
             public void onMapClick(LatLng latLng) {
                 String msg = "Latitude: " + latLng.latitude + "\nLongitude: " + latLng.longitude;
-//                SFParkLocationFactory locationFactory=new SFParkLocationFactory(MainActivity.this);
-//                List <ParkingLocation> parkingList=new ArrayList<ParkingLocation>();
-//                parkingList=locationFactory.getParkingLocations(latLng,.25);
-//                locationFactory.printAllDB();
+                SFParkLocationFactory locationFactory=new SFParkLocationFactory(MainActivity.this);
+                List <ParkingLocation> parkingList=new ArrayList<ParkingLocation>();
+                parkingList=locationFactory.getParkingLocations(latLng,.25);
+                locationFactory.printAllDB();
 
 
                 query.setLongitude(latLng.longitude);

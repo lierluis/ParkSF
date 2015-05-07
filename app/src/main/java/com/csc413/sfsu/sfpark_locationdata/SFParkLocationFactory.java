@@ -62,9 +62,9 @@ public class SFParkLocationFactory
                 String desc=response.avl(i).desc();
                 int ospid=response.avl(i).ospid();
                 int bfid=response.avl(i).bfid();
-                boolean isFavorite=true;
+                boolean isFavorite=false;
                 int timesSearched=1;
-                boolean parkedHere=true;
+                boolean parkedHere=false;
 
                 ParkingLocation loc=new ParkingLocation(origin, radius, hasOnStreetParking, name,
                         desc, ospid, bfid, coords, isFavorite, timesSearched, parkedHere);
