@@ -1,6 +1,8 @@
 package com.csc413.sfsu.csc413_parking;
 
 import android.graphics.Bitmap;
+import android.location.Address;
+import android.location.Geocoder;
 import android.os.Bundle;
 import android.app.Dialog;
 import android.content.Intent;
@@ -52,7 +54,7 @@ import android.widget.RelativeLayout;
 import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
-
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -95,6 +97,7 @@ public class MainActivity extends ActionBarActivity implements
              double lat;
              double lng;
 
+    List<Address> list = new ArrayList<Address>();
 
     /**
      * Where activity is initialized
@@ -405,12 +408,79 @@ public void setActionBar(){
                 .title("User Location")
                 .draggable(true));
 
+
+//        theMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+//            @Override
+//            public boolean onMarkerClick(Marker marker) {
+//                Geocoder gc = new Geocoder(MainActivity.this);
+//                List<Address> list = null;
+//                LatLng newll = marker.getPosition();
+//
+//                try{
+//                    list = gc.getFromLocation(newll.latitude, newll.longitude, 1);
+//                }catch(IOException e){
+//                    e.printStackTrace();
+//
+//                }
+//                Address add = list.get(0);
+//                marker.setTitle(add.getLocality());
+//                marker.setSnippet("Latitude: " + String.valueOf(newll.latitude) +
+//                        "Longitude: " + String.valueOf(newll.longitude));
+//                marker.showInfoWindow();
+//                return true;
+//            }
+//        });
+
+        theMap.setOnMarkerDragListener(new GoogleMap.OnMarkerDragListener() {
+            @Override
+            public void onMarkerDragStart(Marker marker) {
+
+            }
+
+            @Override
+            public void onMarkerDrag(Marker marker) {
+
+            }
+
+            @Override
+            public void onMarkerDragEnd(Marker marker) {
+                Geocoder gc = new Geocoder(MainActivity.this);
+                List<Address> list = null;
+                LatLng newll = marker.getPosition();
+
+                try{
+                    list = gc.getFromLocation(newll.latitude, newll.longitude, 1);
+                }catch(IOException e){
+                    e.printStackTrace();
+                    return;
+                }
+                Address add = list.get(0);
+                marker.setTitle(add.getLocality());
+                marker.setSnippet("Latitude: " + String.valueOf(newll.latitude) +
+                        "Longitude: " + String.valueOf(newll.longitude));
+                marker.showInfoWindow();
+            }
+        });
+
         CameraUpdate update = CameraUpdateFactory.newLatLngZoom(lastLatLng, 14);
         theMap.moveCamera(update);
         theMap.animateCamera(CameraUpdateFactory.newLatLng(lastLatLng), 3000, null);
     }
 
-    /**
+             public void onMarkerDragEnd (Marker marker){
+                 marker.getPosition();
+                 Toast.makeText(getBaseContext(), "Postion: " + marker.getPosition(), Toast.LENGTH_SHORT).show();
+             }
+
+
+
+
+
+
+
+
+
+             /**
      * Initialize the contents of the Activity's standard options menu
      *
      * @param menu
