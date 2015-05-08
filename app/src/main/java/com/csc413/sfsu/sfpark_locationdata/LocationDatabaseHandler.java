@@ -548,7 +548,7 @@ public class LocationDatabaseHandler extends SQLiteOpenHelper {
         this.leastSearchedLocation=null;
         if(cursor.moveToFirst()&&cursor!=null) {//Store the least searched location.
             do { //find location that is not a favorite or parkedHere in the minimally searched list
-                if (!(cursor.getInt(11) == 1) || !(cursor.getInt(13) == 1)) {
+                if ((cursor.getInt(11) == 0) && (cursor.getInt(13) == 0)) {
                     this.leastSearchedLocation = ((cursor.getInt(6) == 1) ?
                             this.getLocationFromBFID(cursor.getInt(10))
                             : this.getLocationFromOSPID(cursor.getInt(9)));
