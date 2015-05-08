@@ -195,7 +195,7 @@ public class MainActivity extends ActionBarActivity implements
         };
         mDrawerLayout.setDrawerListener(mDrawerToggle);
         if (savedInstanceState == null) {
-            selectItem(0);
+          //  selectItem(0);
         }
     }
 
@@ -226,7 +226,7 @@ public void setActionBar(){
     private class DrawerItemClickListener implements ListView.OnItemClickListener {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            selectItem(position);
+           // selectItem(position);
         }
     }
 
@@ -238,25 +238,13 @@ public void setActionBar(){
     private void selectItem(int position) {
         // update selected item, then close the drawer
         mDrawerList.setItemChecked(position, true);
-        switch (position) {
+        /*switch (position) {
             case 0:
                 if (position != previousPosition)
                     theMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
                 break;
-            case 1:
-                if (position != previousPosition)
-                    theMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
-                break;
-            case 2:
-                if (position != previousPosition)
-                    theMap.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
-                break;
-            case 3:
-                if (position != previousPosition)
-                    theMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
-                break;
             default:
-        }
+        }*/
         previousPosition = position; // keeps track of position so item can't be selected twice
         mDrawerLayout.closeDrawer(mDrawerList);
     }
@@ -366,16 +354,16 @@ public void setActionBar(){
                 public View getInfoContents(Marker marker) {
                     View v = getLayoutInflater().inflate(R.layout.info_window, null);
                     TextView tvLocality = (TextView) v.findViewById(R.id.tv_locality);
-                    //TextView tvLat = (TextView) v.findViewById(R.id.tv_lat);
-                    //TextView tvLng = (TextView) v.findViewById(R.id.tv_lng);
+                    TextView tvLat = (TextView) v.findViewById(R.id.tv_lat);
+                    TextView tvLng = (TextView) v.findViewById(R.id.tv_lng);
                     TextView tvSnippet = (TextView) v.findViewById(R.id.tv_snippet);
 
                     // gets latitude and longitude
                     LatLng ll = marker.getPosition();
 
                     tvLocality.setText(marker.getTitle());
-                    //tvLat.setText("Latitude: " + ll.latitude);
-                    //tvLng.setText("Longitude: " + ll.longitude);
+                   tvLat.setText("Latitude: " + ll.latitude);
+                   tvLng.setText("Longitude: " + ll.longitude);
                     tvSnippet.setText(marker.getSnippet());
 
                     return v;

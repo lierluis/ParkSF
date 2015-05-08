@@ -34,10 +34,11 @@
     <string name="drawer_close">Drawer closed</string>
 
     <string-array name="nav_titles_array">
-        <item name="nav_1">Normal view</item>
-        <item name="nav_2">Satellite view</item>
+        <item name="nav_1">Settings</item>
+        </string-array>
+    <!--<item name="nav_2">Satellite view</item>
         <item name="nav_3">Terrain view</item>
         <item name="nav_4">Hybrid view</item>
-    </string-array>
+    -->
 
 </resources>
