@@ -35,7 +35,7 @@ public class LocationDatabaseHandler extends SQLiteOpenHelper {
     /** The number of parkedHere fields in the database */
     private int numParkedHere;
     /**The parkedHere location to delete if max number of ParkedHere is reached*/
-    private ParkingLocation parkedHereToDelete;
+    protected ParkingLocation parkedHereToDelete;
     /**The last ParkingLocation that was found with the least number of searches.
      * Used for quick deletion when DB becomes full. Note that there may be many values in the DB
      * with the minTimesSearched value.*/

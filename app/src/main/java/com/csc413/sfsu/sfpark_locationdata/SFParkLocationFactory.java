@@ -154,7 +154,8 @@ public class SFParkLocationFactory
      */
     public ParkingLocation toggleParkedHere(ParkingLocation location){
         if(db.getNumParkedHere()>20){ //delete parked here location to make room
-            db.deleteLocation(db.getParkedHereToDelete());
+            db.parkedHereToDelete.setParkedHere(false);
+            db.updateLocation(db.parkedHereToDelete);
             db.updateparkedHereCount();
         }
 
