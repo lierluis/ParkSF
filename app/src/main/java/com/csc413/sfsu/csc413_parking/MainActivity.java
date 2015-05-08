@@ -92,7 +92,8 @@ public class MainActivity extends ActionBarActivity implements
     int previousPosition; // keeps track of which item in navigation drawer is already selected
 
 
-
+             double lat;
+             double lng;
 
 
     /**
@@ -122,13 +123,15 @@ public class MainActivity extends ActionBarActivity implements
         updatePlaces();
 
         query = new SFParkQuery();
+
         query.setLatitude(37.792275);
         query.setLongitude(-122.397089);
+
         query.setRadius(0.5);
         query.setUnitOfMeasurement("MILE");
         response = new SFParkXMLResponse();
 
-        SFParkLocationFactory locationFactory=new SFParkLocationFactory(this);
+        SFParkLocationFactory locationFactory = new SFParkLocationFactory(this);
         LatLng origin=new LatLng(37.792279, -122.39709);
         double radius=.25;
         List<ParkingLocation> parkingList=new ArrayList<ParkingLocation>();
@@ -136,10 +139,10 @@ public class MainActivity extends ActionBarActivity implements
 
         Toast.makeText(getBaseContext(), "PARKING LIST SIZE: " + parkingList.size(), Toast.LENGTH_SHORT).show();
 
-        theMap.addMarker(new MarkerOptions()
-                .position(parkingList.get(1).getOriginLocation())
-                .title("Origin")
-                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
+//        theMap.addMarker(new MarkerOptions()
+//                .position(parkingList.get(1).getOriginLocation())
+//                .title("Origin")
+//                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
 
 
 
@@ -389,8 +392,8 @@ public void setActionBar(){
         locMan = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         Location lastLoc = locMan.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
 
-        double lat = lastLoc.getLatitude();
-        double lng = lastLoc.getLongitude();
+         lat = lastLoc.getLatitude();
+         lng = lastLoc.getLongitude();
 
         //LatLng lastLatLng = new LatLng(lat, lng);
         lastLatLng = new LatLng(lat, lng);
@@ -470,7 +473,12 @@ public void setActionBar(){
                 } else {
                     item.setChecked(true);
                     Toast.makeText(getBaseContext(), R.string.filter_3, Toast.LENGTH_SHORT).show();
-                    parkingSafteyStart();
+
+                    Intent intent = new Intent(MainActivity.this, CrimeSettings.class);
+                    MainActivity.this.startActivity(intent); // starting crime settings activity
+                    return true;
+
+                    //parkingSafteyStart();
                     //crime.endCrimeSettings();
                 }
                 return true;
@@ -485,6 +493,9 @@ public void setActionBar(){
             case R.id.filter_5: // traffic
                 if (item.isChecked()) {
                     item.setChecked(false);
+
+
+
                     theMap.setTrafficEnabled(false);
                 } else {
                     item.setChecked(true);
@@ -518,7 +529,10 @@ public void setActionBar(){
                 } else {
                     //updatePlaces();
                     item.setChecked(true);
-                    Toast.makeText(getBaseContext(), "Parked", Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(getBaseContext(), "Parked", Toast.LENGTH_SHORT).show();
+
+                    Toast.makeText(getBaseContext(), "lat: " + lat + ", lng: " + lng, Toast.LENGTH_SHORT).show();
+
 
                     userMarker2 = theMap.addMarker(new MarkerOptions()
                             .position(lastLatLng)
@@ -582,95 +596,26 @@ public void setActionBar(){
 
 
 
- SFCrimeHandler crimeHandler = new SFCrimeHandler(); /* Initialize empty handler */
- boolean success = crimeHandler.generateReports(null, -1, -1, -1, -1); /* Generate reports with all default values */
- Button crimeButt;
+
+
+
+//
+//     public void btnDone(View v) throws EmptyResponseException {
+//
 //             EditText radius = (EditText) findViewById(R.id.radius);
 //             EditText reports = (EditText) findViewById(R.id.reports);
 //             EditText offset = (EditText) findViewById(R.id.offset);
 //             EditText year = (EditText) findViewById(R.id.earliestYear);
+//
+//         int radius0 = Integer.parseInt(String.valueOf(radius.getText()));
+//         int reports0 = Integer.parseInt(String.valueOf(reports.getText()));
+//         int offset0 = Integer.parseInt(String.valueOf(offset.getText()));
+//         int year0 = Integer.parseInt(String.valueOf(year.getText()));
+//
+//
+//
+//             }
 
-
-/* Takes user to crime data settings for configurations */
-public void  parkingSafteyStart(){
-
-    setContentView(R.layout.crime);
-
-}
-
-
-     public void btnDone(View v) throws EmptyResponseException {
-
-             EditText radius = (EditText) findViewById(R.id.radius);
-             EditText reports = (EditText) findViewById(R.id.reports);
-             EditText offset = (EditText) findViewById(R.id.offset);
-             EditText year = (EditText) findViewById(R.id.earliestYear);
-
-         int radius0 = Integer.parseInt(String.valueOf(radius.getText()));
-         int reports0 = Integer.parseInt(String.valueOf(reports.getText()));
-         int offset0 = Integer.parseInt(String.valueOf(offset.getText()));
-         int year0 = Integer.parseInt(String.valueOf(year.getText()));
-
-         setBack();
-         parkingSaftey(radius0, reports0, offset0, year0);
-
-
-
-             }
-/*
-* onClick function 'DONE' - takes in the user input
-* and transfers to API handler
-* */
-public void setBack(){
-   // setContentView(R.layout.activity_main);
-    super.onBackPressed();
-}
-    public void parkingSaftey(int radius, int reports, int offset,int year) throws EmptyResponseException {
-
-
-
-        if (success) {
-    /* Iterate through reports returned */
-
-            for (int i = 0; i < reports; i++) {
-        /* Print the location and date of each, for instance */
-                System.out.println("Report #: " + (i+1));
-                System.out.println("Date: " + crimeHandler.date(i));
-                System.out.println("Location: " + crimeHandler.location(i));
-
-
-
-            theMap.addMarker(new MarkerOptions()
-                    .position(crimeHandler.location(i))
-                    .title("Report #: " + (i+1))
-                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE))
-                    .snippet("Date: " + crimeHandler.date(i)));
-
-            }
-        }
-
-        LatLng origin = new LatLng(37.728271, -122.433385); /* Create a new LatLng object to pass to the handler */
-
-         int theRadius = radius;
-         int theYear = year;
-         int theReports = reports;
-         int theOffset = offset;
-
-        crimeHandler.setTimeout(30); /* Increase the number of seconds before timeout from 20 to 30 */
-
-/* Generate a new report list with the new parameters */
-        success = crimeHandler.generateReports(origin, theRadius, theYear, theReports, theOffset);
-
-/* Retrieve report data on a successful query */
-        if (success) {
-    /* The number of reports returned will be at most "count", but may be fewer given narrowed parameter values */
-            System.out.println("Number of reports: " + crimeHandler.numReports());
-        }
-
-        crimeHandler = new SFCrimeHandler(); /* Reset the handler */
-
-
-    }
 
 
 

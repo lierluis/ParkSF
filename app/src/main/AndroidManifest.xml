@@ -34,14 +34,20 @@
             </intent-filter>
         </activity>
 
-        <!--<activity-->
-            <!--android:name=".CrimeSettings"-->
-            <!--android:label="CRIME" >-->
-            <!--<intent-filter>-->
-                <!--<action android:name="android.intent.action.default" />-->
-                <!--<category android:name="android.intent.category.ACTIVITY" />-->
-            <!--</intent-filter>-->
-        <!--</activity>-->
+        <activity
+            android:name="CrimeSettings"
+            android:label="CRIME"
+            android:launchMode="singleTop">
+
+            <intent-filter>
+                <action android:name="android.intent.action.default" />
+                <category android:name="android.intent.category.ACTIVITY" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.csc413.sfsu.csc413_parking.MainActivity" />
+        </activity>
 
         <activity
             android:name=".MainActivity"
