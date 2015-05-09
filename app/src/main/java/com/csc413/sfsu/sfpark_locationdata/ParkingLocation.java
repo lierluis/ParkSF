@@ -48,6 +48,8 @@ public class ParkingLocation {
     private int timesSearched;
     /**Whether the user has parked at this location.*/
     private boolean parkedHere;
+    /** Whether this location was saved manually by the user. If true, most fields will be null */
+    private boolean isUserDefined;
 
     /**
      * Note that calling the empty constructor may have unintended side effects of blank or null data.
@@ -61,6 +63,7 @@ public class ParkingLocation {
         ospid=0;
         bfid=0;
         coords=new LatLng(0.0,0.0);
+        this.isUserDefined=true;
     }
 
     /**
@@ -83,7 +86,7 @@ public class ParkingLocation {
      */
     ParkingLocation(LatLng origin, Double radiusFromOrigin, boolean hasOnStreetParking, String name,
                     String desc, int ospid, int bfid, LatLng coords, boolean isFavorite,
-                    int timesSearched, boolean parkedHere){
+                    int timesSearched, boolean parkedHere, boolean isUserDefined){
         this.originLocation=origin;
         this.radiusFromOrigin=radiusFromOrigin;
         this.hasOnStreetParking=hasOnStreetParking;
@@ -95,6 +98,7 @@ public class ParkingLocation {
         this.isFavorite=isFavorite;
         this.timesSearched=timesSearched;
         this.parkedHere=parkedHere;
+        this.isUserDefined=isUserDefined;
     }
 
     //Accessors
@@ -188,6 +192,8 @@ public class ParkingLocation {
      */
     public boolean getParkedHere() { return this.parkedHere; }
 
+    public boolean isUserDefined() { return this.isUserDefined; }
+
 
     /**
      * Sets the location's isFavorite field.
@@ -236,7 +242,8 @@ public class ParkingLocation {
                 +"\n\t Location: "+getCoords()+" \tOrigin: "+this.originLocation.toString()
                 +" \n\t\t Radius: "+this.radiusFromOrigin+" \tHas Street Parking: "
                 +this.hasOnStreetParking+" \tOSPID: "+getOspid()+" \tBFID: "+getBfid()
-                +" \tIsFavorite: "+isFavorite()+" Parked Here: "+this.parkedHere;
+                +" \tIsFavorite: "+isFavorite()+" Parked Here: "+this.parkedHere
+                +" User Defined: "+this.isUserDefined;
     }
 
 

@@ -34,9 +34,10 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
 
         MapFragment mapFragment = (MapFragment)getFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-        SFParkLocationFactory fac=new SFParkLocationFactory(this);
-        fac.testDB();
-        fac.printAllDB();
+//        SFParkLocationFactory fac=new SFParkLocationFactory(this);
+//        fac.testDB();
+//        fac.printAllDB();
+        this.deleteDatabase("locations");
 
     }
 

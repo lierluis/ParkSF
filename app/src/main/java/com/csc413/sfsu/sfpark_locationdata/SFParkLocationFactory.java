@@ -1,6 +1,7 @@
 package com.csc413.sfsu.sfpark_locationdata;
 
 import android.content.Context;
+import android.location.Location;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 
@@ -42,7 +43,8 @@ public class SFParkLocationFactory
      *
      * @param origin Center of search for parking locations.
      * @param radius radius to search for parking locations in miles.
-     * @return list of ParkingLocation objects within the radius of the origin.
+     * @return list of ParkingLocation objects within the radius of the origin. This list will
+     * include user defined locations.
      */
     public List<ParkingLocation> getParkingLocations(LatLng origin, double radius){
 
@@ -79,9 +81,11 @@ public class SFParkLocationFactory
                 boolean isFavorite=false;
                 int timesSearched=1;
                 boolean parkedHere=false;
+                boolean isUserDefined=false;
 
                 ParkingLocation loc=new ParkingLocation(origin, radius, hasOnStreetParking, name,
-                        desc, ospid, bfid, coords, isFavorite, timesSearched, parkedHere);
+                        desc, ospid, bfid, coords, isFavorite, timesSearched, parkedHere,
+                        isUserDefined);
 
                 this.db.addLocation(loc);
 
@@ -99,15 +103,49 @@ public class SFParkLocationFactory
 
         }
 
-        System.out.println("---------------Locations within range of your tap---------------");
-        for(int i=0; i<locationList.size(); i++){
-            System.out.println("Entry "+(i+1)+": ");
-            System.out.println("Location "+i+" "+locationList.get(i));
-            System.out.println("----------");
+        List<ParkingLocation> udl=db.getUserDefinedLocations();
+
+
+        for(int i=0; i< udl.size(); i++){
+            if(this.isWithinRadius(udl.get(i).getCoords(), origin, radius)){
+                locationList.add(udl.get(i));
+            }
         }
+
+//       For debugging:
+//       System.out.println("---------------Locations within range of your tap---------------");
+//        for(int i=0; i<locationList.size(); i++){
+//            System.out.println("Entry "+(i+1)+": ");
+//            System.out.println("Location "+i+" "+locationList.get(i));
+//            System.out.println("----------");
+//        }
 
 
         return locationList;
+    }
+
+    /**
+     * Adds a user defined location to the database. The only notable information in User defined
+     * location is the coords data field which is set to the parameter passed to this method.
+     * @param udl The location of the user defined location to be added to the database.
+     */
+    public void addUserDefinedLocation(LatLng udl){
+        LatLng origin=udl;
+        double radius=.25;
+        String name="Past parking location.";
+        boolean hasOnStreetParking=true;
+        String desc="A user defined parking location.";
+        int ospid=-1;
+        int bfid=-1;
+        boolean isFavorite=false;
+        int timesSearched=1;
+        boolean parkedHere=false;
+        boolean isUserDefined=true;
+
+        ParkingLocation loc=new ParkingLocation(origin, radius, hasOnStreetParking, name,
+                desc, ospid, bfid, udl, isFavorite, timesSearched, parkedHere,
+                isUserDefined);
+        db.addLocation(loc);
     }
 
     /**
@@ -329,6 +367,25 @@ public class SFParkLocationFactory
      */
     public void testDB(){
 
+    }
+
+    /**
+     * Tests if the destination location is within the given radius of the source location.
+     * @param dest The destination location to test.
+     * @param source The source location to test.
+     * @param radius The radius to check if the destination is within.
+     * @return True if the destination is within radius of source. False otherwise.
+     */
+    private boolean isWithinRadius(LatLng dest, LatLng source, double radius){
+        Location src = new Location("");
+        src.setLatitude(source.latitude);
+        src.setLongitude(source.longitude);
+
+        Location dst=new Location("");
+        dst.setLatitude(dest.latitude);
+        dst.setLongitude(dest.longitude);
+
+        return ((src.distanceTo(dst)<=radius)? true : false);
     }
 
 
