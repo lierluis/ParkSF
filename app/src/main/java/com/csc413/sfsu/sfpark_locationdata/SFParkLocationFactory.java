@@ -1,5 +1,9 @@
 package com.csc413.sfsu.sfpark_locationdata;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+
 import com.csc413.sfsu.csc413_parking.MainActivity;
 import com.csc413.sfsu.sfpark_simplified.SFParkQuery;
 import com.csc413.sfsu.sfpark_simplified.SFParkXMLResponse;
@@ -21,10 +25,11 @@ import java.util.List;
 public class SFParkLocationFactory
 {
     private LocationDatabaseHandler db;
-
+    private MainActivity context;
 
     public SFParkLocationFactory(MainActivity context){
         this.db=new LocationDatabaseHandler(context);
+        this.context=context;
     }
 
     /**
@@ -40,6 +45,15 @@ public class SFParkLocationFactory
      * @return list of ParkingLocation objects within the radius of the origin.
      */
     public List<ParkingLocation> getParkingLocations(LatLng origin, double radius){
+
+        ConnectivityManager cm =
+                (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        boolean isConnected = activeNetwork != null &&
+                activeNetwork.isConnectedOrConnecting();
+        System.out.println("CONNECTIVITY STATUS: "+isConnected);
+
         SFParkQuery query = new SFParkQuery();
         query.setLatitude(origin.latitude);
         query.setLongitude(origin.longitude);
@@ -256,6 +270,64 @@ public class SFParkLocationFactory
                 System.out.println("----------");
             }
         }
+
+    }
+
+
+    /**
+     * A debugging method, not for use in a production environment for security reasons.
+     * Prints the values of all favorite locations in the database to the console.
+     */
+    public void printFav(){
+
+        System.out.println("---------------Current Favorites---------------");
+        List<ParkingLocation> l=this.getFavorites();
+        if (l.size()==0){
+            System.out.println("    There are no favorites.");
+        }
+        else{
+            System.out.println("    There are "+l.size()+" favorites.");
+            for(int i=0; i<l.size(); i++){
+                System.out.println("Entry "+(i+1)+": ");
+                ParkingLocation p=l.get(i);
+                System.out.println(p.toString());
+                System.out.println("----------");
+            }
+        }
+
+    }
+
+
+    /**
+     * A debugging method, not for use in a production environment for security reasons.
+     * Prints the values of all parkedHere locations in the database to the console.
+     */
+
+    public void printParkedHere(){
+
+        System.out.println("---------------Current Parked Here locations---------------");
+        List<ParkingLocation> l=this.getParkedLocations();
+        if (l.size()==0){
+            System.out.println("    There are no parked here locations.");
+        }
+        else{
+            System.out.println("    There are "+l.size()+" parked locations.");
+            for(int i=0; i<l.size(); i++){
+                System.out.println("Entry "+(i+1)+": ");
+                ParkingLocation p=l.get(i);
+                System.out.println(p.toString());
+                System.out.println("----------");
+            }
+        }
+
+    }
+
+
+    /**
+     * A debugging method, not for use in a production environment for security reasons.
+     * For running test code to validate consistency of data.
+     */
+    public void testDB(){
 
     }
 

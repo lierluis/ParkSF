@@ -92,6 +92,9 @@ public class LocationDatabaseHandler extends SQLiteOpenHelper {
      */
     public LocationDatabaseHandler(Context context){
         super(context, LocationDatabaseContract.LocationEntry.TABLE_LOCATIONS, null, DATABASE_VERSION);
+        this.updateMinTimesSearched();
+        this.updateFavCount();
+        this.updateparkedHereCount();
     }
 
     /**
@@ -109,6 +112,9 @@ public class LocationDatabaseHandler extends SQLiteOpenHelper {
                 +this.keyDesc+" STRING, "+this.keyOSPID+" INTEGER, "+this.keyBFID+" INTEGER, "
                 +keyIsFavorite+" INTEGER, "+this.keyTimesSearched+" INTEGER, "+this.keyParkedHere+" INTEGER"+")";
         db.execSQL(CREATE_LOCATIONS_TABLE);
+        this.updateMinTimesSearched();
+        this.updateFavCount();
+        this.updateparkedHereCount();
 
     }
 
