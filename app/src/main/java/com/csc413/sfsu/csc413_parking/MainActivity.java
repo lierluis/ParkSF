@@ -235,10 +235,10 @@ public void setActionBar(){
         switch (position) {
 
             case 0:
-                if (position != previousPosition) {
+                //if (position != previousPosition) {
                     Intent intent = new Intent(MainActivity.this, Settings.class);
                     MainActivity.this.startActivity(intent); // starting settings activity
-                }
+                //}
                 break;
             case 1:
                 break;
