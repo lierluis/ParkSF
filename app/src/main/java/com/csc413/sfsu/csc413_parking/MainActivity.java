@@ -1,5 +1,6 @@
 package com.csc413.sfsu.csc413_parking;
 
+import android.app.AlertDialog;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.app.Dialog;
@@ -406,6 +407,7 @@ public void setActionBar(){
      * @param menu
      * @return
      */
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -413,6 +415,7 @@ public void setActionBar(){
         mif.inflate(R.menu.menu_main, menu);
         return super.onCreateOptionsMenu(menu);
     }
+
     /**
      * Called when user clicks on icon in action bar
      *
@@ -572,7 +575,6 @@ public void setActionBar(){
                 return super.onOptionsItemSelected(item);
         } // end switch
     } // end onOptionsItemSelected
-
 
 
  SFCrimeHandler crimeHandler = new SFCrimeHandler(); /* Initialize empty handler */
