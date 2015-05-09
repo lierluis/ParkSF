@@ -169,8 +169,8 @@ public class MainActivity extends ActionBarActivity implements
 
         updatePlaces(); // sets marker to current location
 
-        query = new SFParkQuery();
-        response = new SFParkXMLResponse();
+//        query = new SFParkQuery();
+//        response = new SFParkXMLResponse();
 
         LatLng sfsu = new LatLng(37.7233, -122.4797);
 
@@ -282,7 +282,7 @@ public class MainActivity extends ActionBarActivity implements
                     // populate the parking information here
                     theMap.addMarker(new MarkerOptions()
                             .position(parkingList.get(i).getCoords())
-                            .title("Parking Spot")
+                            .title(parkingList.get(i).getName())
                             .draggable(false)
                             .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE))
                             .snippet("Parking location: " + i + "\n"
@@ -296,6 +296,10 @@ public class MainActivity extends ActionBarActivity implements
         CameraUpdate update = CameraUpdateFactory.newLatLngZoom(lastLatLng, 14);
         theMap.moveCamera(update);
         theMap.animateCamera(CameraUpdateFactory.newLatLng(lastLatLng), 3000, null);
+    }
+
+    public void addToFav(){
+
     }
 
     /**
