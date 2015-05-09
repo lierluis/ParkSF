@@ -1,4 +1,4 @@
-package com.csc413.sfsu.csc413_parking;
+package com.csc413.sfsu.sfpark_locationdata;
 
 import android.provider.BaseColumns;
 
@@ -35,6 +35,7 @@ public class LocationDatabaseContract {
         public static final String KEY_BFID="bfid";
         public static final String KEY_IS_FAVORITE="isFavorite";
         public static final String KEY_TIMES_SEARCHED="timesSearched";
+        public static final String KEY_PARKED_HERE="parkedHere";
     }
 
 }

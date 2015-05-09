@@ -1,4 +1,4 @@
-package com.csc413.sfsu.csc413_parking;
+package com.csc413.sfsu.sfpark_locationdata;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -20,7 +20,7 @@ import java.util.List;
  *  -LocationDataBaseHandler objects will automatically remove the least searched locations when
  *  the size limit is reached.
  *
- * @Important Currently the SFParkLocationFactory should be the only point of entry into the
+ * Currently the SFParkLocationFactory should be the only point of entry into the
  * LocationDatabaseHandler class. This is due to the fact that if the timesSearched field of
  * ParkingLocation objects are set manually and added to the database manually, the database will
  * not properly remove the least searched locations.
@@ -28,7 +28,14 @@ import java.util.List;
  */
 public class LocationDatabaseHandler extends SQLiteOpenHelper {
 
+    /** The number of searches on the minimally searched location*/
     private int minTimesSearched;
+    /** The number of favorite fields in the database*/
+    private int numFav;
+    /** The number of parkedHere fields in the database */
+    private int numParkedHere;
+    /**The parkedHere location to delete if max number of ParkedHere is reached*/
+    protected ParkingLocation parkedHereToDelete;
     /**The last ParkingLocation that was found with the least number of searches.
      * Used for quick deletion when DB becomes full. Note that there may be many values in the DB
      * with the minTimesSearched value.*/
@@ -72,6 +79,8 @@ public class LocationDatabaseHandler extends SQLiteOpenHelper {
     private static final String keyIsFavorite= LocationDatabaseContract.LocationEntry.KEY_IS_FAVORITE;
     /**The name of the timesSearched column key, to be stored as an SQLite INTEGER value.*/
     private static final String keyTimesSearched= LocationDatabaseContract.LocationEntry.KEY_TIMES_SEARCHED;
+    /**The name of the parkedHere column key, to be stored as an SQLite INTEGER value*/
+    private static final String keyParkedHere= LocationDatabaseContract.LocationEntry.KEY_PARKED_HERE;
     /**The name of the ID key for each entry, to be stored automatically as an INTEGER PRIMARY KEY*/
     private static final String locationID= LocationDatabaseContract.LocationEntry.LOCATION_NAME_ENTRY_ID;
 
@@ -98,7 +107,7 @@ public class LocationDatabaseHandler extends SQLiteOpenHelper {
                 +this.keyOriginLat + " DOUBLE, "+ this.keyOriginLong+ " DOUBLE, "+this.keyRadius
                 +" DOUBLE, "+this.keyHasStreetParking+" INTEGER, "+this.keyName+" STRING, "
                 +this.keyDesc+" STRING, "+this.keyOSPID+" INTEGER, "+this.keyBFID+" INTEGER, "
-                +keyIsFavorite+" INTEGER, "+this.keyTimesSearched+" INTEGER"+")";
+                +keyIsFavorite+" INTEGER, "+this.keyTimesSearched+" INTEGER, "+this.keyParkedHere+" INTEGER"+")";
         db.execSQL(CREATE_LOCATIONS_TABLE);
 
     }
@@ -121,33 +130,41 @@ public class LocationDatabaseHandler extends SQLiteOpenHelper {
     /**
      * Adds a ParkingLocation object's data fields into a row of the LocationDatabase.
      * Note: if location already exists in database, the timesSearched field will be incremented.
+     * If the capacity of the database is reached, the minimally searched location will be deleted.
      * @param loc a ParkingLocation object to be parsed into discrete data to store in database.
      */
     public void addLocation(ParkingLocation loc){
-        if(loc.hasOnStreetParking()){ //Check if BFID exists in db.
-            if(this.getLocationFromBFID(loc.getBfid())!=null){ //Duplicate. Update timesSearched
-                this.incrementTimesSearched(loc);
-                this.updateMinTimesSearched();
-                System.out.println("Duplicate location updated.");
-                System.out.println(loc.toString());
-                return;
-            }
-        }
-        else if(this.getLocationFromOSPID(loc.getBfid())!=null){ //Check if OSPID exists in db.
+        //Make sure minimum is set properly.
+        this.updateMinTimesSearched();
+        this.updateparkedHereCount();
+        this.updateFavCount();
+
+        //Check if BFID exists in db.
+        if(loc.hasOnStreetParking()&&this.getLocationFromBFID(loc.getBfid())!=null
+                &&loc.getBfid()!=-1){
+            //Duplicate on street location. Update timesSearched, do not add location to database.
             this.incrementTimesSearched(loc);
             this.updateMinTimesSearched();
-            System.out.println("Duplicate location updated.");
-            System.out.println(loc.toString());
+            return;
+
+        }
+        //Check if OSPID exists in db.
+        else if(!loc.hasOnStreetParking()&&this.getLocationFromOSPID(loc.getOspid())!=null
+                &&loc.getOspid()!=-1){
+            //Duplicate off street location. Update timesSearched, do not add location to database.
+            this.incrementTimesSearched(loc);
+            this.updateMinTimesSearched();
             return;
         }
         else { //New entry, add to DB.
-            this.updateMinTimesSearched();
             if(this.getLocationsCount()>=this.maxRows){ //Delete the least searched location.
                 this.deleteLocation(this.leastSearchedLocation);
-                this.leastSearchedLocation=loc;
-                System.out.println("Maximum database size reached. Deleted least searched location.");
+                this.updateMinTimesSearched();
             }
-            System.out.println("New location added: ");
+            if(loc.isFavorite()||loc.getParkedHere()){ //handle maximums in separate method
+                this.addFavOrParkedHere(loc);
+                return;
+            }
             System.out.println(loc.toString());
             SQLiteDatabase db = this.getWritableDatabase();
             ContentValues values = new ContentValues();
@@ -165,11 +182,48 @@ public class LocationDatabaseHandler extends SQLiteOpenHelper {
             values.put(this.keyBFID, loc.getBfid());
             values.put(this.keyIsFavorite, ((loc.isFavorite()) ? 1 : 0));
             values.put(this.keyTimesSearched, 1); //New entries should always have 1 timesSearched
+            values.put(this.keyParkedHere, ((loc.getParkedHere() ? 1: 0)));
 
             db.insert(this.tableName, null, values);
             db.close();
             this.updateMinTimesSearched();
         }
+    }
+
+    public void addFavOrParkedHere(ParkingLocation loc){
+        if(loc.isFavorite()&&this.numFav>=10){ //do not allow more than 10 favorites
+            return;
+        }
+        else{
+            if(this.numParkedHere>=20){ //delete a parked here location (mark parkedHere as false)
+                this.parkedHereToDelete.setParkedHere(false);
+                this.updateLocation(this.parkedHereToDelete);
+            }
+            SQLiteDatabase db = this.getWritableDatabase();
+            ContentValues values = new ContentValues();
+            values.put(this.keyLat, loc.getCoords().latitude);
+            values.put(this.keyLong, loc.getCoords().longitude);
+            values.put(this.keyOriginLat, loc.getOriginLocation().latitude);
+            values.put(this.keyOriginLong, loc.getOriginLocation().longitude);
+            values.put(this.keyRadius, loc.getRadiusFromOrigin());
+
+            //convert boolean to 1 or 0 to store in Database
+            values.put(this.keyHasStreetParking, ((loc.hasOnStreetParking()) ? 1 : 0));
+            values.put(this.keyName, loc.getName());
+            values.put(this.keyDesc, loc.getDesc());
+            values.put(this.keyOSPID, loc.getOspid());
+            values.put(this.keyBFID, loc.getBfid());
+            values.put(this.keyIsFavorite, ((loc.isFavorite()) ? 1 : 0));
+            values.put(this.keyTimesSearched, 1); //New entries should always have 1 timesSearched
+            values.put(this.keyParkedHere, ((loc.getParkedHere() ? 1: 0)));
+
+            db.insert(this.tableName, null, values);
+            db.close();
+            this.updateMinTimesSearched();
+            this.updateparkedHereCount();
+            this.updateFavCount();
+        }
+
     }
 
     /**
@@ -182,7 +236,7 @@ public class LocationDatabaseHandler extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor cursor = db.rawQuery(selectQuery, null);
 
-        if (cursor!=null&&cursor.moveToFirst()) {
+        if (cursor.moveToFirst()&&cursor!=null) {
             do {
                 LatLng coords=new LatLng(cursor.getDouble(1),cursor.getDouble(2));
                 LatLng origin=new LatLng(cursor.getDouble(3),cursor.getDouble(4));
@@ -194,38 +248,15 @@ public class LocationDatabaseHandler extends SQLiteOpenHelper {
                 int bfid=cursor.getInt(10);
                 boolean isFavorite=(cursor.getInt(11)==1 ? true : false);
                 int timesSearched=(cursor.getInt(12));
+                boolean parkedHere=(cursor.getInt(13)==1 ? true : false);
 
                 ParkingLocation location=new ParkingLocation(origin, radius, hasStreetParking, name,
-                        desc, ospid, bfid, coords, isFavorite, timesSearched);
+                        desc, ospid, bfid, coords, isFavorite, timesSearched, parkedHere);
                 locationList.add(location);
             } while(cursor.moveToNext());
         }
 
         return locationList;
-    }
-
-    /**
-     * Increments the timesSearched field of the given location in the database.
-     * Note that the timesSearched field of the location parameter may not be up to date with the
-     * database. Therefore, the timesSearched field in the database will be used.
-     * @param loc The ParkingLocation to increment the timesSearched field on.
-     */
-    public void incrementTimesSearched(ParkingLocation loc){
-        if(loc.hasOnStreetParking()){ //Check if BFID exists in db.
-            if(this.getLocationFromBFID(loc.getBfid())!=null){ //Duplicate. Update timesSearched
-                loc=this.getLocationFromBFID(loc.getBfid()); //Use value of locationCount stored in DB.
-                loc.setTimesSearched(loc.getTimesSearched()+1);
-                this.updateLocation(loc);
-            }
-        }
-        else if(this.getLocationFromOSPID(loc.getOspid())!=null){ //Check if BFID exists in db.
-            loc=this.getLocationFromOSPID(loc.getOspid());
-            loc.setTimesSearched(loc.getTimesSearched()+1);
-            this.updateLocation(loc);
-        }
-        else{
-            this.addLocation(loc);
-        }
     }
 
     /**
@@ -244,19 +275,39 @@ public class LocationDatabaseHandler extends SQLiteOpenHelper {
     }
 
     /**
+     * Increments the timesSearched field of the given location in the database.
+     * Note that the timesSearched field of the location parameter may not be up to date with the
+     * database. Therefore, the timesSearched field in the database will be used.
+     * @param loc The ParkingLocation to increment the timesSearched field on.
+     */
+    public void incrementTimesSearched(ParkingLocation loc){
+        if(loc.hasOnStreetParking()&&this.getLocationFromBFID(loc.getBfid())!=null
+                &&loc.getBfid()!=-1){ //Check if BFID location exists in database.
+            loc=this.getLocationFromBFID(loc.getBfid()); //Use value of locationCount stored in DB.
+            loc.setTimesSearched(loc.getTimesSearched()+1);
+            this.updateLocation(loc);
+
+        }
+        else if(!loc.hasOnStreetParking()&&this.getLocationFromOSPID(loc.getOspid())!=null
+                &&loc.getOspid()!=-1){ //Check if OSPID location exists in database.
+            loc=this.getLocationFromOSPID(loc.getOspid());//Use value of locationCount stored in DB.
+            loc.setTimesSearched(loc.getTimesSearched()+1);
+            this.updateLocation(loc);
+        }
+    }
+
+    /**
      * Retrieves a ParkingLocation object with the specified OSPID field from the database.
-     * @param ospid the ospid field to search for
+     * @param ospid the ospid field to search for.
      * @return A ParkingLocation object composed of the SQLite row with the specified OSPID.
      */
     public ParkingLocation getLocationFromOSPID(int ospid){
         SQLiteDatabase db=this.getReadableDatabase();
-        Cursor cursor=db.query(this.tableName, new String[]{this.locationID, this.keyLat, this.keyLong,
-                        this.keyOriginLat, this.keyOriginLong, this.keyRadius, this.keyHasStreetParking,
-                        this.keyName, this.keyDesc, this.keyOSPID, this.keyBFID, this.keyIsFavorite,
-                        this.keyTimesSearched}, this.keyOSPID+"=?",new String[]{String.valueOf(ospid)},
-                null,null,null,null);
 
-        if(cursor!=null&&cursor.moveToFirst()){
+        String query="SELECT * FROM "+this.tableName+" WHERE "+this.keyOSPID+" = '"+ospid+"'";
+        Cursor cursor=db.rawQuery(query, null);
+
+        if(cursor.moveToFirst()){
             LatLng coords=new LatLng(cursor.getDouble(1),cursor.getDouble(2));
             LatLng origin=new LatLng(cursor.getDouble(3),cursor.getDouble(4));
             Double radius=cursor.getDouble(5);
@@ -266,13 +317,20 @@ public class LocationDatabaseHandler extends SQLiteOpenHelper {
             int bfid=cursor.getInt(10);
             boolean isFavorite=(cursor.getInt(11)==1 ? true : false);
             int timesSearched=(cursor.getInt(12));
+            boolean parkedHere=(cursor.getInt(13)==1 ? true : false);
 
             ParkingLocation location=new ParkingLocation(origin, radius, hasStreetParking,
-                    name, desc, ospid, bfid, coords, isFavorite, timesSearched);
+                    name, desc, ospid, bfid, coords, isFavorite, timesSearched, parkedHere);
+            cursor.close();
+
             return location;
         }
 
-        else {return null;}
+
+        else {
+            cursor.close();
+            return null;
+        }
 
     }
 
@@ -283,13 +341,10 @@ public class LocationDatabaseHandler extends SQLiteOpenHelper {
      */
     public ParkingLocation getLocationFromBFID(int bfid){
         SQLiteDatabase db=this.getReadableDatabase();
-        Cursor cursor=db.query(this.tableName, new String[]{this.locationID, this.keyLat,
-                        this.keyLong,this.keyOriginLat, this.keyOriginLong, this.keyRadius,
-                        this.keyHasStreetParking,this.keyName, this.keyDesc, this.keyOSPID,
-                        this.keyBFID, this.keyIsFavorite,this.keyTimesSearched},
-                this.keyBFID+"=?",new String[]{String.valueOf(bfid)},null,null,null,null);
+        String query="SELECT * FROM "+this.tableName+" WHERE "+this.keyBFID+" = "+bfid;
+        Cursor cursor=db.rawQuery(query, null);
 
-        if(cursor!=null&&cursor.moveToFirst()){
+        if(cursor.moveToFirst()){
             LatLng coords=new LatLng(cursor.getDouble(1),cursor.getDouble(2));
             LatLng origin=new LatLng(cursor.getDouble(3),cursor.getDouble(4));
             Double radius=cursor.getDouble(5);
@@ -299,14 +354,100 @@ public class LocationDatabaseHandler extends SQLiteOpenHelper {
             int ospid=cursor.getInt(9);
             boolean isFavorite=(cursor.getInt(11)==1 ? true : false);
             int timesSearched=(cursor.getInt(12));
+            boolean parkedHere=(cursor.getInt(13)==1 ? true : false);
 
             ParkingLocation location=new ParkingLocation(origin, radius, hasStreetParking, name,
-                    desc, ospid, bfid, coords, isFavorite, timesSearched);
+                    desc, ospid, bfid, coords, isFavorite, timesSearched, parkedHere);
+            cursor.close();
+
             return location;
         }
 
-        else {return null;}
+
+        cursor.close();
+        return null;
+
     }
+
+    /**
+     * Retrieves a list of all locations with the isFavorite value set to 1 (true).
+     * @return An array list of ParkingLocations that are favorites in the database.
+     */
+    public List<ParkingLocation> getFavorites(){
+        SQLiteDatabase db=this.getReadableDatabase();
+        String query="SELECT * FROM "+this.tableName+" WHERE "+this.keyIsFavorite+" = 1";
+        Cursor cursor=db.rawQuery(query, null);
+        List<ParkingLocation> favorites=new ArrayList<ParkingLocation>();
+
+        if(cursor.moveToFirst()){
+            do {
+                LatLng coords = new LatLng(cursor.getDouble(1), cursor.getDouble(2));
+                LatLng origin = new LatLng(cursor.getDouble(3), cursor.getDouble(4));
+                Double radius = cursor.getDouble(5);
+                boolean hasStreetParking = ((cursor.getInt(6) == 1) ? true : false);
+                String name = cursor.getString(7);
+                String desc = cursor.getString(8);
+                int ospid = cursor.getInt(9);
+                int bfid=cursor.getInt(10);
+                boolean isFavorite = (cursor.getInt(11) == 1 ? true : false);
+                int timesSearched = (cursor.getInt(12));
+                boolean parkedHere = (cursor.getInt(13) == 1 ? true : false);
+
+                ParkingLocation location = new ParkingLocation(origin, radius, hasStreetParking, name,
+                        desc, ospid, bfid, coords, isFavorite, timesSearched, parkedHere);
+                favorites.add(location);
+
+            }while(cursor.moveToNext());
+            cursor.close();
+            return favorites;
+        }
+
+
+        cursor.close();
+        return null;
+
+    }
+
+    /**
+     * Retrieves a list of all locations with the parkedHere value set to 1 (true).
+     * @return An array list of ParkingLocations that have been parked at by the user.
+     */
+    public List<ParkingLocation> getParkedLocations(){
+        SQLiteDatabase db=this.getReadableDatabase();
+        String query="SELECT * FROM "+this.tableName+" WHERE "+this.keyParkedHere+" = 1";
+        Cursor cursor=db.rawQuery(query, null);
+        List<ParkingLocation> parkedList=new ArrayList<ParkingLocation>();
+
+        if(cursor.moveToFirst()){
+            do {
+                LatLng coords = new LatLng(cursor.getDouble(1), cursor.getDouble(2));
+                LatLng origin = new LatLng(cursor.getDouble(3), cursor.getDouble(4));
+                Double radius = cursor.getDouble(5);
+                boolean hasStreetParking = ((cursor.getInt(6) == 1) ? true : false);
+                String name = cursor.getString(7);
+                String desc = cursor.getString(8);
+                int ospid = cursor.getInt(9);
+                int bfid=cursor.getInt(10);
+                boolean isFavorite = (cursor.getInt(11) == 1 ? true : false);
+                int timesSearched = (cursor.getInt(12));
+                boolean parkedHere = (cursor.getInt(13) == 1 ? true : false);
+
+                ParkingLocation location = new ParkingLocation(origin, radius, hasStreetParking, name,
+                        desc, ospid, bfid, coords, isFavorite, timesSearched, parkedHere);
+                parkedList.add(location);
+
+            }while(cursor.moveToNext());
+            cursor.close();
+            return parkedList;
+        }
+
+
+        cursor.close();
+        return null;
+
+    }
+
+
 
     /**
      * Updates the SQLite database entry with data contained in the ParkingLocation parameter.
@@ -327,14 +468,52 @@ public class LocationDatabaseHandler extends SQLiteOpenHelper {
         values.put(this.keyHasStreetParking, (location.hasOnStreetParking())? 1 : 0);
         values.put(this.keyName, location.getName());
         values.put(this.keyDesc, location.getDesc());
-        values.put(this.keyOSPID, location.getOspid());
         values.put(this.keyBFID, location.getBfid());
+        values.put(this.keyOSPID, location.getOspid());
         values.put(this.keyIsFavorite, location.isFavorite()? 1 : 0);
         values.put(this.keyTimesSearched, location.getTimesSearched());
+        values.put(this.keyParkedHere, location.getParkedHere()? 1: 0);
 
-        return db.update(this.tableName, values, location.hasOnStreetParking()? this.keyBFID: this.keyOSPID,
-                new String[] { String.valueOf(
-                        location.hasOnStreetParking()? location.getBfid(): location.getOspid()) });
+        int rowsAffected=db.update(this.tableName, values, (location.hasOnStreetParking()?
+                this.keyBFID: this.keyOSPID)+"=?",new String[] {
+                (String.valueOf(location.hasOnStreetParking()?
+                        location.getBfid(): location.getOspid())) });
+        this.updateMinTimesSearched();
+        this.updateFavCount();
+        this.updateparkedHereCount();
+        return rowsAffected;
+    }
+
+    public void updateFavCount(){
+        SQLiteDatabase db=this.getReadableDatabase();
+        String query="SELECT * FROM "+this.tableName+" WHERE "+this.keyIsFavorite+" = 1";
+        Cursor cursor=db.rawQuery(query, null);
+        this.numFav=cursor.getCount();
+        cursor.close();
+    }
+
+    public void updateparkedHereCount(){
+        SQLiteDatabase db=this.getReadableDatabase();
+        String query="SELECT * FROM "+this.tableName+" WHERE "+this.keyParkedHere+" = 1";
+        Cursor cursor=db.rawQuery(query, null);
+        this.numParkedHere=cursor.getCount();
+        if(cursor.moveToFirst()){
+            LatLng coords=new LatLng(cursor.getDouble(1),cursor.getDouble(2));
+            LatLng origin=new LatLng(cursor.getDouble(3),cursor.getDouble(4));
+            Double radius=cursor.getDouble(5);
+            boolean hasStreetParking=((cursor.getInt(6)==1) ? true : false);
+            String name=cursor.getString(7);
+            String desc=cursor.getString(8);
+            int ospid=cursor.getInt(9);
+            int bfid=cursor.getInt(10);
+            boolean isFavorite=(cursor.getInt(11)==1 ? true : false);
+            int timesSearched=(cursor.getInt(12));
+            boolean parkedHere=(cursor.getInt(13)==1 ? true : false);
+
+            this.parkedHereToDelete=new ParkingLocation(origin, radius, hasStreetParking, name,
+                    desc, ospid, bfid, coords, isFavorite, timesSearched, parkedHere);
+        }
+        cursor.close();
     }
 
     /**
@@ -345,10 +524,11 @@ public class LocationDatabaseHandler extends SQLiteOpenHelper {
     public void deleteLocation(ParkingLocation location) {
         if(location!=null) {
             SQLiteDatabase db = this.getWritableDatabase();
-            db.delete(this.tableName,
-                    location.hasOnStreetParking() ? this.keyBFID : this.keyOSPID + " = ?",
-                    new String[]{String.valueOf(
-                            location.hasOnStreetParking() ? location.getBfid() : location.getOspid())});
+            String columnName=location.hasOnStreetParking() ? this.keyBFID+" = ?" : this.keyOSPID
+                    + " = ?";
+            String id= location.hasOnStreetParking() ? Integer.toString(location.getBfid())
+                    : Integer.toString(location.getOspid()) ;
+            db.delete(this.tableName, columnName,new String[]{String.valueOf(id)});
             db.close();
         }
     }
@@ -357,23 +537,41 @@ public class LocationDatabaseHandler extends SQLiteOpenHelper {
      * Finds the minimally searched entry in the database.
      * Updates the minTimesSearched field with the value of the least number of searches.
      * Updates the leastSearchedLocation to reference the least searched location.
+     * This method will NOT consider locations that have favorite or parkedHere set to true.
      */
     public void updateMinTimesSearched(){
         SQLiteDatabase db=this.getReadableDatabase();
-        Cursor cursor = db.rawQuery("select * from locations where timesSearched = (select MIN(timesSearched) from locations)", null);
+        Cursor cursor = db.rawQuery("select * from locations where timesSearched = " +
+                "(select MIN(timesSearched) from locations)", null);
 
+        this.minTimesSearched=0;
+        this.leastSearchedLocation=null;
+        if(cursor.moveToFirst()&&cursor!=null) {//Store the least searched location.
+            do { //find location that is not a favorite or parkedHere in the minimally searched list
+                if ((cursor.getInt(11) == 0) && (cursor.getInt(13) == 0)) {
+                    this.leastSearchedLocation = ((cursor.getInt(6) == 1) ?
+                            this.getLocationFromBFID(cursor.getInt(10))
+                            : this.getLocationFromOSPID(cursor.getInt(9)));
 
-        if(cursor!=null&&cursor.moveToFirst()) {//Store the least searched location.
-            this.leastSearchedLocation = ((cursor.getInt(6) == 1) ? this.getLocationFromBFID(cursor.getInt(10))
-                    : this.getLocationFromOSPID(cursor.getInt(9)));
-
-            this.minTimesSearched = cursor.getInt(12);
-        }
-        else{
-            this.minTimesSearched=0;
+                    this.minTimesSearched = cursor.getInt(12);
+                }
+            }while(cursor.moveToNext());
         }
     }
 
+    protected int getNumParkedHere(){
+        this.updateparkedHereCount();
+        return this.numParkedHere;
+    }
+
+    protected int getNumFav(){
+        this.updateFavCount();
+        return this.numFav;
+    }
+
+    protected ParkingLocation getParkedHereToDelete(){
+        return this.parkedHereToDelete;
+    }
 
 
 
