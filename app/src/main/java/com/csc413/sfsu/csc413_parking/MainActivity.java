@@ -189,7 +189,7 @@ public class MainActivity extends ActionBarActivity implements
         };
         mDrawerLayout.setDrawerListener(mDrawerToggle);
         if (savedInstanceState == null) {
-          //  selectItem(0);
+           selectItem(0);
         }
     }
 
@@ -220,7 +220,7 @@ public void setActionBar(){
     private class DrawerItemClickListener implements ListView.OnItemClickListener {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-           // selectItem(position);
+           selectItem(position);
         }
     }
 
@@ -232,13 +232,18 @@ public void setActionBar(){
     private void selectItem(int position) {
         // update selected item, then close the drawer
         mDrawerList.setItemChecked(position, true);
-        /*switch (position) {
+        switch (position) {
+
             case 0:
-                if (position != previousPosition)
-                    theMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+                if (position != previousPosition) {
+                    Intent intent = new Intent(MainActivity.this, Settings.class);
+                    MainActivity.this.startActivity(intent); // starting settings activity
+                }
+                break;
+            case 1:
                 break;
             default:
-        }*/
+        }
         previousPosition = position; // keeps track of position so item can't be selected twice
         mDrawerLayout.closeDrawer(mDrawerList);
     }
@@ -558,10 +563,10 @@ public void setActionBar(){
                 return true;
 
             // settings (new activity)
-            case R.id.settings:
-                Intent intent = new Intent(MainActivity.this, Settings.class);
-                MainActivity.this.startActivity(intent); // starting settings activity
-                return true;
+         //   case R.id.settings:
+           //     Intent intent = new Intent(MainActivity.this, Settings.class);
+             //   MainActivity.this.startActivity(intent); // starting settings activity
+               // return true;
 
             default:
                 return super.onOptionsItemSelected(item);
