@@ -1,7 +1,8 @@
 package com.csc413.sfsu.csc413_parking;
 
-import android.app.AlertDialog;
 import android.graphics.Bitmap;
+import android.location.Address;
+import android.location.Geocoder;
 import android.os.Bundle;
 import android.app.Dialog;
 import android.content.Intent;
@@ -53,7 +54,7 @@ import android.widget.RelativeLayout;
 import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
-
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -93,8 +94,10 @@ public class MainActivity extends ActionBarActivity implements
     int previousPosition; // keeps track of which item in navigation drawer is already selected
 
 
+             double lat;
+             double lng;
 
-
+    List<Address> list = new ArrayList<Address>();
 
     /**
      * Where activity is initialized
@@ -123,13 +126,15 @@ public class MainActivity extends ActionBarActivity implements
         updatePlaces();
 
         query = new SFParkQuery();
+
         query.setLatitude(37.792275);
         query.setLongitude(-122.397089);
+
         query.setRadius(0.5);
         query.setUnitOfMeasurement("MILE");
         response = new SFParkXMLResponse();
 
-        SFParkLocationFactory locationFactory=new SFParkLocationFactory(this);
+        SFParkLocationFactory locationFactory = new SFParkLocationFactory(this);
         LatLng origin=new LatLng(37.792279, -122.39709);
         double radius=.25;
         List<ParkingLocation> parkingList=new ArrayList<ParkingLocation>();
@@ -137,10 +142,10 @@ public class MainActivity extends ActionBarActivity implements
 
         Toast.makeText(getBaseContext(), "PARKING LIST SIZE: " + parkingList.size(), Toast.LENGTH_SHORT).show();
 
-        theMap.addMarker(new MarkerOptions()
-                .position(parkingList.get(1).getOriginLocation())
-                .title("Origin")
-                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
+//        theMap.addMarker(new MarkerOptions()
+//                .position(parkingList.get(1).getOriginLocation())
+//                .title("Origin")
+//                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
 
 
 
@@ -190,7 +195,7 @@ public class MainActivity extends ActionBarActivity implements
         };
         mDrawerLayout.setDrawerListener(mDrawerToggle);
         if (savedInstanceState == null) {
-           selectItem(0);
+          //  selectItem(0);
         }
     }
 
@@ -221,7 +226,7 @@ public void setActionBar(){
     private class DrawerItemClickListener implements ListView.OnItemClickListener {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-           selectItem(position);
+           // selectItem(position);
         }
     }
 
@@ -233,18 +238,13 @@ public void setActionBar(){
     private void selectItem(int position) {
         // update selected item, then close the drawer
         mDrawerList.setItemChecked(position, true);
-        switch (position) {
-
+        /*switch (position) {
             case 0:
-                //if (position != previousPosition) {
-                    Intent intent = new Intent(MainActivity.this, Settings.class);
-                    MainActivity.this.startActivity(intent); // starting settings activity
-                //}
-                break;
-            case 1:
+                if (position != previousPosition)
+                    theMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
                 break;
             default:
-        }
+        }*/
         previousPosition = position; // keeps track of position so item can't be selected twice
         mDrawerLayout.closeDrawer(mDrawerList);
     }
@@ -383,8 +383,8 @@ public void setActionBar(){
         locMan = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         Location lastLoc = locMan.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
 
-        double lat = lastLoc.getLatitude();
-        double lng = lastLoc.getLongitude();
+         lat = lastLoc.getLatitude();
+         lng = lastLoc.getLongitude();
 
         //LatLng lastLatLng = new LatLng(lat, lng);
         lastLatLng = new LatLng(lat, lng);
@@ -396,18 +396,84 @@ public void setActionBar(){
                 .title("User Location")
                 .draggable(true));
 
+
+//        theMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+//            @Override
+//            public boolean onMarkerClick(Marker marker) {
+//                Geocoder gc = new Geocoder(MainActivity.this);
+//                List<Address> list = null;
+//                LatLng newll = marker.getPosition();
+//
+//                try{
+//                    list = gc.getFromLocation(newll.latitude, newll.longitude, 1);
+//                }catch(IOException e){
+//                    e.printStackTrace();
+//
+//                }
+//                Address add = list.get(0);
+//                marker.setTitle(add.getLocality());
+//                marker.setSnippet("Latitude: " + String.valueOf(newll.latitude) +
+//                        "Longitude: " + String.valueOf(newll.longitude));
+//                marker.showInfoWindow();
+//                return true;
+//            }
+//        });
+
+        theMap.setOnMarkerDragListener(new GoogleMap.OnMarkerDragListener() {
+            @Override
+            public void onMarkerDragStart(Marker marker) {
+
+            }
+
+            @Override
+            public void onMarkerDrag(Marker marker) {
+
+            }
+
+            @Override
+            public void onMarkerDragEnd(Marker marker) {
+                Geocoder gc = new Geocoder(MainActivity.this);
+                List<Address> list = null;
+                LatLng newll = marker.getPosition();
+
+                try{
+                    list = gc.getFromLocation(newll.latitude, newll.longitude, 1);
+                }catch(IOException e){
+                    e.printStackTrace();
+                    return;
+                }
+                Address add = list.get(0);
+                marker.setTitle(add.getLocality());
+                marker.setSnippet("Latitude: " + String.valueOf(newll.latitude) +
+                        "Longitude: " + String.valueOf(newll.longitude));
+                marker.showInfoWindow();
+            }
+        });
+
         CameraUpdate update = CameraUpdateFactory.newLatLngZoom(lastLatLng, 14);
         theMap.moveCamera(update);
         theMap.animateCamera(CameraUpdateFactory.newLatLng(lastLatLng), 3000, null);
     }
 
-    /**
+             public void onMarkerDragEnd (Marker marker){
+                 marker.getPosition();
+                 Toast.makeText(getBaseContext(), "Postion: " + marker.getPosition(), Toast.LENGTH_SHORT).show();
+             }
+
+
+
+
+
+
+
+
+
+             /**
      * Initialize the contents of the Activity's standard options menu
      *
      * @param menu
      * @return
      */
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -415,7 +481,6 @@ public void setActionBar(){
         mif.inflate(R.menu.menu_main, menu);
         return super.onCreateOptionsMenu(menu);
     }
-
     /**
      * Called when user clicks on icon in action bar
      *
@@ -466,7 +531,12 @@ public void setActionBar(){
                 } else {
                     item.setChecked(true);
                     Toast.makeText(getBaseContext(), R.string.filter_3, Toast.LENGTH_SHORT).show();
-                    parkingSafteyStart();
+
+                    Intent intent = new Intent(MainActivity.this, CrimeSettings.class);
+                    MainActivity.this.startActivity(intent); // starting crime settings activity
+                    return true;
+
+                    //parkingSafteyStart();
                     //crime.endCrimeSettings();
                 }
                 return true;
@@ -481,6 +551,9 @@ public void setActionBar(){
             case R.id.filter_5: // traffic
                 if (item.isChecked()) {
                     item.setChecked(false);
+
+
+
                     theMap.setTrafficEnabled(false);
                 } else {
                     item.setChecked(true);
@@ -514,7 +587,10 @@ public void setActionBar(){
                 } else {
                     //updatePlaces();
                     item.setChecked(true);
-                    Toast.makeText(getBaseContext(), "Parked", Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(getBaseContext(), "Parked", Toast.LENGTH_SHORT).show();
+
+                    Toast.makeText(getBaseContext(), "lat: " + lat + ", lng: " + lng, Toast.LENGTH_SHORT).show();
+
 
                     userMarker2 = theMap.addMarker(new MarkerOptions()
                             .position(lastLatLng)
@@ -566,10 +642,10 @@ public void setActionBar(){
                 return true;
 
             // settings (new activity)
-         //   case R.id.settings:
-           //     Intent intent = new Intent(MainActivity.this, Settings.class);
-             //   MainActivity.this.startActivity(intent); // starting settings activity
-               // return true;
+            case R.id.settings:
+                Intent intent = new Intent(MainActivity.this, Settings.class);
+                MainActivity.this.startActivity(intent); // starting settings activity
+                return true;
 
             default:
                 return super.onOptionsItemSelected(item);
@@ -577,95 +653,27 @@ public void setActionBar(){
     } // end onOptionsItemSelected
 
 
- SFCrimeHandler crimeHandler = new SFCrimeHandler(); /* Initialize empty handler */
- boolean success = crimeHandler.generateReports(null, -1, -1, -1, -1); /* Generate reports with all default values */
- Button crimeButt;
+
+
+
+
+//
+//     public void btnDone(View v) throws EmptyResponseException {
+//
 //             EditText radius = (EditText) findViewById(R.id.radius);
 //             EditText reports = (EditText) findViewById(R.id.reports);
 //             EditText offset = (EditText) findViewById(R.id.offset);
 //             EditText year = (EditText) findViewById(R.id.earliestYear);
+//
+//         int radius0 = Integer.parseInt(String.valueOf(radius.getText()));
+//         int reports0 = Integer.parseInt(String.valueOf(reports.getText()));
+//         int offset0 = Integer.parseInt(String.valueOf(offset.getText()));
+//         int year0 = Integer.parseInt(String.valueOf(year.getText()));
+//
+//
+//
+//             }
 
-
-/* Takes user to crime data settings for configurations */
-public void  parkingSafteyStart(){
-
-    setContentView(R.layout.crime);
-
-}
-
-
-     public void btnDone(View v) throws EmptyResponseException {
-
-             EditText radius = (EditText) findViewById(R.id.radius);
-             EditText reports = (EditText) findViewById(R.id.reports);
-             EditText offset = (EditText) findViewById(R.id.offset);
-             EditText year = (EditText) findViewById(R.id.earliestYear);
-
-         int radius0 = Integer.parseInt(String.valueOf(radius.getText()));
-         int reports0 = Integer.parseInt(String.valueOf(reports.getText()));
-         int offset0 = Integer.parseInt(String.valueOf(offset.getText()));
-         int year0 = Integer.parseInt(String.valueOf(year.getText()));
-
-         setBack();
-         parkingSaftey(radius0, reports0, offset0, year0);
-
-
-
-             }
-/*
-* onClick function 'DONE' - takes in the user input
-* and transfers to API handler
-* */
-public void setBack(){
-   // setContentView(R.layout.activity_main);
-    super.onBackPressed();
-}
-    public void parkingSaftey(int radius, int reports, int offset,int year) throws EmptyResponseException {
-
-
-
-        if (success) {
-    /* Iterate through reports returned */
-
-            for (int i = 0; i < reports; i++) {
-        /* Print the location and date of each, for instance */
-                System.out.println("Report #: " + (i+1));
-                System.out.println("Date: " + crimeHandler.date(i));
-                System.out.println("Location: " + crimeHandler.location(i));
-
-
-
-            theMap.addMarker(new MarkerOptions()
-                    .position(crimeHandler.location(i))
-                    .title("Report #: " + (i+1))
-                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE))
-                    .snippet("Date: " + crimeHandler.date(i)));
-
-            }
-        }
-
-        LatLng origin = new LatLng(37.728271, -122.433385); /* Create a new LatLng object to pass to the handler */
-
-         int theRadius = radius;
-         int theYear = year;
-         int theReports = reports;
-         int theOffset = offset;
-
-        crimeHandler.setTimeout(30); /* Increase the number of seconds before timeout from 20 to 30 */
-
-/* Generate a new report list with the new parameters */
-        success = crimeHandler.generateReports(origin, theRadius, theYear, theReports, theOffset);
-
-/* Retrieve report data on a successful query */
-        if (success) {
-    /* The number of reports returned will be at most "count", but may be fewer given narrowed parameter values */
-            System.out.println("Number of reports: " + crimeHandler.numReports());
-        }
-
-        crimeHandler = new SFCrimeHandler(); /* Reset the handler */
-
-
-    }
 
 
 
