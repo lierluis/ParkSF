@@ -81,13 +81,7 @@
                 android:orderInCategory="1"
                 app:showAsAction="never"
                 android:title="@string/favorites"/>
-            <!-- settings -->
-            <item
-                android:checkable="false"
-                android:id="@+id/settings"
-                android:orderInCategory="12"
-                app:showAsAction="never"
-                android:title="@string/settings"/>
+
             <!-- layers -->
             <item
                 android:id="@+id/action_layers"
