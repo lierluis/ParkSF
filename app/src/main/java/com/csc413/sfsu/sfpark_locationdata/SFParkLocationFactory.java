@@ -287,6 +287,14 @@ public class SFParkLocationFactory
         return this.db.getParkedLocations();
     }
 
+    /**
+     * Retrieves all items in the database that are parked user defined locations.
+     *
+     * @return An array list of ParkingLocation objects with the userDefined location field set
+     * to true.
+     */
+    public List<ParkingLocation> getUserDefinedLocations(){ return this.db.getUserDefinedLocations();}
+
 
     /**
      * A debugging method, not for use in a production environment for security reasons.
@@ -387,6 +395,8 @@ public class SFParkLocationFactory
 
         return ((src.distanceTo(dst)<=radius)? true : false);
     }
+
+
 
 
 
