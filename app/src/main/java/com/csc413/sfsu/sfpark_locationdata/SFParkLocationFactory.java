@@ -129,7 +129,7 @@ public class SFParkLocationFactory
      * location is the coords data field which is set to the parameter passed to this method.
      * @param udl The location of the user defined location to be added to the database.
      */
-    public void addUserDefinedLocation(LatLng udl){
+    public ParkingLocation addUserDefinedLocation(LatLng udl){
         LatLng origin=udl;
         double radius=.25;
         String name="Past parking location.";
@@ -146,6 +146,7 @@ public class SFParkLocationFactory
                 desc, ospid, bfid, udl, isFavorite, timesSearched, parkedHere,
                 isUserDefined);
         db.addLocation(loc);
+        return loc;
     }
 
     /**
