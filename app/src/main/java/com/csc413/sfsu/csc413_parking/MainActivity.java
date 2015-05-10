@@ -59,7 +59,7 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
                 SFParkLocationFactory locationFactory=new SFParkLocationFactory(MainActivity.this);
                 List <ParkingLocation> parkingList=new ArrayList<ParkingLocation>();
                 parkingList=locationFactory.getParkingLocations(latLng,.25);
-                locationFactory.printAllDB();
+//                locationFactory.printAllDB();
 
 
                 query.setLongitude(latLng.longitude);

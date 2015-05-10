@@ -112,7 +112,7 @@ public class SFParkLocationFactory
             }
         }
 
-//       For debugging:
+//
 //       System.out.println("---------------Locations within range of your tap---------------");
 //        for(int i=0; i<locationList.size(); i++){
 //            System.out.println("Entry "+(i+1)+": ");
@@ -393,7 +393,8 @@ public class SFParkLocationFactory
         dst.setLatitude(dest.latitude);
         dst.setLongitude(dest.longitude);
 
-        return ((src.distanceTo(dst)<=radius)? true : false);
+        //Convert miles to meters and compare
+        return ((src.distanceTo(dst)<=radius*1609.34)? true : false);
     }
 
 
