@@ -34,9 +34,9 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
 
         MapFragment mapFragment = (MapFragment)getFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-        SFParkLocationFactory fac=new SFParkLocationFactory(this);
-        fac.testDB();
-//        fac.printAllDB();
+
+        SFParkLocationFactory locationFactory=new SFParkLocationFactory(this);
+        locationFactory.testDB();
 
     }
 
@@ -55,10 +55,24 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
             @Override
             public void onMapClick(LatLng latLng) {
                 String msg = "Latitude: " + latLng.latitude + "\nLongitude: " + latLng.longitude;
+
+//                double radius=.1;
+//                int startYear=2011;
+//                int count=100;
+//                int offset=0;
+//
+//                SFCrimeHandler crimeHandler = new SFCrimeHandler(); /* Initialize empty handler */
+//                boolean success = crimeHandler.generateReports(latLng, radius, startYear, count, offset);
+//                /* Retrieve report data on a successful query */
+//                if (success) {
+//                /* The number of reports returned will be at most "count", but may be fewer given narrowed parameter values */
+//                    System.out.println("Number of reports: " + crimeHandler.numReports());
+//                }
+
                 SFParkLocationFactory locationFactory=new SFParkLocationFactory(MainActivity.this);
                 List <ParkingLocation> parkingList=new ArrayList<ParkingLocation>();
-                parkingList=locationFactory.getParkingLocations(latLng,.25);
-//                locationFactory.printAllDB();
+                locationFactory.getParkingLocations(latLng,.25);
+
 
 
                 query.setLongitude(latLng.longitude);

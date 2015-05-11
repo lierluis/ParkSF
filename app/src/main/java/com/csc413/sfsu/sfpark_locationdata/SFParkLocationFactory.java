@@ -1,10 +1,5 @@
 package com.csc413.sfsu.sfpark_locationdata;
 
-import android.content.Context;
-import android.location.Location;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
-
 import com.csc413.sfsu.csc413_parking.MainActivity;
 import com.csc413.sfsu.sfpark_simplified.SFParkQuery;
 import com.csc413.sfsu.sfpark_simplified.SFParkXMLResponse;
@@ -47,15 +42,6 @@ public class SFParkLocationFactory
      * include user defined locations.
      */
     public List<ParkingLocation> getParkingLocations(LatLng origin, double radius){
-
-        ConnectivityManager cm =
-                (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
-
-        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
-        boolean isConnected = activeNetwork != null &&
-                activeNetwork.isConnectedOrConnecting();
-        System.out.println("CONNECTIVITY STATUS: "+isConnected);
-
         SFParkQuery query = new SFParkQuery();
         query.setLatitude(origin.latitude);
         query.setLongitude(origin.longitude);
@@ -103,21 +89,10 @@ public class SFParkLocationFactory
 
         }
 
-        List<ParkingLocation> udl=db.getUserDefinedLocations();
+        List<ParkingLocation> udl=db.getUserDefinedWithinRadius(origin, radius);
 
-
-        for(int i=0; i< udl.size(); i++){
-            if(this.isWithinRadius(udl.get(i).getCoords(), origin, radius)){
-                locationList.add(udl.get(i));
-            }
-        }
-
-
-       System.out.println("---------------Locations within range of your tap---------------");
-        for(int i=0; i<locationList.size(); i++){
-            System.out.println("Entry "+(i+1)+": ");
-            System.out.println("Location "+i+" "+locationList.get(i));
-            System.out.println("----------");
+        if(!udl.isEmpty()){
+            locationList.addAll(udl);
         }
 
 
@@ -378,25 +353,7 @@ public class SFParkLocationFactory
 
     }
 
-    /**
-     * Tests if the destination location is within the given radius of the source location.
-     * @param dest The destination location to test.
-     * @param source The source location to test.
-     * @param radius The radius to check if the destination is within.
-     * @return True if the destination is within radius of source. False otherwise.
-     */
-    private boolean isWithinRadius(LatLng dest, LatLng source, double radius){
-        Location src = new Location("");
-        src.setLatitude(source.latitude);
-        src.setLongitude(source.longitude);
 
-        Location dst=new Location("");
-        dst.setLatitude(dest.latitude);
-        dst.setLongitude(dest.longitude);
-
-        //Convert miles to meters and compare
-        return ((src.distanceTo(dst)<=radius*1609.34)? true : false);
-    }
 
 
 

@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.location.Location;
 
 import com.google.android.gms.maps.model.LatLng;
 
@@ -621,6 +622,76 @@ public class LocationDatabaseHandler extends SQLiteOpenHelper {
                 }
             }while(cursor.moveToNext());
         }
+    }
+
+    /**
+     * An optimised method for returning UserDefined locations within a radius of an origin.
+     * Instead of constructing parking location objects from every SQLite field, only the requested
+     * fields are constructed for return to the caller of the method.
+     * @param origin The origin of search.
+     * @param radius
+     * @return
+     */
+
+    public List<ParkingLocation> getUserDefinedWithinRadius(LatLng origin, double radius){
+
+        List<ParkingLocation> udlList=new ArrayList<ParkingLocation>();
+
+        SQLiteDatabase db=this.getReadableDatabase();
+        String query="SELECT * FROM "+this.tableName+" WHERE "+this.keyIsUserDefined+" = 1";
+        Cursor cursor=db.rawQuery(query, null);
+
+        if(cursor.moveToFirst()){
+            do {
+                if(this.isWithinRadius(new LatLng(cursor.getDouble(1), cursor.getDouble(2)), origin,
+                        radius)) {
+
+                    LatLng coords = new LatLng(cursor.getDouble(1), cursor.getDouble(2));
+                    LatLng nOrigin = new LatLng(cursor.getDouble(3), cursor.getDouble(4));
+                    Double nRadius = cursor.getDouble(5);
+                    boolean hasStreetParking = ((cursor.getInt(6) == 1) ? true : false);
+                    String name = cursor.getString(7);
+                    String desc = cursor.getString(8);
+                    int ospid = cursor.getInt(9);
+                    int bfid = cursor.getInt(10);
+                    boolean isFavorite = (cursor.getInt(11) == 1 ? true : false);
+                    int timesSearched = (cursor.getInt(12));
+                    boolean parkedHere = (cursor.getInt(13) == 1 ? true : false);
+                    boolean isUserDefined = (cursor.getInt(14) == 1 ? true : false);
+
+                    ParkingLocation location = new ParkingLocation(nOrigin, nRadius,
+                            hasStreetParking, name, desc, ospid, bfid, coords, isFavorite,
+                            timesSearched, parkedHere, isUserDefined);
+                    udlList.add(location);
+                }
+
+            }while(cursor.moveToNext());
+            cursor.close();
+
+        }
+
+        return udlList;
+    }
+
+
+    /**
+     * Tests if the destination location is within the given radius of the source location.
+     * @param dest The destination location to test.
+     * @param source The source location to test.
+     * @param radius The radius to check if the destination is within.
+     * @return True if the destination is within radius of source. False otherwise.
+     */
+    private boolean isWithinRadius(LatLng dest, LatLng source, double radius){
+        Location src = new Location("");
+        src.setLatitude(source.latitude);
+        src.setLongitude(source.longitude);
+
+        Location dst=new Location("");
+        dst.setLatitude(dest.latitude);
+        dst.setLongitude(dest.longitude);
+
+        //Convert miles to meters and compare
+        return ((src.distanceTo(dst)<=radius*1609.34)? true : false);
     }
 
     protected int getNumParkedHere(){
