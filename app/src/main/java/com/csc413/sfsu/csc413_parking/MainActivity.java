@@ -38,7 +38,6 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
         fac.testDB();
 //        fac.printAllDB();
 
-
     }
 
     @Override

@@ -112,13 +112,13 @@ public class SFParkLocationFactory
             }
         }
 
-//
-//       System.out.println("---------------Locations within range of your tap---------------");
-//        for(int i=0; i<locationList.size(); i++){
-//            System.out.println("Entry "+(i+1)+": ");
-//            System.out.println("Location "+i+" "+locationList.get(i));
-//            System.out.println("----------");
-//        }
+
+       System.out.println("---------------Locations within range of your tap---------------");
+        for(int i=0; i<locationList.size(); i++){
+            System.out.println("Entry "+(i+1)+": ");
+            System.out.println("Location "+i+" "+locationList.get(i));
+            System.out.println("----------");
+        }
 
 
         return locationList;
