@@ -37,6 +37,7 @@ public class LocationDatabaseContract {
         public static final String KEY_TIMES_SEARCHED="timesSearched";
         public static final String KEY_PARKED_HERE="parkedHere";
         public static final String KEY_IS_USER_DEFINED="isUserDefined";
+        public static final String KEY_THEFT_PROBABILITY="theftProbability";
     }
 
 }

@@ -87,8 +87,11 @@ public class LocationDatabaseHandler extends SQLiteOpenHelper {
     private static final String keyParkedHere= LocationDatabaseContract.LocationEntry.KEY_PARKED_HERE;
     /**The name of the isUserDefined clumn key, to be stored as an SQLite INTEGER value 1 or 0*/
     private static final String keyIsUserDefined= LocationDatabaseContract.LocationEntry.KEY_IS_USER_DEFINED;
+    /** The name of the theftProbability key for each entry, to be stored as an SQLite INTEGER value.*/
+    private static final String keyTheftProb=LocationDatabaseContract.LocationEntry.KEY_THEFT_PROBABILITY;
     /**The name of the ID key for each entry, to be stored automatically as an INTEGER PRIMARY KEY*/
     private static final String locationID= LocationDatabaseContract.LocationEntry.LOCATION_NAME_ENTRY_ID;
+
 
 
     /**
@@ -117,7 +120,7 @@ public class LocationDatabaseHandler extends SQLiteOpenHelper {
                 +" DOUBLE, "+this.keyHasStreetParking+" INTEGER, "+this.keyName+" STRING, "
                 +this.keyDesc+" STRING, "+this.keyOSPID+" INTEGER, "+this.keyBFID+" INTEGER, "
                 +keyIsFavorite+" INTEGER, "+this.keyTimesSearched+" INTEGER, "+this.keyParkedHere
-                +" INTEGER, "+this.keyIsUserDefined+" INTEGER"+")";
+                +" INTEGER, "+this.keyIsUserDefined+" INTEGER, "+this.keyTheftProb+" DOUBLE"+")";
         db.execSQL(CREATE_LOCATIONS_TABLE);
 
     }
@@ -193,6 +196,7 @@ public class LocationDatabaseHandler extends SQLiteOpenHelper {
             values.put(this.keyTimesSearched, 1); //New entries should always have 1 timesSearched
             values.put(this.keyParkedHere, ((loc.getParkedHere() ? 1: 0)));
             values.put(this.keyIsUserDefined, ((loc.isUserDefined()? 1: 0)));
+            values.put(this.keyTheftProb, loc.getTheftProbability());
 
             db.insert(this.tableName, null, values);
             db.close();
@@ -227,6 +231,7 @@ public class LocationDatabaseHandler extends SQLiteOpenHelper {
             values.put(this.keyTimesSearched, 1); //New entries should always have 1 timesSearched
             values.put(this.keyParkedHere, ((loc.getParkedHere() ? 1: 0)));
             values.put(this.keyIsUserDefined, ((loc.isUserDefined()? 1: 0)));
+            values.put(this.keyTheftProb, loc.getTheftProbability());
 
             db.insert(this.tableName, null, values);
             db.close();
@@ -261,10 +266,11 @@ public class LocationDatabaseHandler extends SQLiteOpenHelper {
                 int timesSearched=(cursor.getInt(12));
                 boolean parkedHere=(cursor.getInt(13)==1 ? true : false);
                 boolean isUserDefined=(cursor.getInt(14)==1 ? true : false);
+                double theftProb=cursor.getDouble(15);
 
                 ParkingLocation location=new ParkingLocation(origin, radius, hasStreetParking, name,
                         desc, ospid, bfid, coords, isFavorite, timesSearched, parkedHere,
-                        isUserDefined);
+                        isUserDefined, theftProb);
                 locationList.add(location);
             } while(cursor.moveToNext());
         }
@@ -332,10 +338,11 @@ public class LocationDatabaseHandler extends SQLiteOpenHelper {
             int timesSearched=(cursor.getInt(12));
             boolean parkedHere=(cursor.getInt(13)==1 ? true : false);
             boolean isUserDefined=(cursor.getInt(14)==1 ? true : false);
+            double theftProb=cursor.getDouble(15);
 
             ParkingLocation location=new ParkingLocation(origin, radius, hasStreetParking,
                     name, desc, ospid, bfid, coords, isFavorite, timesSearched, parkedHere,
-                    isUserDefined);
+                    isUserDefined, theftProb);
             cursor.close();
 
             return location;
@@ -371,9 +378,11 @@ public class LocationDatabaseHandler extends SQLiteOpenHelper {
             int timesSearched=(cursor.getInt(12));
             boolean parkedHere=(cursor.getInt(13)==1 ? true : false);
             boolean isUserDefined=(cursor.getInt(14)==1 ? true : false);
+            double theftProb=cursor.getDouble(15);
 
             ParkingLocation location=new ParkingLocation(origin, radius, hasStreetParking, name,
-                    desc, ospid, bfid, coords, isFavorite, timesSearched, parkedHere, isUserDefined);
+                    desc, ospid, bfid, coords, isFavorite, timesSearched, parkedHere,
+                    isUserDefined, theftProb);
             cursor.close();
 
             return location;
@@ -409,10 +418,11 @@ public class LocationDatabaseHandler extends SQLiteOpenHelper {
                 int timesSearched = (cursor.getInt(12));
                 boolean parkedHere = (cursor.getInt(13) == 1 ? true : false);
                 boolean isUserDefined=(cursor.getInt(14)==1 ? true : false);
+                double theftProb=cursor.getDouble(15);
 
                 ParkingLocation location = new ParkingLocation(origin, radius, hasStreetParking, name,
                         desc, ospid, bfid, coords, isFavorite, timesSearched, parkedHere,
-                        isUserDefined);
+                        isUserDefined, theftProb);
                 favorites.add(location);
 
             }while(cursor.moveToNext());
@@ -450,10 +460,11 @@ public class LocationDatabaseHandler extends SQLiteOpenHelper {
                 int timesSearched = (cursor.getInt(12));
                 boolean parkedHere = (cursor.getInt(13) == 1 ? true : false);
                 boolean isUserDefined=(cursor.getInt(14)==1 ? true : false);
+                double theftProb=cursor.getDouble(15);
 
                 ParkingLocation location = new ParkingLocation(origin, radius, hasStreetParking, name,
                         desc, ospid, bfid, coords, isFavorite, timesSearched, parkedHere,
-                        isUserDefined);
+                        isUserDefined, theftProb);
                 parkedList.add(location);
 
             }while(cursor.moveToNext());
@@ -491,10 +502,11 @@ public class LocationDatabaseHandler extends SQLiteOpenHelper {
                 int timesSearched = (cursor.getInt(12));
                 boolean parkedHere = (cursor.getInt(13) == 1 ? true : false);
                 boolean isUserDefined=(cursor.getInt(14)==1 ? true : false);
+                double theftProb=cursor.getDouble(15);
 
                 ParkingLocation location = new ParkingLocation(origin, radius, hasStreetParking, name,
                         desc, ospid, bfid, coords, isFavorite, timesSearched, parkedHere,
-                        isUserDefined);
+                        isUserDefined, theftProb);
                 udlList.add(location);
 
             }while(cursor.moveToNext());
@@ -535,6 +547,7 @@ public class LocationDatabaseHandler extends SQLiteOpenHelper {
         values.put(this.keyTimesSearched, location.getTimesSearched());
         values.put(this.keyParkedHere, location.getParkedHere()? 1: 0);
         values.put(this.keyIsUserDefined, ((location.isUserDefined()? 1: 0)));
+        values.put(this.keyTheftProb, location.getTheftProbability());
 
 
         int rowsAffected=db.update(this.tableName, values, (location.hasOnStreetParking()?
@@ -573,9 +586,11 @@ public class LocationDatabaseHandler extends SQLiteOpenHelper {
             int timesSearched=(cursor.getInt(12));
             boolean parkedHere=(cursor.getInt(13)==1 ? true : false);
             boolean isUserDefined=(cursor.getInt(14)==1 ? true : false);
+            double theftProb=cursor.getDouble(15);
 
             this.parkedHereToDelete=new ParkingLocation(origin, radius, hasStreetParking, name,
-                    desc, ospid, bfid, coords, isFavorite, timesSearched, parkedHere, isUserDefined);
+                    desc, ospid, bfid, coords, isFavorite, timesSearched, parkedHere,
+                    isUserDefined, theftProb);
         }
         cursor.close();
     }
@@ -589,8 +604,6 @@ public class LocationDatabaseHandler extends SQLiteOpenHelper {
     public void deleteLocation(ParkingLocation location) {
         List<Integer> offStreetToDelete=new ArrayList<Integer>();
         List<Integer> onStreetToDelete=new ArrayList<Integer>();
-        double latlat=location.getOriginLocation().latitude;
-        double longlong=location.getOriginLocation().longitude;
 
         if(location!=null) {
             SQLiteDatabase dbR=this.getReadableDatabase();
@@ -700,10 +713,11 @@ public class LocationDatabaseHandler extends SQLiteOpenHelper {
                     int timesSearched = (cursor.getInt(12));
                     boolean parkedHere = (cursor.getInt(13) == 1 ? true : false);
                     boolean isUserDefined = (cursor.getInt(14) == 1 ? true : false);
+                    double theftProb=cursor.getDouble(15);
 
                     ParkingLocation location = new ParkingLocation(nOrigin, nRadius,
                             hasStreetParking, name, desc, ospid, bfid, coords, isFavorite,
-                            timesSearched, parkedHere, isUserDefined);
+                            timesSearched, parkedHere, isUserDefined, theftProb);
                     udlList.add(location);
                 }
 
@@ -740,10 +754,11 @@ public class LocationDatabaseHandler extends SQLiteOpenHelper {
                     int timesSearched = ((cursor.getInt(12)) + 1);
                     boolean parkedHere = (cursor.getInt(13) == 1 ? true : false);
                     boolean isUserDefined = (cursor.getInt(14) == 1 ? true : false);
+                    double theftProb=cursor.getDouble(15);
 
                     ParkingLocation location = new ParkingLocation(nOrigin, radius,
                             hasStreetParking, name, desc, ospid, bfid, coords, isFavorite,
-                            timesSearched, parkedHere, isUserDefined);
+                            timesSearched, parkedHere, isUserDefined, theftProb);
                     locs.add(location);
                     this.incrementTimesSearched(location);
                 } while (cursor.moveToNext());

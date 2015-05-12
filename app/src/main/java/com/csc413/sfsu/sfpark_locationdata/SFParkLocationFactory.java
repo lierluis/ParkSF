@@ -1,6 +1,7 @@
 package com.csc413.sfsu.sfpark_locationdata;
 
 import com.csc413.sfsu.csc413_parking.MainActivity;
+import com.csc413.sfsu.sf_vehicle_crime.SFCrimeHandler;
 import com.csc413.sfsu.sfpark_simplified.SFParkQuery;
 import com.csc413.sfsu.sfpark_simplified.SFParkXMLResponse;
 import com.google.android.gms.maps.model.LatLng;
@@ -59,6 +60,21 @@ public class SFParkLocationFactory
             if (success) {
                 String message = response.message();
                 int numRecords = response.numRecords();
+
+                double crimeRadius=.05;
+                int startYear=2011;
+                int count=100;
+                int offset=0;
+                double crimeProb=0.0;
+
+                SFCrimeHandler crimeHandler = new SFCrimeHandler(); /* Initialize empty handler */
+                success = crimeHandler.generateReports(origin, crimeRadius, startYear, count, offset);
+                /* Retrieve report data on a successful query */
+                if (success) {
+                    crimeProb=((double)crimeHandler.numReports()*.00979510638);
+                }
+
+
                 for (int i = 0; i < numRecords; i++) {
                     LatLng coords = new LatLng(
                             response.avl(i).loc().latitude(0), response.avl(i).loc().longitude(0));
@@ -74,7 +90,7 @@ public class SFParkLocationFactory
 
                     ParkingLocation loc = new ParkingLocation(origin, radius, hasOnStreetParking, name,
                             desc, ospid, bfid, coords, isFavorite, timesSearched, parkedHere,
-                            isUserDefined);
+                            isUserDefined, crimeProb);
 
                     this.db.addLocation(loc);
 
@@ -124,9 +140,23 @@ public class SFParkLocationFactory
         boolean parkedHere=false;
         boolean isUserDefined=true;
 
+        double crimeProb=0.0;
+        double crimeRadius=.05;
+        int startYear=2011;
+        int count=100;
+        int offset=0;
+
+
+        SFCrimeHandler crimeHandler = new SFCrimeHandler(); /* Initialize empty handler */
+        boolean success = crimeHandler.generateReports(origin, crimeRadius, startYear, count, offset);
+                /* Retrieve report data on a successful query */
+        if (success) {
+            crimeProb=(double)crimeHandler.numReports()*.00979510638;
+        }
+
         ParkingLocation loc=new ParkingLocation(origin, radius, hasOnStreetParking, name,
                 desc, ospid, bfid, udl, isFavorite, timesSearched, parkedHere,
-                isUserDefined);
+                isUserDefined, crimeProb);
         db.addLocation(loc);
         return loc;
     }
