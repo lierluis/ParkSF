@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Toast;
 
 import com.csc413.sfsu.sfpark_locationdata.ParkingLocation;
 import com.csc413.sfsu.sfpark_locationdata.SFParkLocationFactory;
@@ -34,9 +33,11 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
 
         MapFragment mapFragment = (MapFragment)getFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-
-        SFParkLocationFactory locationFactory=new SFParkLocationFactory(this);
-        locationFactory.testDB();
+//
+//        this.deleteDatabase("locations");
+//        SFParkLocationFactory fact=new SFParkLocationFactory(this);
+//        locationFactory.testDB();
+//        fact.printAllDB();
 
     }
 
@@ -71,29 +72,33 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
 
                 SFParkLocationFactory locationFactory=new SFParkLocationFactory(MainActivity.this);
                 List <ParkingLocation> parkingList=new ArrayList<ParkingLocation>();
-                locationFactory.getParkingLocations(latLng,.25);
+                parkingList=locationFactory.getParkingLocations(latLng,.15);
+                System.out.print("Done. ");
+                System.out.println("Number of locations in database: "+locationFactory.getLocationCount());
+                System.out.println(parkingList.size()+" number of locations within tap range.");
 
 
 
-                query.setLongitude(latLng.longitude);
-                query.setLatitude(latLng.latitude);
-                if (response.populate(query)) {
-                    msg = "Status: " + response.status();
-                    msg += "\nMessage: " + response.message();
-                    if (response.numRecords() > 0) {
-                        for (int i = 0; i < response.avl(0).pts(); i++) {
-                            msg += "\nLocation " + (i+1) + ": ("
-                                    + response.avl(0).loc().longitude(i)
-                                    + ", "
-                                    + response.avl(0).loc().latitude(i)
-                                    + ")";
-                        }
-                    }
-                }
-                else
-                    msg = "failed to populate: " + response.status();
-
-                Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_SHORT).show();
+//
+//                query.setLongitude(latLng.longitude);
+//                query.setLatitude(latLng.latitude);
+//                if (response.populate(query)) {
+//                    msg = "Status: " + response.status();
+//                    msg += "\nMessage: " + response.message();
+//                    if (response.numRecords() > 0) {
+//                        for (int i = 0; i < response.avl(0).pts(); i++) {
+//                            msg += "\nLocation " + (i+1) + ": ("
+//                                    + response.avl(0).loc().longitude(i)
+//                                    + ", "
+//                                    + response.avl(0).loc().latitude(i)
+//                                    + ")";
+//                        }
+//                    }
+//                }
+//                else
+//                    msg = "failed to populate: " + response.status();
+//
+//                Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_SHORT).show();
             }
         });
     }

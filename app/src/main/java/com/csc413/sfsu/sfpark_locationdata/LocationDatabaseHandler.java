@@ -175,7 +175,6 @@ public class LocationDatabaseHandler extends SQLiteOpenHelper {
                 this.addFavOrParkedHere(loc);
                 return;
             }
-            System.out.println(loc.toString());
             SQLiteDatabase db = this.getWritableDatabase();
             ContentValues values = new ContentValues();
             values.put(this.keyLat, loc.getCoords().latitude);
@@ -582,19 +581,62 @@ public class LocationDatabaseHandler extends SQLiteOpenHelper {
     }
 
     /**
-     * Deletes the specified location from the SQLite database.
+     * Deletes the specified location from the SQLite database, and all locations with the same
+     * origin.
      * Note that the database uses the BFID or OSPID data fields to find the location to delete
      * @param location The location to delete.
      */
     public void deleteLocation(ParkingLocation location) {
+        List<Integer> offStreetToDelete=new ArrayList<Integer>();
+        List<Integer> onStreetToDelete=new ArrayList<Integer>();
+        double latlat=location.getOriginLocation().latitude;
+        double longlong=location.getOriginLocation().longitude;
+
         if(location!=null) {
-            SQLiteDatabase db = this.getWritableDatabase();
-            String columnName=location.hasOnStreetParking() ? this.keyBFID+" = ?" : this.keyOSPID
+            SQLiteDatabase dbR=this.getReadableDatabase();
+            String query="SELECT * FROM "+this.tableName+" WHERE "+this.keyOriginLat+" > "
+                    +(location.getOriginLocation().latitude-.0000000000001)+" AND "+this.keyOriginLong+" > "
+                    +(location.getOriginLocation().longitude-.0000000000001)+" AND "+this.keyOriginLat+" < "
+                    +(location.getOriginLocation().latitude+.0000000000001)+" AND "+this.keyOriginLong+" < "
+                    +(location.getOriginLocation().longitude+.0000000000001);
+            Cursor cursor=dbR.rawQuery(query, null);
+            if(cursor.moveToFirst()){
+                do{
+                    //only delete if the locations are not favorites or parked here.
+                    if((cursor.getInt(11) == 0) && (cursor.getInt(13) == 0)) {
+                        if (cursor.getInt(6) == 1) {
+                            onStreetToDelete.add(cursor.getInt(10));
+                        } else {
+                            offStreetToDelete.add(cursor.getInt(9));
+                        }
+                    }
+                }while(cursor.moveToNext());
+            }
+            dbR.close();
+
+
+            SQLiteDatabase dbW = this.getWritableDatabase();
+            //delete location passed
+            String firstDeleteColumnName=location.hasOnStreetParking() ? this.keyBFID+" = ?" : this.keyOSPID
                     + " = ?";
             String id= location.hasOnStreetParking() ? Integer.toString(location.getBfid())
                     : Integer.toString(location.getOspid()) ;
-            db.delete(this.tableName, columnName,new String[]{String.valueOf(id)});
-            db.close();
+            dbW.delete(this.tableName, firstDeleteColumnName,new String[]{String.valueOf(id)});
+
+            //delete all locations with the same origin.
+            for(int i=0; i<offStreetToDelete.size(); i++){
+                dbW.delete(this.tableName, this.keyOSPID+" =? ",
+                        new String[]{String.valueOf(offStreetToDelete.get(i))});
+            }
+
+            for(int i=0; i<onStreetToDelete.size(); i++){
+                dbW.delete(this.tableName, this.keyBFID+" =? ",
+                        new String[]{String.valueOf(onStreetToDelete.get(i))});
+            }
+
+
+
+            dbW.close();
         }
     }
 
@@ -671,6 +713,64 @@ public class LocationDatabaseHandler extends SQLiteOpenHelper {
         }
 
         return udlList;
+    }
+
+    public List<ParkingLocation> getLocsFromOrigin(List<LatLng> latlngs){
+        SQLiteDatabase db=this.getReadableDatabase();
+        List<ParkingLocation> locs=new ArrayList<ParkingLocation>();
+        for(int i=0; i<latlngs.size(); i++) {
+            String query = "SELECT * FROM " + this.tableName + " WHERE " + this.keyOriginLat + " > "
+                    + (latlngs.get(i).latitude - .0000000000001) + " AND " + this.keyOriginLong + " > "
+                    + (latlngs.get(i).longitude - .0000000000001) + " AND " + this.keyOriginLat + " < "
+                    + (latlngs.get(i).latitude + .0000000000001) + " AND " + this.keyOriginLong + " < "
+                    + (latlngs.get(i).longitude + .0000000000001);
+            Cursor cursor = db.rawQuery(query, null);
+            if (cursor.moveToFirst()) {
+                do {
+
+                    LatLng coords = new LatLng(cursor.getDouble(1), cursor.getDouble(2));
+                    LatLng nOrigin = new LatLng(cursor.getDouble(3), cursor.getDouble(4));
+                    Double radius = cursor.getDouble(5);
+                    boolean hasStreetParking = ((cursor.getInt(6) == 1) ? true : false);
+                    String name = cursor.getString(7);
+                    String desc = cursor.getString(8);
+                    int ospid = cursor.getInt(9);
+                    int bfid = cursor.getInt(10);
+                    boolean isFavorite = (cursor.getInt(11) == 1 ? true : false);
+                    int timesSearched = ((cursor.getInt(12)) + 1);
+                    boolean parkedHere = (cursor.getInt(13) == 1 ? true : false);
+                    boolean isUserDefined = (cursor.getInt(14) == 1 ? true : false);
+
+                    ParkingLocation location = new ParkingLocation(nOrigin, radius,
+                            hasStreetParking, name, desc, ospid, bfid, coords, isFavorite,
+                            timesSearched, parkedHere, isUserDefined);
+                    locs.add(location);
+                    this.incrementTimesSearched(location);
+                } while (cursor.moveToNext());
+            }
+        }
+        return locs;
+    }
+
+    public List<LatLng> isWithinToleranceOfOrigins(LatLng test){
+        SQLiteDatabase db=this.getReadableDatabase();
+        String query="SELECT DISTINCT "+this.keyOriginLat+", "+this.keyOriginLong
+                +" FROM "+this.tableName;
+        Cursor cursor=db.rawQuery(query, null);
+        List<LatLng>latlngs=new ArrayList<LatLng>();
+
+        if(cursor.moveToFirst()) {
+            do {
+                if (this.isWithinRadius(new LatLng(cursor.getDouble(0), cursor.getDouble(1)), test,
+                        .15)) {
+                    latlngs.add(new LatLng(cursor.getDouble(0), cursor.getDouble(1)));
+                }
+
+            } while (cursor.moveToNext());
+        }
+
+        return latlngs;
+
     }
 
 

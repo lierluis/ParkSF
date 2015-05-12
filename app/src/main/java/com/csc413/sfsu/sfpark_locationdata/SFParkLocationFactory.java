@@ -42,51 +42,58 @@ public class SFParkLocationFactory
      * include user defined locations.
      */
     public List<ParkingLocation> getParkingLocations(LatLng origin, double radius){
-        SFParkQuery query = new SFParkQuery();
-        query.setLatitude(origin.latitude);
-        query.setLongitude(origin.longitude);
-        query.setRadius(radius);
-        query.setUnitOfMeasurement("MILE");
-
-        SFParkXMLResponse response = new SFParkXMLResponse();
-        boolean success = response.populate(query);
         List <ParkingLocation> locationList=new ArrayList<ParkingLocation>();
+        List<LatLng>existingOrigins=this.db.isWithinToleranceOfOrigins(origin);
+        if(existingOrigins.isEmpty()) {
+            SFParkQuery query = new SFParkQuery();
+            query.setLatitude(origin.latitude);
+            query.setLongitude(origin.longitude);
+            query.setRadius(radius);
+            query.setUnitOfMeasurement("MILE");
 
-        String status = response.status();
-        if (success) {
-            String message = response.message();
-            int numRecords = response.numRecords();
-            for (int i = 0; i < numRecords; i++) {
-                LatLng coords=new LatLng(
-                        response.avl(i).loc().latitude(0), response.avl(i).loc().longitude(0));
-                String name=response.avl(i).name();
-                boolean hasOnStreetParking=(response.avl(i).type().equals("ON")) ? true : false;
-                String desc=response.avl(i).desc();
-                int ospid=response.avl(i).ospid();
-                int bfid=response.avl(i).bfid();
-                boolean isFavorite=false;
-                int timesSearched=1;
-                boolean parkedHere=false;
-                boolean isUserDefined=false;
+            SFParkXMLResponse response = new SFParkXMLResponse();
+            boolean success = response.populate(query);
 
-                ParkingLocation loc=new ParkingLocation(origin, radius, hasOnStreetParking, name,
-                        desc, ospid, bfid, coords, isFavorite, timesSearched, parkedHere,
-                        isUserDefined);
 
-                this.db.addLocation(loc);
+            String status = response.status();
+            if (success) {
+                String message = response.message();
+                int numRecords = response.numRecords();
+                for (int i = 0; i < numRecords; i++) {
+                    LatLng coords = new LatLng(
+                            response.avl(i).loc().latitude(0), response.avl(i).loc().longitude(0));
+                    String name = response.avl(i).name();
+                    boolean hasOnStreetParking = (response.avl(i).type().equals("ON")) ? true : false;
+                    String desc = response.avl(i).desc();
+                    int ospid = response.avl(i).ospid();
+                    int bfid = response.avl(i).bfid();
+                    boolean isFavorite = false;
+                    int timesSearched = 1;
+                    boolean parkedHere = false;
+                    boolean isUserDefined = false;
 
-                if(loc.hasOnStreetParking()){
-                    locationList.add(db.getLocationFromBFID(bfid));
-                }
-                else{
-                    locationList.add(db.getLocationFromOSPID(ospid));
+                    ParkingLocation loc = new ParkingLocation(origin, radius, hasOnStreetParking, name,
+                            desc, ospid, bfid, coords, isFavorite, timesSearched, parkedHere,
+                            isUserDefined);
+
+                    this.db.addLocation(loc);
+
+                    if (loc.hasOnStreetParking()) {
+                        locationList.add(db.getLocationFromBFID(bfid));
+                    } else {
+                        locationList.add(db.getLocationFromOSPID(ospid));
+                    }
+
+
                 }
 
 
             }
+        }
 
-
-
+        else{
+            System.out.println("Found locations using database.");
+            locationList.addAll(this.db.getLocsFromOrigin(existingOrigins));
         }
 
         List<ParkingLocation> udl=db.getUserDefinedWithinRadius(origin, radius);
@@ -271,6 +278,12 @@ public class SFParkLocationFactory
      */
     public List<ParkingLocation> getUserDefinedLocations(){ return this.db.getUserDefinedLocations();}
 
+    /**
+     * Retrieves the number of entries in the location database
+     * @return An integer value of the number of items in the database.
+     */
+    public int getLocationCount(){ return this.db.getLocationsCount();}
+
 
     /**
      * A debugging method, not for use in a production environment for security reasons.
@@ -350,6 +363,7 @@ public class SFParkLocationFactory
      * For running test code to validate consistency of data.
      */
     public void testDB(){
+
 
     }
 
