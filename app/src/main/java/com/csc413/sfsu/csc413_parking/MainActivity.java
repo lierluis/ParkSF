@@ -5,8 +5,6 @@ import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.csc413.sfsu.sfpark_locationdata.ParkingLocation;
-import com.csc413.sfsu.sfpark_locationdata.SFParkLocationFactory;
 import com.csc413.sfsu.sfpark_simplified.SFParkQuery;
 import com.csc413.sfsu.sfpark_simplified.SFParkXMLResponse;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -16,7 +14,6 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 
-import java.util.ArrayList;
 import java.util.List;
 
 
@@ -34,7 +31,7 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
         MapFragment mapFragment = (MapFragment)getFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 //
-//        this.deleteDatabase("locations");
+        this.deleteDatabase("locations");
 //        SFParkLocationFactory fact=new SFParkLocationFactory(this);
 //        locationFactory.testDB();
 //        fact.printAllDB();
@@ -58,15 +55,14 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
                 String msg = "Latitude: " + latLng.latitude + "\nLongitude: " + latLng.longitude;
 
 //
-
-                SFParkLocationFactory locationFactory=new SFParkLocationFactory(MainActivity.this);
-                List <ParkingLocation> parkingList=new ArrayList<ParkingLocation>();
-                parkingList=locationFactory.getParkingLocations(latLng,.15);
-                System.out.print("Done. ");
-                System.out.println("Number of locations in database: "+locationFactory.getLocationCount());
-                System.out.println(parkingList.size()+" number of locations within tap range.");
-                locationFactory.printAllDB();
-
+//
+//                SFParkLocationFactory locationFactory=new SFParkLocationFactory(MainActivity.this);
+//                List <ParkingLocation> parkingList=new ArrayList<ParkingLocation>();
+//                parkingList=locationFactory.getParkingLocations(latLng,.15);
+//                System.out.print("Done. ");
+//                System.out.println("Number of locations in database: "+locationFactory.getLocationCount());
+//                System.out.println(parkingList.size()+" number of locations within tap range.");
+//                locationFactory.printAllDB();
 
 
 //

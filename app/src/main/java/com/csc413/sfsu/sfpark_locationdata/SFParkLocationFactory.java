@@ -71,7 +71,7 @@ public class SFParkLocationFactory
                 success = crimeHandler.generateReports(origin, crimeRadius, startYear, count, offset);
                 /* Retrieve report data on a successful query */
                 if (success) {
-                    crimeProb=((double)crimeHandler.numReports()*.00979510638);
+                    crimeProb=((double)crimeHandler.numReports()/13.3109243697);
                 }
 
 
@@ -151,7 +151,7 @@ public class SFParkLocationFactory
         boolean success = crimeHandler.generateReports(origin, crimeRadius, startYear, count, offset);
                 /* Retrieve report data on a successful query */
         if (success) {
-            crimeProb=(double)crimeHandler.numReports()*.00979510638;
+            crimeProb=(double)crimeHandler.numReports()/13.3109243697;
         }
 
         ParkingLocation loc=new ParkingLocation(origin, radius, hasOnStreetParking, name,
