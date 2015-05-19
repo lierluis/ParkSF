@@ -75,7 +75,7 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
                         msg = "failed to populate: " + response.status();
                 }
                 else {
-                    if (crimeHandler.generateReports(latLng, 0.5, -1, 50, 0)) {
+                    if (crimeHandler.generateReports(latLng, 0.1, -1, 100, 0)) {
                         msg = "Status: " + crimeHandler.status();
                         msg += "\nReports: " + crimeHandler.numReports();
                         try {

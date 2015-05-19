@@ -316,7 +316,7 @@ public class SFParkQuery {
      * geographical point from which the search results will be centered."
      *
      * - Default value if both LAT and LONG are skipped: -122.4200
-     * - Allowed values: anything whose absolute value is <= 180
+     * - Allowed values: anything whose absolute value is less than or equal to 180
      *   All other values will be ignored
      *
      * Note that the query must contain both LAT and LONG or neither; calling this method when LAT does not exist
@@ -341,7 +341,7 @@ public class SFParkQuery {
      * geographical point from which the search results will be centered."
      *
      * - Default value if both LAT and LONG are skipped: 37.7819
-     * - Allowed values: any whose absolute value is <= 90
+     * - Allowed values: any whose absolute value is less than or equal to 90
      *   All other values will be ignored
      *
      * Note that the query must contain both LAT and LONG or neither; calling this method when LONG does not exist
@@ -349,6 +349,7 @@ public class SFParkQuery {
      *
      *
      * @param   lat   a Double containing the new value for the Latitude
+     * @return  true if the parameter value was set successfully, false otherwise
      */
     public boolean setLatitude (Double lat) {
         if (lat > 90 || lat < -90)
@@ -481,6 +482,7 @@ public class SFParkQuery {
      *   All other values will be ignored
      *
      * @param   pricing     a String containing the new value for the Pricing Information parameter
+     * @return  true if the parameter value was set successfully, false otherwise
     */
     public boolean setPricingInformation (String pricing) {
         pricing = pricing.toUpperCase();

@@ -16,7 +16,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-/** The SFCrimeXMLResponse class retrieves and stores select data from a query to the San Francisco Crimespotters database.
+/** The SFCrimeXMLResponse class retrieves and stores select data from a query to the San Francisco Crimespotting database.
  * The class is intended to be used with the csc413_parking package and stores only the data that is pertinent in order to
  * avoid unnecessary bloating.
  * Currently, this class stores the following information from specifically vehicle theft reports:
@@ -49,11 +49,11 @@ class SFCrimeXMLResponse {
         status = "";
     }
 
-    /** Restructures the default date format of a report as returned from a query to the SFCrimespotters database.
-     * The SFCrimespotters date format is as follows: [DAY OF WEEK], [FIRST 3 LETTERS OF MONTH] [DAY OF MONTH, NO LEADING ZERO], [YEAR];
+    /** Restructures the default date format of a report as returned from a query to the SFCrimespotting database.
+     * The SFCrimespotting date format is as follows: [DAY OF WEEK], [FIRST 3 LETTERS OF MONTH] [DAY OF MONTH, NO LEADING ZERO], [YEAR];
      * the restructured format is as follows: [YEAR]-[NUMBER OF MONTH WITH LEADING ZERO]-[DAY OF MONTH WITH LEADING ZERO]
      *
-     * @param   date    a String with a date in the SFCrimespotters format
+     * @param   date    a String with a date in the SFCrimespotting format
      * @return  a String in with a date in the restructured format if reformatting successful, or an empty String otherwise
      */
     private String restructureDate(String date) {
@@ -100,9 +100,9 @@ class SFCrimeXMLResponse {
         reset();
     }
 
-    /** Populates the SFCrimeXMLResponse object with data parsed from a successful San Francisco Crimespotters database query.
+    /** Populates the SFCrimeXMLResponse object with data parsed from a successful San Francisco Crimespotting database query.
      *
-     * @param   query    a String representing a San Francisco Crimespotters API query in the form of a URL
+     * @param   query    a String representing a San Francisco Crimespotting API query in the form of a URL
      * @return  true if the query was successful and no exceptions were thrown, false otherwise
      */
     protected boolean populate (String query) {
@@ -139,9 +139,9 @@ class SFCrimeXMLResponse {
         return true;
     }
 
-    /** Populates the SFCrimeXMLResponse object with data parsed from a successful San Francisco Crimespotters database query.
+    /** Populates the SFCrimeXMLResponse object with data parsed from a successful San Francisco Crimespotting database query.
      *
-     * @param   query    a SFCrimeQuery object representing a San Francisco Crimespotters API query
+     * @param   query    a SFCrimeQuery object representing a San Francisco Crimespotting API query
      * @return  true if the query was successful and no exceptions were thrown, false otherwise
      */
     protected boolean populate (SFCrimeQuery query) {
@@ -152,7 +152,7 @@ class SFCrimeXMLResponse {
      *
      * @param   index   index of crime
      * @return  the date of the crime in the form of a String
-     * @throws  java.lang.IndexOutOfBoundsException if the index is < 0 or > the number of crimes - 1
+     * @throws  java.lang.IndexOutOfBoundsException if the index is less than 0 or greater than the number of crimes - 1
     */
     protected String date (int index) {
         return crimeDates.get(index);
@@ -162,7 +162,7 @@ class SFCrimeXMLResponse {
      *
      * @param   index   index of crime
      * @return  the location of the crime in the form of a LatLng object
-     * @throws  java.lang.IndexOutOfBoundsException if the index is < 0 or > the number of crimes - 1
+     * @throws  java.lang.IndexOutOfBoundsException if the index is less than 0 or greater than the number of crimes - 1
      */
     protected LatLng loc (int index) {
         return crimeLocs.get(index);
