@@ -15,18 +15,17 @@ import android.support.v7.app.ActionBarActivity;
 import android.location.Location;
 import android.location.LocationManager;
 
-//import com.csc413.sfsu.sfpark_locationdata.ParkingLocation;
-//import com.csc413.sfsu.sfpark_locationdata.SFParkLocationFactory;
 import com.csc413.sfsu.sfpark_locationdata.ParkingLocation;
 import com.csc413.sfsu.sfpark_locationdata.SFParkLocationFactory;
-import com.csc413.sfsu.sfpark_simplified.SFParkQuery;
-import com.csc413.sfsu.sfpark_simplified.SFParkXMLResponse;
+import com.csc413.sfsu.sfpark_simplified.SFParkLocation;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.GroundOverlay;
+import com.google.android.gms.maps.model.GroundOverlayOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -58,23 +57,29 @@ import java.util.List;
 public class MainActivity extends ActionBarActivity implements
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
-        LocationListener, OnMapReadyCallback,
+        LocationListener,
         GoogleMap.OnMarkerClickListener {
 
-    private static GoogleMap theMap;
-    private static SFParkQuery query;
-    private static SFParkXMLResponse response;
-//    private static SFParkLocationFactory locationFactory;
-//    private static List<ParkingLocation> parkingList = new ArrayList<ParkingLocation>();
+    private GoogleMap theMap;
+    private SFParkLocationFactory locationFactory;
+    private List<ParkingLocation> parkingList = new ArrayList<ParkingLocation>();
+    private List<ParkingLocation> udlList;
 
     private static LocationManager locMan;
     private static Marker userMarker;
-    ArrayList<Marker> userMarkers = new ArrayList<>();
+    private static Marker parkedLocation;
+
+    //List<ParkingLocation> udlListFavorites;
+
+    private static ArrayList<Marker> userMarkers = new ArrayList<>();
+    private static ArrayList<Marker> favoriteMarkers = new ArrayList<>();
+    private static ArrayList<Marker> UDLMarkers = new ArrayList<>();
 
     private static final int GPS_ERRORDIALOG_REQUEST = 9001;
     private static GoogleApiClient mGoogleApiClient;
     private static LocationRequest mLocationRequest;
     private static LatLng lastLatLng; // last known location
+    private static LatLng origin;
 
     // navigation drawer
     private static DrawerLayout mDrawerLayout;
@@ -84,20 +89,15 @@ public class MainActivity extends ActionBarActivity implements
 
     private static boolean markerSelected;
     private static boolean parked;
-    //private static boolean favorited;
-    private static int parkingSpot;
-    private static boolean[] favorited;
-    double radius;
-             double lat;
-             double lng;
-            // LatLng newll;
-             LatLng origin;
-            // SFParkLocationFactory locationFactory;
-             CameraUpdate update;
-             List<Address> list = new ArrayList<Address>();
-             public List<ParkingLocation> parkingList = new ArrayList<ParkingLocation>();
 
-        SFParkLocationFactory locationFactory = new SFParkLocationFactory(this);
+    private static boolean isSFParkLocation;
+    private static boolean isUDLMarker;
+
+    private static boolean favorited;
+    private static int parkingSpot;
+    LatLng loc;
+
+    //ParkingLocation userDefined;
 
     //    private static double lat; // current location latitude
 //    private static double lng; // current location longitude
@@ -115,13 +115,11 @@ public class MainActivity extends ActionBarActivity implements
 
         // create map
         theMap = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
-        onMapReady(theMap);
+        setMap(); // set map properties like buttons, layers
+        updatePlaces(); // set userMarker location
 
         theMap.setOnMarkerClickListener(this); // enable marker listener
         markerSelected = false;
-
-        setMap();
-        updatePlaces();
 
         getSupportActionBar().setHomeButtonEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -136,77 +134,22 @@ public class MainActivity extends ActionBarActivity implements
             selectItem(0);
         }
 
+        //this.deleteDatabase("locations"); // deletes database already existing
 
+        // coordinates: N, E are +, S, W are -
+        origin = new LatLng(37.7833, -122.4167);
+        locationFactory = new SFParkLocationFactory(this);
+        udlList = locationFactory.getUserDefinedLocations();
 
-        Toast.makeText(getBaseContext(), "PARKING LIST SIZE: " + parkingList.size(), Toast.LENGTH_LONG).show();
-
-//        if (parkingList.size() != 0) {
-//            theMap.addMarker(new MarkerOptions()
-//                    .position(parkingList.get(0).getOriginLocation()) // get origin of first location
-//                    .title("Origin")
-//                    .snippet("Parking locations revolve around the origin")
-//                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
-
-//            favorited = new boolean[parkingList.size()];
-//
-//            for (int i = 0; i < parkingList.size(); i++) {
-//
-//                userMarkers.add(
-//                        theMap.addMarker(
-//                                new MarkerOptions()
-//                                        .position(parkingList.get(i).getCoords())
-//                                        .title("Parking Spot")
-//                                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE))
-//                                        .snippet("Parking location: " + i + "\n" + parkingList.get(i).toString())
-//                        ));
-//                //);
-//            }
-       // }
     }
 
-    @Override
-    public void onMapReady(GoogleMap map) {
-
-        updatePlaces(); // sets marker to current location
-
-//        query = new SFParkQuery();
-//        response = new SFParkXMLResponse();
-
-        LatLng sfsu = new LatLng(37.7233, -122.4797);
-
-        map.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
-            @Override
-            public void onMapClick(LatLng latLng) {
-                String msg = "Latitude: " + latLng.latitude + "\nLongitude: " + latLng.longitude;
-
-//                if (!markerSelected) {
-//                    query.setLongitude(latLng.longitude);
-//                    query.setLatitude(latLng.latitude);
-//                    if (response.populate(query)) {
-//                        msg = "Status: " + response.status();
-//                        msg += "\nMessage: " + response.message();
-//                        if (response.numRecords() > 0) {
-//                            for (int i = 0; i < response.avl(0).pts(); i++) {
-//                                msg += "\nLocation " + (i + 1) + ": ("
-//                                        + response.avl(0).loc().longitude(i)
-//                                        + ", "
-//                                        + response.avl(0).loc().latitude(i)
-//                                        + ")";
-//                            }
-//                        }
-//                    } else
-//                        msg = "failed to populate: " + response.status();
-//
-//                    Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_SHORT).show();
-//                } // end if statement
-
-                // makes sure that the toast above only appears when marker is not clicked on,
-                // since the only way to exit a marker's info window is to click on the map.
-                markerSelected = false;
-
-            } // end onMapClick
-        }); // end setOnMapClickListener
-    } // end onMapReady
+    /**
+     * Makes a Toast message from a String argument
+     * @param s
+     */
+    private void toast(String s) {
+        Toast.makeText(this, s, Toast.LENGTH_SHORT).show();
+    }
 
     /**
      * Gets current location & sets marker
@@ -215,97 +158,151 @@ public class MainActivity extends ActionBarActivity implements
         locMan = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         Location lastLoc = locMan.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
 
-        double lat = lastLoc.getLatitude();
-        double lng = lastLoc.getLongitude();
+        final double lat = lastLoc.getLatitude();
+        final double lng = lastLoc.getLongitude();
 
         //LatLng lastLatLng = new LatLng(lat, lng);
         lastLatLng = new LatLng(lat, lng);
 
+        // if userMarker already exists, remove it to replace it with one at current location
         if (userMarker != null) userMarker.remove();
 
-        // marker put at current location
+        // userMarker put at current location
         userMarker = theMap.addMarker(new MarkerOptions()
                 .position(lastLatLng)
                 .title("User Location")
                 .snippet("Location: lat/lng: (" + lat + "," + lng + ")")
                 .draggable(true));
 
-        theMap.setOnMarkerDragListener(new GoogleMap.OnMarkerDragListener() {
-            @Override
-            public void onMarkerDragStart(Marker marker) {
-
-            }
-
-            @Override
-            public void onMarkerDrag(Marker marker) {
-
-            }
-
-            @Override
-            public void onMarkerDragEnd(Marker marker) {
-                Geocoder gc = new Geocoder(MainActivity.this);
-                List<Address> list = null;
-                newll = marker.getPosition();
-
-
-                try {
-                    list = gc.getFromLocation(newll.latitude, newll.longitude, 1);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    return;
-                }
-                Address add = list.get(0);
-                marker.setTitle(add.getLocality());
-//                marker.setSnippet("Latitude: " + String.valueOf(newll.latitude) +
-//                        "Longitude: " + String.valueOf(newll.longitude));
-                marker.showInfoWindow();
-
-                radius = .25;
-                origin = new LatLng(newll.latitude, newll.longitude);
-
-               // parkingList = locationFactory.getParkingLocations(origin, radius);
-
-//                // coordinates: N, E are +, S, W are -
-//                LatLng origin = new LatLng(37.792279, -122.39709);
-//                //origin = lastLatLng;
-//                double radius = .25;
-
-                //this.deleteDatabase("locations"); // deletes database already existing
-                //locationFactory = new SFParkLocationFactory(this);
-                parkingList = locationFactory.getParkingLocations(origin, radius);
-
-                update = CameraUpdateFactory.newLatLngZoom(origin, 14);
-                theMap.moveCamera(update);
-
-                for (int i = 0; i < parkingList.size(); i++) {
-
-                    // populate the parking information here
-                    theMap.addMarker(new MarkerOptions()
-                            .position(parkingList.get(i).getCoords())
-                            .title(parkingList.get(i).getName())
-                            .draggable(false)
-                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE))
-                            .snippet("Parking location: " + i + "\n"
-                                    + parkingList.get(i).toString()));
-                }
-
-            }
-        });
-
         // move camera to marker
-        CameraUpdate update = CameraUpdateFactory.newLatLngZoom(lastLatLng, 14);
+        CameraUpdate update = CameraUpdateFactory.newLatLngZoom(lastLatLng, 11);
         theMap.moveCamera(update);
         theMap.animateCamera(CameraUpdateFactory.newLatLng(lastLatLng), 3000, null);
-    }
+        theMap.setOnMarkerDragListener(
+                new GoogleMap.OnMarkerDragListener() {
+                    @Override
+                    public void onMarkerDragStart(Marker marker) {
+                    }
 
-    public void addToFav(){
+                    @Override
+                    public void onMarkerDrag(Marker marker) {
+                    }
 
-    }
+                    @Override
+                    public void onMarkerDragEnd(Marker marker) {
+                        Geocoder gc = new Geocoder(MainActivity.this);
+                        List<Address> list = null;
+                        newll = marker.getPosition(); // lat,lng where marker is dragged to
+
+                        try {
+                            list = gc.getFromLocation(newll.latitude, newll.longitude, 1);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                            return;
+                        }
+
+                        origin = new LatLng(newll.latitude, newll.longitude); // origin of parkingList = where marker is dragged to
+                        double radius = .15;
+
+                        parkingList = locationFactory.getParkingLocations(origin, radius);
+
+                        toast("PARKING LIST SIZE: " + parkingList.size()); // # of parking locations around origin
+
+                        if (parkingList.size() != 0) {
+
+                            theMap.clear();
+
+                            // clear the marker references before we add more, because the parkingList index resets to 0 when creating new markers
+                            if (!userMarkers.isEmpty()) {
+                                userMarkers.clear();
+                            }
+
+                            // set new userMarker at location where marker was dragged
+                            userMarker = theMap.addMarker(new MarkerOptions()
+                                    .position(marker.getPosition())
+                                    .title("User Location")
+                                    .snippet("Location: lat/lng: (" + lat + "," + lng + ")")
+                                    .draggable(true));
+
+                            if (parked) {
+                                parkedLocation = theMap.addMarker(new MarkerOptions()
+                                        .position(marker.getPosition())
+                                        .title("Parked location")
+                                        .snippet("Location: lat/lng: (" + lat + "," + lng + ")"));
+                            }
+
+                            // move camera to marker
+//                            CameraUpdate update = CameraUpdateFactory.newLatLngZoom(newll, 14);
+//                            theMap.moveCamera(update);
+//                            theMap.animateCamera(CameraUpdateFactory.newLatLng(newll), 3000, null);
+
+                        }
+
+                        if (parkingList.size() != 0) {
+
+                            for (int i = 0; i < parkingList.size(); i++) {
+
+                                // add markers to map whose indexes align with each parking location
+                                userMarkers.add(
+                                        theMap.addMarker(new MarkerOptions()
+                                                        .position(parkingList.get(i).getCoords())
+                                                        .title(parkingList.get(i).getName())
+                                                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.parking))
+                                                //.snippet("Parking location: " + i + "\n" + parkingList.get(i).toString())
+                                        ));
+
+//                                // change marker & snippet if theft probability is high
+                                if (parkingList.get(i).getTheftProbability() > 1) {
+                                    userMarkers.get(i).setSnippet("Parking location: " + i + "\n" + parkingList.get(i).toString()
+                                            + "\nWARNING: You may likely be robbed");
+                                    userMarkers.get(i).setIcon(BitmapDescriptorFactory.fromResource(R.drawable.crossbones));
+                                } else {
+                                    userMarkers.get(i).setSnippet("Parking location: " + i + "\n" + parkingList.get(i).toString());
+                                }
+
+                                // change marker if favorite
+                                if (parkingList.get(i).isFavorite()) {
+                                    userMarkers.get(i).setIcon(BitmapDescriptorFactory.fromResource(R.drawable.star));
+                                }
+
+                                // change marker if user defined location
+                                if (parkingList.get(i).isUserDefined()) {
+                                    userMarkers.get(i).setIcon(BitmapDescriptorFactory.fromResource(R.drawable.car));
+                                }
+
+                                // change marker if previously parked location
+                                if (parkingList.get(i).getParkedHere()) {
+                                    userMarkers.get(i).setIcon(BitmapDescriptorFactory.fromResource(R.drawable.parked));
+                                }
+                            } // end for
+
+                        } // end if
+
+                        // when dragging marker, set new title & snippet
+                        Address add = list.get(0);
+                        marker.setTitle(add.getLocality());
+                        marker.setSnippet("Location: lat/lng: (" + String.valueOf(newll.latitude) +
+                                "," + String.valueOf(newll.longitude) + ")"); // location = where marker is dragged to
+                        marker.showInfoWindow();
+
+                    } // end onMarkerDragEnd
+                }
+
+        ); // end setOnMarkerDragListener
+
+//        theMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+//            @Override
+//            public void onMapClick(LatLng latLng) {
+//
+//            }
+//        });
+
+    } // end updatePlaces
 
     /**
-     * Sets values for map
+     * Sets the map feature options
      */
-    public static void setMap() {
+    public void setMap() {
         theMap.setMyLocationEnabled(true);
         theMap.setIndoorEnabled(false);
         theMap.setBuildingsEnabled(false); // optional for user in filter
@@ -313,14 +310,24 @@ public class MainActivity extends ActionBarActivity implements
         theMap.getUiSettings().setZoomControlsEnabled(true);
     }
 
+    /**
+     * Changes the user's current location on a location change
+     * @param location
+     */
     @Override
     public void onLocationChanged(Location location) {
         // mLocationView.setText("Location received: " + location.toString());
         String msg = "Location: " + location.getLatitude() + "," + location.getLongitude();
-        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+        toast(msg);
     }
 
-    private static void gotoLocation(double lat, double lng, float zoom) {
+    /**
+     * goes to a specific location given the arguments
+     * @param lat
+     * @param lng
+     * @param zoom
+     */
+    private void gotoLocation(double lat, double lng, float zoom) {
         LatLng ll = new LatLng(lat, lng);
         CameraUpdate update = CameraUpdateFactory.newLatLngZoom(ll, zoom);
         theMap.moveCamera(update);
@@ -341,14 +348,31 @@ public class MainActivity extends ActionBarActivity implements
     public boolean onMarkerClick(Marker marker) {
         markerSelected = true;
 
-        if(userMarkers.contains(marker)) {
+        if (userMarkers.contains(marker)) {
+            isSFParkLocation = true;
             parkingSpot = userMarkers.indexOf(marker); // saves which marker pertains to which parking location
-            toast("(from onMarkerClick) isFavorite: " + parkingList.get(parkingSpot).isFavorite());
+        } else {
+            isSFParkLocation = false;
         }
+
+//        if (UDLMarkers.contains(marker)) {
+//            isUDLMarker = true;
+//            parkingSpot = UDLMarkers.indexOf(marker);
+//            //toast("UDL");
+//        } else {
+//            isUDLMarker = false;
+//            //toast("Not UDL");
+//        }
 
         return false; // we want to keep the default behavior of the camera shift and info window
     }
 
+
+    /**
+     * A custom info window that can expand or contract depending on
+     * how much information is put in
+     *
+     */
     private void setInfoWindows() {
         theMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
 
@@ -357,11 +381,8 @@ public class MainActivity extends ActionBarActivity implements
                 return null;
             }
 
-            /**
-             * Formats the contents of each marker's snippet
-             * @param marker
-             * @return
-             */
+
+            /* Formats the contents of each marker's snippet */
             @Override
             public View getInfoContents(Marker marker) {
 
@@ -384,7 +405,7 @@ public class MainActivity extends ActionBarActivity implements
 
             } // end getInfoContents
         }); // end setInfoWindowAdapter
-    } // end infoWindows
+    } // end setInfoWindows
     ////////////////////////////////////////// END MARKER /////////////////////////////////////////
 
 
@@ -431,183 +452,139 @@ public class MainActivity extends ActionBarActivity implements
              *                     else if item is not selected, select item
              */
             // filter (checkbox)
-            case R.id.filter_1: // parking likelihood rating
-                if (item.isChecked()) {
-                    item.setChecked(false);
-                } else {
-                    item.setChecked(true);
-                    Toast.makeText(getBaseContext(), R.string.filter_1, Toast.LENGTH_SHORT).show();
-                }
-                return true;
-            case R.id.filter_2: // parking restriction
-                if (item.isChecked()) {
-                    item.setChecked(false);
-                } else {
-                    item.setChecked(true);
-                    Toast.makeText(getBaseContext(), R.string.filter_2, Toast.LENGTH_SHORT).show();
-                }
-                return true;
-            case R.id.filter_3: // parking safety
-                if (item.isChecked()) {
-                    item.setChecked(false);
-                } else {
-                    item.setChecked(true);
-                    Toast.makeText(getBaseContext(), R.string.filter_3, Toast.LENGTH_SHORT).show();
-                }
-                return true;
-            case R.id.filter_4: // parking structure
-                if (item.isChecked()) {
-                    item.setChecked(false);
-                } else {
-                    item.setChecked(true);
-                    Toast.makeText(getBaseContext(), R.string.filter_4, Toast.LENGTH_SHORT).show();
-                }
-                return true;
-            case R.id.filter_5: // traffic
+            case R.id.filter_1: // Traffic
                 if (item.isChecked()) {
                     item.setChecked(false);
                     theMap.setTrafficEnabled(false);
                 } else {
                     item.setChecked(true);
-                    Toast.makeText(getBaseContext(), R.string.filter_5, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, R.string.filter_1, Toast.LENGTH_SHORT).show();
                     theMap.setTrafficEnabled(true);
                 }
                 return true;
-            case R.id.filter_6: // buildings
+            case R.id.filter_2: // Buildings
                 if (item.isChecked()) {
                     item.setChecked(false);
                     theMap.setBuildingsEnabled(false);
                 } else {
                     item.setChecked(true);
-                    Toast.makeText(getBaseContext(), R.string.filter_6, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, R.string.filter_2, Toast.LENGTH_SHORT).show();
                     theMap.setBuildingsEnabled(true);
                 }
                 return true;
 
-            /*
-             * parked icon
-             *
-             * 1. prints whether user is now parked or no longer parked
-             * 2. places undraggable car icon at current location to indicate where user is parked
-             */
             case R.id.parked_icon:
-                if (parked) {
-                    Toast.makeText(getBaseContext(), "No longer parked", Toast.LENGTH_SHORT).show();
-                    parked = false;
 
-                    userMarker.setTitle("User location");
-                    userMarker.setSnippet("Location: lat/lng: (" + lastLatLng.latitude + ","
-                            + lastLatLng.longitude + ")\nYou are here");
-                    userMarker.setIcon(BitmapDescriptorFactory.defaultMarker());
+                if(markerSelected) {
+                    if(isSFParkLocation) {
+
+                        if(parkingList.get(parkingSpot).getParkedHere()) { // if parked, unpark
+                            toast("No longer parked");
+                            if(parkingList.get(parkingSpot).isFavorite()) {
+                                userMarkers.get(parkingSpot).setIcon(BitmapDescriptorFactory.fromResource(R.drawable.star)); // favorite icon
+                            } else if (parkingList.get(parkingSpot).isUserDefined()) {
+                                userMarkers.get(parkingSpot).setIcon(BitmapDescriptorFactory.fromResource(R.drawable.car)); // user defined
+                            } else {
+                                if ((parkingList.get(parkingSpot).getTheftProbability()) > 1) {
+                                    userMarkers.get(parkingSpot).setIcon(BitmapDescriptorFactory.fromResource(R.drawable.crossbones)); // high theft
+                                } else {
+                                    userMarkers.get(parkingSpot).setIcon(BitmapDescriptorFactory.fromResource(R.drawable.parked)); // regular parking location
+                                }
+                            }
+                        } else {
+                            toast("Parked");
+                            userMarkers.get(parkingSpot).setIcon(BitmapDescriptorFactory.fromResource(R.drawable.ic_car_parked));
+                        }
+
+                        locationFactory.toggleParkedHere(parkingList.get(parkingSpot));
+                        parkingList = locationFactory.updateDataFromDatabase(parkingList);
+                        userMarkers.get(parkingSpot).setSnippet("Parking location: " + parkingSpot + "\n" + parkingList.get(parkingSpot).toString());
+                        userMarkers.get(parkingSpot).showInfoWindow();
+
+                    } else {
+
+                        if(parked) {
+                            parked = false;
+                            toast("No longer parked");
+                            userMarker.setIcon(BitmapDescriptorFactory.defaultMarker());
+                        } else {
+                            parked = true;
+                            toast("Parked");
+                            userMarker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.ic_car_parked));
+                        }
+
+                    }
                 } else {
-                    updatePlaces();
-                    item.setChecked(true);
-                    Toast.makeText(getBaseContext(), "Parked", Toast.LENGTH_SHORT).show();
-
-                    parked = true;
-
-                    userMarker.setTitle("Parking location");
-
-                    toast("lat: " + lastLatLng.latitude + ", lng: " + lastLatLng.longitude);
-
-
-                    userMarker.setSnippet("Location: lat/lng: (" + lastLatLng.latitude + ","
-                            + lastLatLng.longitude + ")\nYou parked here");
-                    userMarker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.ic_car_checked));
+                    toast("Select a marker to park");
                 }
+
                 return true;
 
-            // favorite (checkbox)
+            // favorite
             case R.id.favorite:
-                if (markerSelected) {
-                    toast("parking spot: " + parkingSpot);
 
-                    toast("isFavorite before: " + parkingList.get(parkingSpot).isFavorite());
-                    locationFactory.toggleFavorite(parkingList.get(parkingSpot));
+                if(markerSelected) {
+                    if(isSFParkLocation) {
 
-                    locationFactory.updateDataFromDatabase(parkingList);
+                        if(parkingList.get(parkingSpot).isFavorite()) { // if favorite, unfavorite
+                            if(parkingList.get(parkingSpot).getParkedHere()) { // if parked
+                                userMarkers.get(parkingSpot).setIcon(BitmapDescriptorFactory.fromResource(R.drawable.parked)); // favorite icon
+                            } else if (parkingList.get(parkingSpot).isUserDefined()) {
+                                userMarkers.get(parkingSpot).setIcon(BitmapDescriptorFactory.fromResource(R.drawable.car)); // user defined
+                            } else {
+                                if ((parkingList.get(parkingSpot).getTheftProbability()) > 1) {
+                                    userMarkers.get(parkingSpot).setIcon(BitmapDescriptorFactory.fromResource(R.drawable.crossbones)); // high theft
+                                } else {
+                                    userMarkers.get(parkingSpot).setIcon(BitmapDescriptorFactory.fromResource(R.drawable.parking)); // regular parking location
+                                }
+                            }
+                        } else {
+                            userMarkers.get(parkingSpot).setIcon(BitmapDescriptorFactory.fromResource(R.drawable.star));
+                        }
 
-                    toast("isFavorite after: " + parkingList.get(parkingSpot).isFavorite());
+                        locationFactory.toggleFavorite(parkingList.get(parkingSpot));
+                        parkingList = locationFactory.updateDataFromDatabase(parkingList);
+                        userMarkers.get(parkingSpot).setSnippet("Parking location: " + parkingSpot + "\n" + parkingList.get(parkingSpot).toString());
+                        userMarkers.get(parkingSpot).showInfoWindow();
 
-//                    if (favorited[parkingSpot]) {
-//                        favorited[parkingSpot] = false;
-//                        toast("Removing from favorites...");
-//                        toast("isFavorite before: " + parkingList.get(parkingSpot).isFavorite());
-//                        locationFactory.toggleFavorite(parkingList.get(parkingSpot));
-//                        toast("isFavorite after: " + parkingList.get(parkingSpot).isFavorite());
-//                    } else {
-//                        favorited[parkingSpot] = true;
-//                        toast("Adding to favorites...");
-//                        toast("isFavorite before: " + parkingList.get(parkingSpot).isFavorite());
-//                        locationFactory.toggleFavorite(parkingList.get(parkingSpot));
-//                        toast("isFavorite after: " + parkingList.get(parkingSpot).isFavorite());
-//                    }
+                    } else {
+
+                        toast("not sfpark location");
+
+                    }
                 } else {
-                    Toast.makeText(getBaseContext(), "Click on a marker to use favorites", Toast.LENGTH_SHORT).show();
+                    toast("Select a marker to favorite");
                 }
 
                 return true;
 
-//                if (item.isChecked()) {
-//                    if (markerSelected) {
-//                        item.setChecked(false);
-//                        Toast.makeText(getBaseContext(), "Removed from favorites", Toast.LENGTH_SHORT).show();
-//                        favorited = false;
-//
-//                        toast("parking spot: " + parkingSpot);
-//                        toast("isFavorite: " + parkingList.get(parkingSpot).isFavorite());
-//                        locationFactory.toggleFavorite(parkingList.get(parkingSpot));
-//                        toast("isFavorite: " + parkingList.get(parkingSpot).isFavorite());
-////                        setInfoWindows();
-//                    } else {
-//                        Toast.makeText(getBaseContext(), "Click on a marker to remove from favorites", Toast.LENGTH_SHORT).show();
-//                    }
-//                } else {
-//                    if (markerSelected) {
-//                        item.setChecked(true);
-//                        Toast.makeText(getBaseContext(), "Added to favorites", Toast.LENGTH_SHORT).show();
-//                        favorited = true;
-//
-//                        toast("parking spot: " + parkingSpot);
-//                        toast("isFavorite: " + parkingList.get(parkingSpot).isFavorite());
-//                        locationFactory.toggleFavorite(parkingList.get(parkingSpot));
-//                        toast("isFavorite: " + parkingList.get(parkingSpot).isFavorite());
-//
-//                        //setInfoWindows();
-//                        //Toast.makeText(getBaseContext(), "" + parkingList.get(parkingSpot).isFavorite(), Toast.LENGTH_SHORT).show();
-//
-//                    } else {
-//                        Toast.makeText(getBaseContext(), "Click on a marker to add to favorites", Toast.LENGTH_SHORT).show();
-//                    }
-//                }
-
-            // layers (radio buttons) - map views
+            // layers (radio buttons)
             case R.id.layersMenu_1:
                 if (!item.isChecked()) {
                     item.setChecked(true);
                     theMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-                    Toast.makeText(getBaseContext(), "Normal View", Toast.LENGTH_SHORT).show();
+                    toast("Normal View");
                 }
                 return true;
             case R.id.layersMenu_2:
                 if (!item.isChecked()) {
                     item.setChecked(true);
                     theMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
-                    Toast.makeText(getBaseContext(), "Satellite View", Toast.LENGTH_SHORT).show();
+                    toast("Satellite View");
                 }
                 return true;
             case R.id.layersMenu_3:
                 if (!item.isChecked()) {
                     item.setChecked(true);
                     theMap.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
-                    Toast.makeText(getBaseContext(), "Terrain View", Toast.LENGTH_SHORT).show();
+                    toast("Terrain View");
                 }
                 return true;
             case R.id.layersMenu_4:
                 if (!item.isChecked()) {
                     item.setChecked(true);
                     theMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
-                    Toast.makeText(getBaseContext(), "Hybrid View", Toast.LENGTH_SHORT).show();
+                    toast("Hybrid View");
                 }
                 return true;
 
@@ -621,11 +598,6 @@ public class MainActivity extends ActionBarActivity implements
                 return super.onOptionsItemSelected(item);
         } // end switch
     } // end onOptionsItemSelected
-
-    public void toast(String s) {
-        Toast.makeText(getBaseContext(), s, Toast.LENGTH_SHORT).show();
-    }
-
 
     ////////////////////////////////////// END ACTION BAR /////////////////////////////////////////
 
@@ -672,11 +644,12 @@ public class MainActivity extends ActionBarActivity implements
     /**
      * The click listener for ListView in the navigation drawer
      */
-    private static class DrawerItemClickListener implements ListView.OnItemClickListener {
+    private class DrawerItemClickListener implements ListView.OnItemClickListener {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             selectItem(position);
         }
+
     }
 
     /**
@@ -690,6 +663,10 @@ public class MainActivity extends ActionBarActivity implements
         mDrawerToggle.syncState();
     }
 
+    /**
+     * changes configuration of application upon user input
+     * @param newConfig
+     */
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
@@ -702,7 +679,7 @@ public class MainActivity extends ActionBarActivity implements
      *
      * @param position of item in navigation drawer
      */
-    private static void selectItem(int position) {
+    private void selectItem(int position) {
         // update selected item, then close the drawer
         mDrawerList.setItemChecked(position, true);
         switch (position) {
@@ -722,6 +699,37 @@ public class MainActivity extends ActionBarActivity implements
                 if (position != previousPosition)
                     theMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
                 break;
+            case 4:
+                for (int i = 0; i < locationFactory.getFavorites().size(); i++) {
+                    theMap.addMarker(new MarkerOptions()
+                            .position(locationFactory.getFavorites().get(i).getCoords())
+                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.star))
+                            .title(locationFactory.getFavorites().get(i).getName())
+                            .snippet(locationFactory.getFavorites().get(i).toString()));
+                }
+                break;
+            case 5:
+                for (int i = 0; i < locationFactory.getUserDefinedLocations().size(); i++) {
+                    theMap.addMarker(new MarkerOptions()
+                            .position(locationFactory.getUserDefinedLocations().get(i).getCoords())
+                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.car))
+                            .title(locationFactory.getUserDefinedLocations().get(i).getName())
+                            .snippet(locationFactory.getUserDefinedLocations().get(i).toString()));
+                }
+                break;
+            case 6:
+                for (int i = 0; i < locationFactory.getParkedLocations().size(); i++) {
+                    theMap.addMarker(new MarkerOptions()
+                            .position(locationFactory.getParkedLocations().get(i).getCoords())
+                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.parked))
+                            .title(locationFactory.getParkedLocations().get(i).getName())
+                            .snippet(locationFactory.getParkedLocations().get(i).toString()));
+                }
+                break;
+            case 7:
+                theMap.clear();
+                updatePlaces();
+                break;
             default:
         }
         previousPosition = position; // keeps track of position so item can't be selected twice
@@ -732,6 +740,11 @@ public class MainActivity extends ActionBarActivity implements
 
     //////////////////////////////////////// CONNECTION ///////////////////////////////////////////
 
+    /**
+     * Checks whether or not we are connected to location services
+     * so that we can use the Google Maps API
+     * @param bundle
+     */
     @Override
     public void onConnected(Bundle bundle) {
         Toast.makeText(this, "Connected to location services", Toast.LENGTH_SHORT).show();
@@ -751,6 +764,10 @@ public class MainActivity extends ActionBarActivity implements
                 mGoogleApiClient, mLocationRequest, this);
     }
 
+    /**
+     * returns the result of whether or not there is a connection to the Google API client
+     * @param connectionResult
+     */
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
         //  Log.i(TAG, "GoogleApiClient connection has failed");
@@ -777,5 +794,3 @@ public class MainActivity extends ActionBarActivity implements
     ///////////////////////////////////// END CONNECTION ///////////////////////////////////////////
 
 } // end MainActivity
-
-

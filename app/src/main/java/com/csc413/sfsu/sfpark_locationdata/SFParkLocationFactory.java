@@ -1,9 +1,9 @@
 package com.csc413.sfsu.sfpark_locationdata;
 
 import com.csc413.sfsu.csc413_parking.MainActivity;
+import com.csc413.sfsu.sf_vehicle_crime.SFCrimeHandler;
 import com.csc413.sfsu.sfpark_simplified.SFParkQuery;
 import com.csc413.sfsu.sfpark_simplified.SFParkXMLResponse;
-import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.util.ArrayList;
@@ -22,13 +22,12 @@ import java.util.List;
 public class SFParkLocationFactory
 {
     private LocationDatabaseHandler db;
-
+    private MainActivity context;
 
     public SFParkLocationFactory(MainActivity context){
         this.db=new LocationDatabaseHandler(context);
+        this.context=context;
     }
-
-
 
     /**
      * Retrieves all parking locations from SFPark within the specified radius of the origin as an
@@ -40,63 +39,126 @@ public class SFParkLocationFactory
      *
      * @param origin Center of search for parking locations.
      * @param radius radius to search for parking locations in miles.
-     * @return list of ParkingLocation objects within the radius of the origin.
+     * @return list of ParkingLocation objects within the radius of the origin. This list will
+     * include user defined locations.
      */
     public List<ParkingLocation> getParkingLocations(LatLng origin, double radius){
-        SFParkQuery query = new SFParkQuery();
-        query.setLatitude(origin.latitude);
-        query.setLongitude(origin.longitude);
-        query.setRadius(radius);
-        query.setUnitOfMeasurement("MILE");
-
-        SFParkXMLResponse response = new SFParkXMLResponse();
-        boolean success = response.populate(query);
         List <ParkingLocation> locationList=new ArrayList<ParkingLocation>();
+        List<LatLng>existingOrigins=this.db.isWithinToleranceOfOrigins(origin);
+        if(existingOrigins.isEmpty()) {
+            SFParkQuery query = new SFParkQuery();
+            query.setLatitude(origin.latitude);
+            query.setLongitude(origin.longitude);
+            query.setRadius(radius);
+            query.setUnitOfMeasurement("MILE");
 
-        String status = response.status();
-        if (success) {
-            String message = response.message();
-            int numRecords = response.numRecords();
-            for (int i = 0; i < numRecords; i++) {
-                LatLng coords=new LatLng(
-                        response.avl(i).loc().latitude(0), response.avl(i).loc().longitude(0));
-                String name=response.avl(i).name();
-                boolean hasOnStreetParking=(response.avl(i).type().equals("ON")) ? true : false;
-                String desc=response.avl(i).desc();
-                int ospid=response.avl(i).ospid();
-                int bfid=response.avl(i).bfid();
-                boolean isFavorite=false;
-                int timesSearched=1;
-                boolean parkedHere=false;
+            SFParkXMLResponse response = new SFParkXMLResponse();
+            boolean success = response.populate(query);
 
-                ParkingLocation loc=new ParkingLocation(origin, radius, hasOnStreetParking, name,
-                        desc, ospid, bfid, coords, isFavorite, timesSearched, parkedHere);
 
-                this.db.addLocation(loc);
+            String status = response.status();
+            if (success) {
+                String message = response.message();
+                int numRecords = response.numRecords();
 
-                if(loc.hasOnStreetParking()){
-                    locationList.add(db.getLocationFromBFID(bfid));
+                double crimeRadius=.05;
+                int startYear=2011;
+                int count=100;
+                int offset=0;
+                double crimeProb=0.0;
+
+                SFCrimeHandler crimeHandler = new SFCrimeHandler(); /* Initialize empty handler */
+                success = crimeHandler.generateReports(origin, crimeRadius, startYear, count, offset);
+                /* Retrieve report data on a successful query */
+                if (success) {
+                    crimeProb=((double)crimeHandler.numReports()/13.3109243697);
                 }
-                else{
-                    locationList.add(db.getLocationFromOSPID(ospid));
+
+
+                for (int i = 0; i < numRecords; i++) {
+                    LatLng coords = new LatLng(
+                            response.avl(i).loc().latitude(0), response.avl(i).loc().longitude(0));
+                    String name = response.avl(i).name();
+                    boolean hasOnStreetParking = (response.avl(i).type().equals("ON")) ? true : false;
+                    String desc = response.avl(i).desc();
+                    int ospid = response.avl(i).ospid();
+                    int bfid = response.avl(i).bfid();
+                    boolean isFavorite = false;
+                    int timesSearched = 1;
+                    boolean parkedHere = false;
+                    boolean isUserDefined = false;
+
+                    ParkingLocation loc = new ParkingLocation(origin, radius, hasOnStreetParking, name,
+                            desc, ospid, bfid, coords, isFavorite, timesSearched, parkedHere,
+                            isUserDefined, crimeProb);
+
+                    this.db.addLocation(loc);
+
+                    if (loc.hasOnStreetParking()) {
+                        locationList.add(db.getLocationFromBFID(bfid));
+                    } else {
+                        locationList.add(db.getLocationFromOSPID(ospid));
+                    }
+
+
                 }
 
 
             }
-
-
-
         }
 
-        System.out.println("---------------Locations within range of your tap---------------");
-        for(int i=0; i<locationList.size(); i++){
-            System.out.println("Entry "+(i+1)+": ");
-            System.out.println("Location "+i+" "+locationList.get(i));
-            System.out.println("----------");
+        else{
+            System.out.println("Found locations using database.");
+            locationList.addAll(this.db.getLocsFromOrigin(existingOrigins));
+        }
+
+        List<ParkingLocation> udl=db.getUserDefinedWithinRadius(origin, radius);
+
+        if(!udl.isEmpty()){
+            locationList.addAll(udl);
         }
 
 
         return locationList;
+    }
+
+    /**
+     * Adds a user defined location to the database. The only notable information in User defined
+     * location is the coords data field which is set to the parameter passed to this method.
+     * @param udl The location of the user defined location to be added to the database.
+     */
+    public ParkingLocation addUserDefinedLocation(LatLng udl){
+        LatLng origin=udl;
+        double radius=.25;
+        String name="Past parking location.";
+        boolean hasOnStreetParking=true;
+        String desc="A user defined parking location.";
+        int ospid=-1;
+        int bfid=-1;
+        boolean isFavorite=false;
+        int timesSearched=1;
+        boolean parkedHere=false;
+        boolean isUserDefined=true;
+
+        double crimeProb=0.0;
+        double crimeRadius=.05;
+        int startYear=2011;
+        int count=100;
+        int offset=0;
+
+
+        SFCrimeHandler crimeHandler = new SFCrimeHandler(); /* Initialize empty handler */
+        boolean success = crimeHandler.generateReports(origin, crimeRadius, startYear, count, offset);
+                /* Retrieve report data on a successful query */
+        if (success) {
+            crimeProb=(double)crimeHandler.numReports()/13.3109243697;
+        }
+
+        ParkingLocation loc=new ParkingLocation(origin, radius, hasOnStreetParking, name,
+                desc, ospid, bfid, udl, isFavorite, timesSearched, parkedHere,
+                isUserDefined, crimeProb);
+        db.addLocation(loc);
+        return loc;
     }
 
     /**
@@ -238,6 +300,20 @@ public class SFParkLocationFactory
         return this.db.getParkedLocations();
     }
 
+    /**
+     * Retrieves all items in the database that are parked user defined locations.
+     *
+     * @return An array list of ParkingLocation objects with the userDefined location field set
+     * to true.
+     */
+    public List<ParkingLocation> getUserDefinedLocations(){ return this.db.getUserDefinedLocations();}
+
+    /**
+     * Retrieves the number of entries in the location database
+     * @return An integer value of the number of items in the database.
+     */
+    public int getLocationCount(){ return this.db.getLocationsCount();}
+
 
     /**
      * A debugging method, not for use in a production environment for security reasons.
@@ -261,6 +337,69 @@ public class SFParkLocationFactory
         }
 
     }
+
+
+    /**
+     * A debugging method, not for use in a production environment for security reasons.
+     * Prints the values of all favorite locations in the database to the console.
+     */
+    public void printFav(){
+
+        System.out.println("---------------Current Favorites---------------");
+        List<ParkingLocation> l=this.getFavorites();
+        if (l.size()==0){
+            System.out.println("    There are no favorites.");
+        }
+        else{
+            System.out.println("    There are "+l.size()+" favorites.");
+            for(int i=0; i<l.size(); i++){
+                System.out.println("Entry "+(i+1)+": ");
+                ParkingLocation p=l.get(i);
+                System.out.println(p.toString());
+                System.out.println("----------");
+            }
+        }
+
+    }
+
+
+    /**
+     * A debugging method, not for use in a production environment for security reasons.
+     * Prints the values of all parkedHere locations in the database to the console.
+     */
+
+    public void printParkedHere(){
+
+        System.out.println("---------------Current Parked Here locations---------------");
+        List<ParkingLocation> l=this.getParkedLocations();
+        if (l.size()==0){
+            System.out.println("    There are no parked here locations.");
+        }
+        else{
+            System.out.println("    There are "+l.size()+" parked locations.");
+            for(int i=0; i<l.size(); i++){
+                System.out.println("Entry "+(i+1)+": ");
+                ParkingLocation p=l.get(i);
+                System.out.println(p.toString());
+                System.out.println("----------");
+            }
+        }
+
+    }
+
+
+    /**
+     * A debugging method, not for use in a production environment for security reasons.
+     * For running test code to validate consistency of data.
+     */
+    public void testDB(){
+
+
+    }
+
+
+
+
 
 
 

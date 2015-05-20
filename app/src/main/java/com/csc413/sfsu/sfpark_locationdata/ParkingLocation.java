@@ -48,6 +48,10 @@ public class ParkingLocation {
     private int timesSearched;
     /**Whether the user has parked at this location.*/
     private boolean parkedHere;
+    /** Whether this location was saved manually by the user. If true, most fields will be null */
+    private boolean isUserDefined;
+    /** The approximate probability of a parking theft occurring at this location as a percentage.*/
+    private double theftProbability;
 
     /**
      * Note that calling the empty constructor may have unintended side effects of blank or null data.
@@ -61,6 +65,8 @@ public class ParkingLocation {
         ospid=0;
         bfid=0;
         coords=new LatLng(0.0,0.0);
+        this.isUserDefined=true;
+        this.theftProbability=50.0;
     }
 
     /**
@@ -83,7 +89,7 @@ public class ParkingLocation {
      */
     ParkingLocation(LatLng origin, Double radiusFromOrigin, boolean hasOnStreetParking, String name,
                     String desc, int ospid, int bfid, LatLng coords, boolean isFavorite,
-                    int timesSearched, boolean parkedHere){
+                    int timesSearched, boolean parkedHere, boolean isUserDefined, double theftProbability){
         this.originLocation=origin;
         this.radiusFromOrigin=radiusFromOrigin;
         this.hasOnStreetParking=hasOnStreetParking;
@@ -95,6 +101,8 @@ public class ParkingLocation {
         this.isFavorite=isFavorite;
         this.timesSearched=timesSearched;
         this.parkedHere=parkedHere;
+        this.isUserDefined=isUserDefined;
+        this.theftProbability=theftProbability;
     }
 
     //Accessors
@@ -104,7 +112,7 @@ public class ParkingLocation {
      * for.
      * @return The origin location from which this parking location is near.
      */
-     public LatLng getOriginLocation(){
+    public LatLng getOriginLocation(){
         return this.originLocation;
     }
 
@@ -188,6 +196,18 @@ public class ParkingLocation {
      */
     public boolean getParkedHere() { return this.parkedHere; }
 
+    /**
+     * Whether this location is user defined.
+     * @return A boolean for whether this is a user defined location.
+     */
+    public boolean isUserDefined() { return this.isUserDefined; }
+
+    /**
+     * Gets the probability of a theft occurring at this location.
+     * @return An integer representing the percentage probability of a theft occurring.
+     */
+    public double getTheftProbability() { return this.theftProbability; }
+
 
     /**
      * Sets the location's isFavorite field.
@@ -231,12 +251,32 @@ public class ParkingLocation {
         this.timesSearched=timesSearched;
     }
 
+    /*
     public String toString(){
         return "\t (Times Searched: "+getTimesSearched()+") "+"Name: "+getName()+"\t Desc: "+getDesc()
                 +"\n\t Location: "+getCoords()+" \tOrigin: "+this.originLocation.toString()
                 +" \n\t\t Radius: "+this.radiusFromOrigin+" \tHas Street Parking: "
                 +this.hasOnStreetParking+" \tOSPID: "+getOspid()+" \tBFID: "+getBfid()
-                +" \tIsFavorite: "+isFavorite()+" Parked Here: "+this.parkedHere;
+                +" \tIsFavorite: "+isFavorite()+" Parked Here: "+this.parkedHere
+                +" User Defined: "+this.isUserDefined+" Theft probability: "+this.theftProbability+"%";
+    }
+    */
+
+    public String toString(){
+        return "Times Searched: " + getTimesSearched()+ "\n"
+                //+ "Name: " + getName()+ "\n"
+                //+ "Desc: " + getDesc() + "\n"
+                + "Location: " + getCoords()+ "\n"
+                + "Origin: " + this.originLocation.toString() + "\n"
+                + "Radius: " + this.radiusFromOrigin+" miles\n"
+                + "Has Street Parking: " + this.hasOnStreetParking+ "\n"
+//                + "OSPID: " + getOspid()+ "\n"
+//                + "BFID: " + getBfid() + "\n"
+                + "IsFavorite: " + isFavorite() + "\n"
+                + "Parked Here: " + this.parkedHere + "\n"
+                + "User Defined: " + this.isUserDefined + "\n"
+                //+ "Theft probability: " + this.theftProbability;
+                + "Theft probability: " + ((int)(this.theftProbability * 100)) / 100.0;
     }
 
 

@@ -4,6 +4,7 @@
       tools:context=".MainActivity">
 
     <!-- Search -->
+    <!--
     <item
         android:id="@+id/search_icon"
         android:title="@string/search"
@@ -12,56 +13,21 @@
         app:actionViewClass="android.support.v7.widget.SearchView"
         >
     </item>
-    <!-- filters -->
-    <item
-        android:id="@+id/filter_icon"
-        android:icon="@drawable/ic_layers"
-        android:title="@string/filter"
-        app:showAsAction="always">
-        <menu>
-            <!-- parking likelihood rating -->
-            <item
-                android:checkable="true"
-                android:id="@+id/filter_1"
-                app:showAsAction="never"
-                android:title="@string/filter_1"/>
-            <!-- parking restriction -->
-            <item
-                android:checkable="true"
-                android:id="@+id/filter_2"
-                app:showAsAction="never"
-                android:title="@string/filter_2"/>
-            <!-- parking safety -->
-            <item
-                android:checkable="true"
-                android:id="@+id/filter_3"
-                app:showAsAction="never"
-                android:title="@string/filter_3"/>
-            <!-- parking structure -->
-            <item
-                android:checkable="true"
-                android:id="@+id/filter_4"
-                app:showAsAction="never"
-                android:title="@string/filter_4"/>
-            <!-- traffic -->
-            <item
-                android:checkable="true"
-                android:id="@+id/filter_5"
-                app:showAsAction="never"
-                android:title="@string/filter_5"/>
-            <item
-                android:checkable="true"
-                android:id="@+id/filter_6"
-                app:showAsAction="never"
-                android:title="@string/filter_6"/>
-        </menu>
+    -->
 
-    </item>
+    <!-- favorite -->
+    <item
+        android:id="@+id/favorite"
+        android:orderInCategory="1"
+        android:icon="@drawable/ic_action_star"
+        app:showAsAction="always"
+        android:title="@string/favorites"/>
 
     <!-- Parking -->
     <item
         android:id="@+id/parked_icon"
-        android:icon="@drawable/ic_car"
+        android:icon="@drawable/ic_car_action_bar"
+        android:orderInCategory="2"
         android:title="@string/parked"
         app:showAsAction="always">
     </item>
@@ -74,24 +40,32 @@
         android:orderInCategory="100"
         app:showAsAction="always">
         <menu>
-            <!-- favorites -->
+            <!-- filters -->
             <item
-                android:checkable="true"
-                android:id="@+id/favorite"
-                android:orderInCategory="1"
-                app:showAsAction="never"
-                android:title="@string/favorites"/>
-            <!-- settings -->
-            <item
-                android:checkable="false"
-                android:id="@+id/settings"
-                android:orderInCategory="12"
-                app:showAsAction="never"
-                android:title="@string/settings"/>
+                android:id="@+id/filter_icon"
+                android:orderInCategory="2"
+                android:title="@string/filter"
+                app:showAsAction="never">
+                <menu>
+                    <!-- traffic -->
+                    <item
+                        android:checkable="true"
+                        android:id="@+id/filter_1"
+                        app:showAsAction="never"
+                        android:title="@string/filter_1"/>
+                    <item
+                        android:checkable="true"
+                        android:id="@+id/filter_2"
+                        app:showAsAction="never"
+                        android:title="@string/filter_2"/>
+                </menu>
+
+            </item>
+
             <!-- layers -->
             <item
                 android:id="@+id/action_layers"
-                android:orderInCategory="2"
+                android:orderInCategory="1"
                 app:showAsAction="never"
                 android:title="@string/map_view">
                 <menu>
@@ -103,6 +77,14 @@
                     </group>
                 </menu>
             </item>
+
+            <!-- settings -->
+            <item
+                android:checkable="false"
+                android:id="@+id/settings"
+                android:orderInCategory="3"
+                app:showAsAction="never"
+                android:title="@string/settings"/>
         </menu>
     </item>
 </menu>

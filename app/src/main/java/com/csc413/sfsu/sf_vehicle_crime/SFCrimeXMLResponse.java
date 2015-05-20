@@ -1,20 +1,15 @@
 package com.csc413.sfsu.sf_vehicle_crime;
 
-import org.w3c.dom.NodeList;
-import org.w3c.dom.Element;
-import org.w3c.dom.Document;
-
 import com.csc413.sfsu.sfpark_simplified.NetworkRequest;
-
 import com.google.android.gms.maps.model.LatLng;
 
-import java.sql.Time;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 /** The SFCrimeXMLResponse class retrieves and stores select data from a query to the San Francisco Crimespotters database.
  * The class is intended to be used with the csc413_parking package and stores only the data that is pertinent in order to
@@ -40,7 +35,7 @@ class SFCrimeXMLResponse {
     private int numReports;
 
     /** Clears all data in the response object.
-    */
+     */
     private void reset () {
         crimeDates = new ArrayList<String>();
         crimeLocs = new ArrayList<LatLng>();
@@ -95,7 +90,7 @@ class SFCrimeXMLResponse {
     }
 
     /** Constructor.
-    */
+     */
     protected  SFCrimeXMLResponse () {
         reset();
     }
@@ -153,7 +148,7 @@ class SFCrimeXMLResponse {
      * @param   index   index of crime
      * @return  the date of the crime in the form of a String
      * @throws  java.lang.IndexOutOfBoundsException if the index is < 0 or > the number of crimes - 1
-    */
+     */
     protected String date (int index) {
         return crimeDates.get(index);
     }
@@ -171,7 +166,7 @@ class SFCrimeXMLResponse {
     /** Returns the status of the latest database query.
      *
      * @return  a String containing the status
-    */
+     */
     protected String status () {
         return status;
     }
@@ -179,7 +174,7 @@ class SFCrimeXMLResponse {
     /** Returns the number of reports returned from the latest database query.
      *
      * @return  the number of reports
-    */
+     */
     protected int numReports () {
         return numReports;
     }
@@ -187,7 +182,7 @@ class SFCrimeXMLResponse {
     /** Returns the timeout value for a NetworkRequest.
      *
      * @return  the timeout value in seconds
-    */
+     */
     protected int timeout () {
         return timeout;
     }

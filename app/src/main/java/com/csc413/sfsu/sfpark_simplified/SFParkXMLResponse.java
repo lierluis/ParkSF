@@ -52,7 +52,7 @@ public class SFParkXMLResponse {
 
     /** Resets all data members to their starting values.
      * Numerical data is set to -1; Strings and Lists are reinitialized as empty.
-    */
+     */
     private void reset () {
         status = "";
         requestID = -1;
