@@ -1,3 +1,9 @@
+# CSC413_Parking
+
+User Interface:
+- Splash Page
+- Map Activity
+
 # SFPark Simplified API
 ## Description
 The SFPark Simplified API provides access to the SFPark Availability database by sending queries 
@@ -321,3 +327,4 @@ One final noteworthy item is the way in which the SF Vehicle Crime API handles t
 
 ## Known issues
 [No currently known issues]
+
