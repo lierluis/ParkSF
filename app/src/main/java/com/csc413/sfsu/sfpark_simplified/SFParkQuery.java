@@ -62,7 +62,7 @@ public class SFParkQuery {
      *
      * @param   param   a String containing the parameter name
      * @return  a String containing the value of the parameter if found, or an empty String otherwise
-     */
+    */
     private String getValue (String param) {
         if (contains(param)) {
             for (Tuple t : params) {
@@ -160,7 +160,7 @@ public class SFParkQuery {
      * @return  an official SFPark Availability Unit of Measurement value if the parameter matches such a value,
      *          or null if no equivalent or match is found
      *
-     */
+    */
     private String validUOM (String uom) {
         switch (uom) {
             case "MILE":
@@ -202,7 +202,7 @@ public class SFParkQuery {
      *
      * @return  a String containing the Request Identifier value if it exists, or an empty String otherwise
      * @see     com.csc413.sfsu.sfpark_simplified.SFParkQuery#setRequestID(String)
-     */
+    */
     public String getRequestID () {
         return getValue("REQUESTID");
     }
@@ -301,7 +301,7 @@ public class SFParkQuery {
      *
      * @param   requestID   a String containing the value for the Request ID parameter
      * @return  true if the parameter value was set successfully, false otherwise
-     */
+    */
     public boolean setRequestID (String requestID) {
         if (requestID.length() > 100)
             return false;
@@ -316,7 +316,7 @@ public class SFParkQuery {
      * geographical point from which the search results will be centered."
      *
      * - Default value if both LAT and LONG are skipped: -122.4200
-     * - Allowed values: anything whose absolute value is <= 180
+     * - Allowed values: anything whose absolute value is less than or equal to 180
      *   All other values will be ignored
      *
      * Note that the query must contain both LAT and LONG or neither; calling this method when LAT does not exist
@@ -324,7 +324,7 @@ public class SFParkQuery {
      *
      * @param   lng   a Double containing the new value for the Longitude
      * @return  true if the parameter value was set successfully, false otherwise
-     */
+    */
     public boolean setLongitude (Double lng) {
         if (lng > 180 || lng < -180)
             return false;
@@ -341,7 +341,7 @@ public class SFParkQuery {
      * geographical point from which the search results will be centered."
      *
      * - Default value if both LAT and LONG are skipped: 37.7819
-     * - Allowed values: any whose absolute value is <= 90
+     * - Allowed values: any whose absolute value is less than or equal to 90
      *   All other values will be ignored
      *
      * Note that the query must contain both LAT and LONG or neither; calling this method when LONG does not exist
@@ -349,6 +349,7 @@ public class SFParkQuery {
      *
      *
      * @param   lat   a Double containing the new value for the Latitude
+     * @return  true if the parameter value was set successfully, false otherwise
      */
     public boolean setLatitude (Double lat) {
         if (lat > 90 || lat < -90)
@@ -366,7 +367,7 @@ public class SFParkQuery {
      * @return  true if location was successfully set, false otherwise
      * @see     com.csc413.sfsu.sfpark_simplified.SFParkQuery#setLatitude(Double)
      * @see     com.csc413.sfsu.sfpark_simplified.SFParkQuery#setLongitude(Double)
-     */
+    */
     public boolean setLocation (Double lat, Double lng) {
         try {
             if (!setLatitude(lat) || !setLongitude(lng))
@@ -408,7 +409,7 @@ public class SFParkQuery {
      * Also note that a negative value will produce the same result as its positive equivalent.
      *
      * @param    radius   a Double containing the new value for the Search Radius
-     */
+    */
     public void setRadius (Double radius) {
         addOrUpdateParameter("RADIUS", radius.toString());
     }
@@ -432,7 +433,7 @@ public class SFParkQuery {
      *
      * @param   uom     a String containing the new value for the Unit of Measurement parameter
      * @return  true if new value set successfully, false otherwise
-     */
+    */
     public boolean setUnitOfMeasurement (String uom) {
         if ((uom = validUOM(uom.toUpperCase())) != null) {
             addOrUpdateParameter("UOM", uom);
@@ -456,7 +457,7 @@ public class SFParkQuery {
      *
      * @param   type    a String containing the new value for the Parking Type parameter
      * @return  true if new value set successfully, false otherwise
-     */
+    */
     public boolean setParkingType (String type) {
         type = type.toUpperCase();
         if (type.equals("ON") || type.equals("OFF") || type.equals("ALL")) {
@@ -481,7 +482,8 @@ public class SFParkQuery {
      *   All other values will be ignored
      *
      * @param   pricing     a String containing the new value for the Pricing Information parameter
-     */
+     * @return  true if the parameter value was set successfully, false otherwise
+    */
     public boolean setPricingInformation (String pricing) {
         pricing = pricing.toUpperCase();
         if (pricing.equals("YES") || pricing.equals("NO")) {
@@ -511,7 +513,7 @@ public class SFParkQuery {
      *
      * @param   udf1   a String containing the value for the User Defined Field #1 parameter
      * @return  true if the parameter value was set successfully, false otherwise
-     */
+    */
     public boolean setUserDefinedField1 (String udf1) {
         if (udf1.length() > 100)
             return false;
@@ -526,7 +528,7 @@ public class SFParkQuery {
      * Default value: no default value (removes parameter)
      *
      * @see     com.csc413.sfsu.sfpark_simplified.SFParkQuery#setRequestID(String)
-     */
+    */
     public void resetRequestID () {
         removeParameter("REQUESTID");
     }
@@ -539,7 +541,7 @@ public class SFParkQuery {
      *
      * @see     com.csc413.sfsu.sfpark_simplified.SFParkQuery#setLongitude(Double)
      * @see     com.csc413.sfsu.sfpark_simplified.SFParkQuery#setLatitude(Double)
-     */
+    */
     public void resetLocation () {
         removeParameter("LONG");
         removeParameter("LAT");
@@ -550,7 +552,7 @@ public class SFParkQuery {
      * Default value: 0.25
      *
      * @see     com.csc413.sfsu.sfpark_simplified.SFParkQuery#setRadius(Double)
-     */
+    */
     public void resetRadius () {
         removeParameter("RADIUS");
     }
@@ -560,7 +562,7 @@ public class SFParkQuery {
      * Default value: "MILE"
      *
      * @see     com.csc413.sfsu.sfpark_simplified.SFParkQuery#setUnitOfMeasurement(String)
-     */
+    */
     public void resetUnitOfMeasurement () {
         removeParameter("UOM");
     }
@@ -570,7 +572,7 @@ public class SFParkQuery {
      * Default value: "ALL"
      *
      * @see     com.csc413.sfsu.sfpark_simplified.SFParkQuery#setParkingType(String)
-     */
+    */
     public void resetParkingType () {
         removeParameter("TYPE");
     }
@@ -580,7 +582,7 @@ public class SFParkQuery {
      * Default value: "NO"
      *
      * @see     com.csc413.sfsu.sfpark_simplified.SFParkQuery#setPricingInformation(String)
-     */
+    */
     public void resetPricingInformation () {
         removeParameter("PRICING");
     }

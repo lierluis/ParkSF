@@ -59,4 +59,16 @@ public class Tuple <X, Y> {
     public String toString () {
         return "(" + first.toString() + "," + last.toString() + ")";
     }
+
+    @Override
+    public boolean equals (Object o) {
+        if (!(o instanceof Tuple))
+            return false;
+        if (o == this)
+            return true;
+        Tuple t = (Tuple)o;
+        if (this.first.equals(t.first) && this.last.equals(t.last))
+            return true;
+        return false;
+    }
 }

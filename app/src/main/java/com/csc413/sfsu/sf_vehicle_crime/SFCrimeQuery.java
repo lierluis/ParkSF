@@ -1,10 +1,10 @@
 package com.csc413.sfsu.sf_vehicle_crime;
 
 import com.csc413.sfsu.sfpark_simplified.Tuple;
-import com.google.android.gms.maps.model.LatLng;
 
 import java.util.Calendar;
 import java.util.LinkedList;
+import com.google.android.gms.maps.model.LatLng;
 
 /** The SFCrimeQuery class allows a simplified way of constructing and modifying a query to the San Francisco Crimespotters database.
  * The query is in the form of a URL, but the class abstracts this and simply allows the user to insert or delete parameters
@@ -191,7 +191,7 @@ class SFCrimeQuery {
      *
      * @param   key     the name of the parameter to search against
      * @return  the index of the item if found, or -1 otherwise
-     */
+    */
     private int getIndexByKey(String key) {
         for (int i = 0; i < params.size(); i++) {
             if (params.get(i).first().equals(key))
@@ -272,7 +272,7 @@ class SFCrimeQuery {
      * @param   origin  a LatLng object denoting the center of the bounding box
      * @param   radius  the radius in miles from the origin
      * @return  true if bounding box set successfully, false otherwise
-     */
+    */
     public boolean setBoundingBox (LatLng origin, double radius) {
         if (radius > 0 && origin != null) {
             double east = origin.longitude + radius*LAT_DEGREES_PER_MILE;
@@ -299,3 +299,4 @@ class SFCrimeQuery {
         return query;
     }
 }
+
