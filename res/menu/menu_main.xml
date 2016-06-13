@@ -1,0 +1,131 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto"
+      xmlns:tools="http://schemas.android.com/tools"
+      tools:context=".MainActivity">
+
+    <!-- Search -->
+    <!--
+    <item
+        android:id="@+id/search_icon"
+        android:title="@string/search"
+        android:icon="@drawable/ic_action_search"
+        app:showAsAction="always|collapseActionView"
+        app:actionViewClass="android.support.v7.widget.SearchView"
+        >
+    </item>
+    -->
+
+    <!-- favorite -->
+    <item
+        android:id="@+id/favorite"
+        android:orderInCategory="1"
+        android:icon="@drawable/ic_action_star"
+        app:showAsAction="always"
+        android:title="@string/favorites"/>
+
+    <!-- Parking -->
+    <item
+        android:id="@+id/parked_icon"
+        android:icon="@drawable/ic_car_action_bar"
+        android:orderInCategory="2"
+        android:title="@string/parked"
+        app:showAsAction="always">
+    </item>
+
+    <!-- Action overflow -->
+    <item
+        android:id="@+id/overflow"
+        android:icon="@drawable/ic_action_overflow"
+        android:title="@string/action_overflow"
+        android:orderInCategory="100"
+        app:showAsAction="always">
+        <menu>
+            <!-- favorites -->
+            <!--
+            <item
+                android:checkable="true"
+                android:id="@+id/favorite"
+                android:orderInCategory="1"
+                app:showAsAction="never"
+                android:title="@string/favorites"/>
+                -->
+
+
+            <!-- filters -->
+            <item
+                android:id="@+id/filter_icon"
+                android:orderInCategory="2"
+                android:title="@string/filter"
+                app:showAsAction="never">
+                <menu>
+                    <!-- parking likelihood rating -->
+                    <item
+                        android:checkable="true"
+                        android:id="@+id/filter_1"
+                        app:showAsAction="never"
+                        android:title="@string/filter_1"/>
+                    <!-- parking restriction -->
+                    <item
+                        android:checkable="true"
+                        android:id="@+id/filter_2"
+                        app:showAsAction="never"
+                        android:title="@string/filter_2"/>
+                    <!-- parking safety -->
+                    <item
+                        android:checkable="true"
+                        android:id="@+id/filter_3"
+                        app:showAsAction="never"
+                        android:title="@string/filter_3"/>
+                    <!-- parking structure -->
+                    <item
+                        android:checkable="true"
+                        android:id="@+id/filter_4"
+                        app:showAsAction="never"
+                        android:title="@string/filter_4"/>
+                    <!-- traffic -->
+                    <item
+                        android:checkable="true"
+                        android:id="@+id/filter_5"
+                        app:showAsAction="never"
+                        android:title="@string/filter_5"/>
+                    <item
+                        android:checkable="true"
+                        android:id="@+id/filter_6"
+                        app:showAsAction="never"
+                        android:title="@string/filter_6"/>
+                </menu>
+
+            </item>
+
+            <!-- layers -->
+            <item
+                android:id="@+id/action_layers"
+                android:orderInCategory="1"
+                app:showAsAction="never"
+                android:title="@string/map_view">
+                <menu>
+                    <group android:checkableBehavior="single">
+                        <item android:id="@+id/layersMenu_1" android:title="@string/normal"  app:showAsAction="never" android:checked="true"/>
+                        <item android:id="@+id/layersMenu_2" android:title="@string/satellite"  app:showAsAction="never"  />
+                        <item android:id="@+id/layersMenu_3" android:title="@string/terrain"  app:showAsAction="never" />
+                        <item android:id="@+id/layersMenu_4" android:title="@string/hybrid"  app:showAsAction="never" />
+                    </group>
+                </menu>
+            </item>
+
+            <!-- settings -->
+            <item
+                android:checkable="false"
+                android:id="@+id/settings"
+                android:orderInCategory="3"
+                app:showAsAction="never"
+                android:title="@string/settings"/>
+        </menu>
+    </item>
+</menu>
+
+<!--
+    android:id="@+id/search_icon"
+        android:icon="@drawable/ic_action_search"
+        android:title="@string/search"
+-->

@@ -1,5 +1,7 @@
 package com.csc413.sfsu.sfpark_simplified;
 
+import com.google.android.gms.maps.model.LatLng;
+
 import java.util.LinkedList;
 import java.net.URL;
 import java.net.MalformedURLException;
@@ -36,7 +38,7 @@ public class SFParkQuery {
      * @param   param   a Tuple object containing two Strings:
      *                      - a parameter tag name as the first entry
      *                      - a parameter value as the second entry
-     * @return  a String containing a properly-formatted paramter to append to the query
+     * @return  a String containing a properly-formatted parameter to append to the query
      */
     private String createParam (Tuple<String, String> param) {
         return param.first() + "=" + param.last();
@@ -69,15 +71,6 @@ public class SFParkQuery {
             }
         }
         return "";
-    }
-
-    /** Constructor.
-     * Initializes a "bare bones" query object to accept user-defined parameters.
-     * Parameters must be appended for the query to return any useful data from the SFPark Availability database.
-     */
-    public SFParkQuery () {
-        params = new LinkedList<Tuple<String, String>>();
-        updateQuery();
     }
 
     /** Appends a new parameter to the query.
@@ -158,8 +151,51 @@ public class SFParkQuery {
         return false;
     }
 
+    /** Assesses whether a String is a valid equivalent to an official SFPark Availability API
+     * Unit of Measurement (UOM) parameter value and returns the official value if so.
+     *
+     * @param   uom     a String containing either an official SFPark Availability Unit of Measurement value
+     *                  or an interpreted SFParkQuery equivalent
+     *
+     * @return  an official SFPark Availability Unit of Measurement value if the parameter matches such a value,
+     *          or null if no equivalent or match is found
+     *
+    */
+    private String validUOM (String uom) {
+        switch (uom) {
+            case "MILE":
+            case "MILES":
+                return "MILE";
+            case "KM":
+            case "KILOMETER":
+            case "KILOMETERS":
+                return "KM";
+            case "FOOT":
+            case "FEET":
+                return "FOOT";
+            case "M":
+            case "METER":
+            case "METERS":
+                return "METER";
+            case "YARD":
+            case "YARDS":
+                return "YARD";
+            default:
+                return null;
+        }
+    }
+
     // PUBLIC METHODS //
     //
+    /** Constructor.
+     * Initializes a "bare bones" query object to accept user-defined parameters.
+     * Parameters must be appended for the query to return any useful data from the SFPark Availability database.
+     */
+    public SFParkQuery () {
+        params = new LinkedList<Tuple<String, String>>();
+        updateQuery();
+    }
+
     // ACCESSORS //
     //
     /** Returns the value of the Request Identifier (REQUESTID) parameter, if it exists.
@@ -269,7 +305,7 @@ public class SFParkQuery {
     public boolean setRequestID (String requestID) {
         if (requestID.length() > 100)
             return false;
-        addOrUpdateParameter("REQUESTID", requestID);
+        addOrUpdateParameter("REQUESTID", requestID.toUpperCase());
         return true;
     }
 
@@ -280,7 +316,8 @@ public class SFParkQuery {
      * geographical point from which the search results will be centered."
      *
      * - Default value if both LAT and LONG are skipped: -122.4200
-     * - Allowed values: nothing whose absolute value is > 180
+     * - Allowed values: anything whose absolute value is less than or equal to 180
+     *   All other values will be ignored
      *
      * Note that the query must contain both LAT and LONG or neither; calling this method when LAT does not exist
      * will initialize LAT to its default value (37.7819).
@@ -304,12 +341,15 @@ public class SFParkQuery {
      * geographical point from which the search results will be centered."
      *
      * - Default value if both LAT and LONG are skipped: 37.7819
-     * - Allowed values: nothing whose absolute value is > 90
+     * - Allowed values: any whose absolute value is less than or equal to 90
+     *   All other values will be ignored
      *
      * Note that the query must contain both LAT and LONG or neither; calling this method when LONG does not exist
      * will initialize LONG to its default value (-122.4200).
      *
+     *
      * @param   lat   a Double containing the new value for the Latitude
+     * @return  true if the parameter value was set successfully, false otherwise
      */
     public boolean setLatitude (Double lat) {
         if (lat > 90 || lat < -90)
@@ -318,6 +358,36 @@ public class SFParkQuery {
         if (!contains("LONG"))
             addParameter("LONG", "-122.4200");
         return true;
+    }
+
+    /** Sets the values for the Latitude (LAT) and Longitude (LONG) parameters.
+     *
+     * @param   lat     a Double containing the new value for the Latitude
+     * @param   lng     a Double containing the new value for the Longitude
+     * @return  true if location was successfully set, false otherwise
+     * @see     com.csc413.sfsu.sfpark_simplified.SFParkQuery#setLatitude(Double)
+     * @see     com.csc413.sfsu.sfpark_simplified.SFParkQuery#setLongitude(Double)
+    */
+    public boolean setLocation (Double lat, Double lng) {
+        try {
+            if (!setLatitude(lat) || !setLongitude(lng))
+                throw new Exception();
+        } catch (Exception e) {
+            return false;
+        }
+        return true;
+    }
+
+    /** Sets the values for the Latitude (LAT) and Longitude (LONG) parameters.
+     *
+     * @param   loc     a LatLng object containing valid latitude and longitude values
+     * @return  true if location was successfully set, false otherwise
+     * @see     com.google.android.gms.maps.model.LatLng
+     * @see     com.csc413.sfsu.sfpark_simplified.SFParkQuery#setLatitude(Double)
+     * @see     com.csc413.sfsu.sfpark_simplified.SFParkQuery#setLongitude(Double)
+     */
+    public boolean setLocation (LatLng loc) {
+        return setLocation(loc.latitude, loc.longitude);
     }
 
     /** Sets the value for the Search Radius (RADIUS) parameter.
@@ -332,6 +402,11 @@ public class SFParkQuery {
      * or leave them out to use the SFPark default, currently 0.25 mile radius."
      *
      * - Default value if none specified: 0.25
+     *
+     * Note that any value larger than the maximum SFPark Availability APIs range will produce results identical
+     * to those of the maximum radius.
+     *
+     * Also note that a negative value will produce the same result as its positive equivalent.
      *
      * @param    radius   a Double containing the new value for the Search Radius
     */
@@ -348,13 +423,23 @@ public class SFParkQuery {
      * requested radius in this unit of measurement from the requested location point. If RADIUS is not passed,
      * then the service will use the default value for RADIUS."
      *
-     * - Default value if none specified: "MILE"
-     * - Allow values: MILE, KM, FOOT, METER, M, YARD
+     * - Default value if none specified: MILE
+     * - Allow values (official SFPark Availability API values): MILE, KM, FOOT, METER, M, YARD
+     * - Additional allowed values (SFParkQuery interpretive): MILES, KILOMETER, KILOMETERS, FEET, METERS, YARDS
+     *   Any value not found in either list will be ignored.
+     *
+     *  Note that any parameter matching an interpretive value will be converted to its official equivalent before
+     *  being updated.
      *
      * @param   uom     a String containing the new value for the Unit of Measurement parameter
+     * @return  true if new value set successfully, false otherwise
     */
-    public void setUnitOfMeasurement (String uom) {
-        addOrUpdateParameter("UOM", uom);
+    public boolean setUnitOfMeasurement (String uom) {
+        if ((uom = validUOM(uom.toUpperCase())) != null) {
+            addOrUpdateParameter("UOM", uom);
+            return true;
+        }
+        return false;
     }
 
     /** Sets the value for the Parking Type (TYPE) parameter.
@@ -366,13 +451,20 @@ public class SFParkQuery {
      * parameter to allow restricting data to following parking types; on-street (on), off-street (off) or all (returns
      * both on and off-street or all results)"
      *
-     * - Default value if none specified: "ALL"
+     * - Default value if none specified: ALL
      * - Allowed values: ON, OFF, ALL
+     *   All other values will be ignored
      *
      * @param   type    a String containing the new value for the Parking Type parameter
+     * @return  true if new value set successfully, false otherwise
     */
-    public void setParkingType (String type) {
-        addOrUpdateParameter("TYPE", type);
+    public boolean setParkingType (String type) {
+        type = type.toUpperCase();
+        if (type.equals("ON") || type.equals("OFF") || type.equals("ALL")) {
+            addOrUpdateParameter("TYPE", type);
+            return true;
+        }
+        return false;
     }
 
     /** Sets the value for the Pricing Information (PRICING) parameter.
@@ -387,11 +479,18 @@ public class SFParkQuery {
      *
      * - Default value if none specified: NO
      * - Allowed values: YES, NO
+     *   All other values will be ignored
      *
      * @param   pricing     a String containing the new value for the Pricing Information parameter
+     * @return  true if the parameter value was set successfully, false otherwise
     */
-    public void setPricingInformation (String pricing) {
-        addOrUpdateParameter("PRICING", pricing);
+    public boolean setPricingInformation (String pricing) {
+        pricing = pricing.toUpperCase();
+        if (pricing.equals("YES") || pricing.equals("NO")) {
+            addOrUpdateParameter("PRICING", pricing);
+            return true;
+        }
+        return false;
     }
 
     /** Sets the value for the User Defined Field #1 (UDF1) parameter.
@@ -418,7 +517,7 @@ public class SFParkQuery {
     public boolean setUserDefinedField1 (String udf1) {
         if (udf1.length() > 100)
             return false;
-        addOrUpdateParameter("UDF1", udf1);
+        addOrUpdateParameter("UDF1", udf1.toUpperCase());
         return true;
     }
 

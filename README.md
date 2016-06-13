@@ -1,3 +1,9 @@
+# CSC413_Parking
+
+User Interface:
+- Splash Page
+- Map Activity
+
 # SFPark Simplified API
 ## Description
 The SFPark Simplified API provides access to the SFPark Availability database by sending queries 
@@ -93,7 +99,17 @@ The following steps describe how to get started with the SFPark Simplified API:
  </br>
 	
 <li><b>Modify query parameters:</b>
-</br>Append to, update, or delete from the SFParkQuery instance any desired parameters using the <code>addParameter()</code>, <code>updateParameter()</code>, <code>addOrUpdateParameter()</code>, or <code>removeParameter()</code> methods. Consult the official SFPark Availability Service documentation for a list of valid parameters, as invalid parameters will cause the query to return an error status when passed to the database.</li>
+</br>Append to or update the SFParkQuery instance any desired parameters calling mutator methods respective to each query parameter. Parameters may also be removed by calling "resetter" methods, also respective to each query parameter. Manipulable query parameters for which such methods exist are:
+<ul>
+	<li><b>REQUESTID:</b> Request ID</li>
+	<li><b>LONGITUDE:</b> Longitude</li>
+	<li><b>LATITUDE:</b> Latitude</li>
+	<li><b>RADIUS:</b> Search Radius</li>
+	<li><b>UOM:</b> Unit of Measurement</li>
+	<li><b>TYPE:</b> Parking Type</li>
+	<li><b>PRICING:</b> Pricing Information</li>
+	<li><b>UDF1:</b> User Defined Field #1</li>
+</ul>
 </br>
 	
 <li><b>Create a container to hold the data from the response</b>
@@ -110,40 +126,38 @@ The following steps describe how to get started with the SFPark Simplified API:
 
 <h4>Example usage:</h4>
 <pre style="background-color:lightgray">
-SFParkQuery query = new SFParkQuery(); /* Create empty query */
+SFParkQuery query = new SFParkQuery(); <i>/* Create empty query */</i>
 
-query.addParameter("long", "-122.98880"); /* Add parameters */
-query.addParameter("lat", "37.8979");
-query.addParameter("radius", "0.5");
-query.addParameter("uom", "mile");
-query.addParameter("response", "xml");
+query.setLongitude(-122.98880); <i>/* Add parameters */</i>
+query.setLatitude(37.8979);
+query.setRadius(0.5);
+query.setUnitOfMeasurement("MILE");
+query.setPricingInformation("YES");
 
+SFParkXMLResponse response = new SFParkXMLResponse(); <i>/* Create empty response */</i>
+boolean success = response.populate(query); <i>/* Populate the response with the query */</i>
 
-SFParkXMLResponse response = new SFParkXMLResponse(); /* Create empty response */
-boolean success = response.populate(query); /* Populate the response with the query */
+String status = response.status(); <i>/* Status will have a valid value regardless of success */</i>
 
-
-String status = response.status(); /* Status will have a valid value regardless of success */
-
-/* It is a good practice to only access data from a successful query */
+<i>/* It is a good practice to only access data from a successful query */</i>
 if (success) {
     String message = response.message();
     int numRecords = response.numRecords();
-    /* Availability elements (records) may be accessed indexically */
+    <i>/* Availability elements (records) may be accessed indexically */</i>
     for (int i = 0; i < numRecords; i++) { 
-        /* Print each record name, for example */
+        <i>/* Print each record name, for example */</i>
     	System.out.println("Record #" + (i+1) + " name: " + response.avl(i).name());
     }
     
-    /* Etc... */
+    <i>/* Etc... */</i>
 }
 
-query.removeParamter("response"); /* Default response is XML, no need for parameter */
-query.updateParameter("radius", "0.75"); /* Widen the search radius */
+query.resetPricingInformation(); <i>/* Reset parameter to default value */</i>
+query.setRadius(0.75); <i>/* Widen the search radius */</i>
 
-success = response.populate(query); /* Repopulate the response with new query */
+success = response.populate(query); <i>/* Repopulate the response with new query */</i>
 
-/* Access data if successfully populated... */
+<i>/* Access data if successfully populated... */</i>
 </pre>
 
 
@@ -200,6 +214,116 @@ the names in parentheses are the SFPark Simplified classes that hold the corresp
 		</ol>
 	</ol>
 </ol>
+
+## Known issues
+[No currently known issues]
+
+</br>
+<hr>
+# SF Vehicle Crime API
+## Description
+The SF Vehicle Crime API provides access to the San Francisco Crimespotters database by sending queries 
+and extracting the data from responses in a simple and easy-accessible format.
+## Author
+Jeremy Erickson
+## Package name
+com.csc413.sfsu.sf_vehicle_crime
+## Included classes
+<ul>
+	<li>EmptyResponseException</li>
+	<li>SFCrimeHandler</li>
+	<li>SFCrimeQuery</li>
+	<li>SFCrimeXMLResponse</li>
+</ul>
+## See also
+<a href="http://sanfrancisco.crimespotting.org/api">San Francisco Crimespotters API</a>
+## Overview
+The SF Vehicle Crime API operates on similar principles to the SFPark Simplified API, in that queries are sent to a database and the results are retrieved and extracted into a convenient format. 
+Unlike the SFPark Simplified API, however, the SF Vehicle Crime API combines queries and responses into a single handler class called <code>SFCrimeHandler</code>. While this API does contain separate query and response classes, these classes are not public, and all access of the database by the user must go through the <code>SFCrimeHandler</code>'s interface.
+
+Another notable difference is the limited scope of the API; while the SFPark Simplified API grants full access to all data fields in the SFPark Availability API, the SF Vehicle Crime API returns only data that is pertinent to vehicular crimes and excludes all other crime types (narcotics or arson, to name a few). In addition to limiting the type of crimes returned, the API also stores only two data fields associated with vehicular crimes: a crime's <b>date</b> and <b>location</b>; the date is a String returned to the user in a <i>YEAR-MONTH-DAY</i> format, with leading zeros where appropriate (eg. "01" instead of "1", etc.), and the location is returned in the form of a <code>com.google.android.gms.maps.model.LatLng</code> object.
+
+<h4>Querying the database</h4>
+Modifiable query parameters for the SF Vehicle Crime API are as follows:
+<ul>
+	<li>The location origin</li>
+	<li>The radius from the origin, in miles (no other unit of measurement is currently supported)</li>
+	<li>The number of reports to return</li>
+	<li>The offset in the list of query results from which to start returning reports (eg. an offset of 5 would return reports beginning with the sixth item on the list)</li>
+	<li>The earliest year from which to return reports</li>
+</ul>
+The current defaults for the above parameters if none are specified are:
+<ul>
+	<li>Location origin & radius = <b>all of San Francisco</b> (either both or neither must be defaulted)</li>
+	<li>Number of reports returned = <b>20</b></li>
+	<li>Offset = <b>0</b></li>
+	<li>Starting year = <b>1 year before the current</b></li>
+</ul>
+
+Querying and accessing data is achieved with three simple methods from the <code>SFCrimeHandler</code> class:
+<ol>
+	<li>
+		<code>generateReports(LatLng origin, double radius, int startYear, int count, int offset)</code>: queries, retrieves, and stores crime data.
+		<ul>
+			<li><code>origin</code>: a LatLng object denoting the origin of the query; defaults if set to <code>null</code></li>
+			<li><code>radius</code>: the radius from the origin from which to retrieve reports, in miles; defaults if set to <= 0 or >= bounds of San Francisco</li>
+			<li><code>startYear</code>: the year from which to start returning reports; defaults if set to < 0 or > 9999</li>
+			<li><code>count</code>: the number of reports to return; defaults if < 1 or > 10000</li>
+			<li><code>offset</code>: the offset from the beginning of the report list from which to begin returning data; defaults if set to < 0 or > 9999</li>
+		</ul>
+	</li>
+	<li><code>date(int index)</code>: returns the date for the crime at the given <code>index</code></li>
+	<li><code>location(int index)</code>: returns the location for the crime at the given <code>index</code></li>
+</ol>
+A successful call to <code>generateReports</code> will return a boolean value of <code>true</code> and set the handler's <code>status</code> variable to a value of <i>SUCCESS</i>; such a status indicates that the query was valid and the database was accessed, even if no results were returned. A status of <i>FAILURE</i> indicates that an error was encountered while attempting to access the database.
+The status of the latest query may be retrieved by calling the handler class's <code>status()</code> method.
+Additionally, the number of reports returned on a successful query may be retrieved with the handler class's <code>numReports()</code> method; this will allow the user to iterate through all reports indexically. 
+
+One additional modifiable variable is the <code>timeout</code> variable; by calling the handler class's <code>setTimeout(int seconds)</code> method, the user may specify the number of seconds the query will attempt to access the database before timing out, after which the query will return failed status.
+
+Lastly, the <code>EmptyResponseException</code> class, which extends <code>java.lang.Exception</code>, is thrown by the handler class in the event that the user attempts to access either the date or location of a report from a response that has either been initialized but not yet populated or has returned a failed status on its latest query.
+
+<h4>Example usage:</h4>
+<pre style="background-color:lightgray">
+SFCrimeHandler crimeHandler = new SFCrimeHandler(); <i>/* Initialize empty handler */</i>
+boolean success = crimeHandler.generateReports(null, -1, -1, -1, -1); <i>/* Generate reports with all default values */</i>
+
+<i>/* It is good practice to access data only from a successful query */</i>
+if (success) {
+    <i>/* Iterate through reports returned */</i>
+    for (int i = 0; i < crimeHandler.numReports(); i++) {
+        <i>/* Print the location and date of each, for instance */</i>
+        System.out.println("Report #: " + (i+1));
+        System.out.println("Date: " + crimeHandler.date(i));
+        System.out.println("Location: " + crimeHandler.location(i));
+    }
+}
+
+LatLng origin = new LatLng(37.728271, -122.433385); <i>/* Create a new LatLng object to pass to the handler */</i>
+double radius = 0.5; <i>/* Radius from the origin in miles */</i>
+int startYear = 2011; <i>/* Retrieve reports as far back as 2011 */</i>
+int count = 1000; <i>/* Grab the first 1000 reports */</i>
+int offset = 200; <i>/* Start after the 200th report */</i>
+
+crimeHandler.setTimeout(30); <i>/* Increase the number of seconds before timeout from 20 to 30 */</i>
+
+<i>/* Generate a new report list with the new parameters */</i>
+success = crimeHandler.generateReports(origin, radius, startYear, count, offset);
+
+<i>/* Retrieve report data on a successful query */</i>
+if (success) {
+    <i>/* The number of reports returned will be at most "count", but may be fewer given narrowed parameter values */</i>
+    System.out.println("Number of reports: " + crimeHandler.numReports());
+}
+
+crimeHandler = new SFCrimeHandler(); <i>/* Reset the handler */</i>
+
+<i>/* Etc... */</i>
+</pre>
+<h4>
+
+<h4>Radius data is approximate!</h4>
+One final noteworthy item is the way in which the SF Vehicle Crime API handles the calculations for the search radius. The San Francisco Crimespotters API does not support a circular radius query parameter; instead, query bounds are in the form of a square <i>"bounding box"</i> as defined by a north-to-south latitude range and an east-to-west longitude range. The SF Vehicle Crime API uses an <i>approximate mapping</i> of latitude and longitude degrees to miles in the San Francisco area to calculate this bounding box based on a radius value, given in miles. As such, the query bounds are likely to vary to some (hopefully small) degree from the exact radius value passed by the user.
 
 ## Known issues
 [No currently known issues]

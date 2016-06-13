@@ -1,10 +1,10 @@
 package com.csc413.sfsu.sf_vehicle_crime;
 
 import com.csc413.sfsu.sfpark_simplified.Tuple;
-import com.google.android.gms.maps.model.LatLng;
 
 import java.util.Calendar;
 import java.util.LinkedList;
+import com.google.android.gms.maps.model.LatLng;
 
 /** The SFCrimeQuery class allows a simplified way of constructing and modifying a query to the San Francisco Crimespotters database.
  * The query is in the form of a URL, but the class abstracts this and simply allows the user to insert or delete parameters

@@ -112,7 +112,7 @@ public class ParkingLocation {
      * for.
      * @return The origin location from which this parking location is near.
      */
-     public LatLng getOriginLocation(){
+    public LatLng getOriginLocation(){
         return this.originLocation;
     }
 
@@ -251,6 +251,7 @@ public class ParkingLocation {
         this.timesSearched=timesSearched;
     }
 
+    /*
     public String toString(){
         return "\t (Times Searched: "+getTimesSearched()+") "+"Name: "+getName()+"\t Desc: "+getDesc()
                 +"\n\t Location: "+getCoords()+" \tOrigin: "+this.originLocation.toString()
@@ -258,6 +259,24 @@ public class ParkingLocation {
                 +this.hasOnStreetParking+" \tOSPID: "+getOspid()+" \tBFID: "+getBfid()
                 +" \tIsFavorite: "+isFavorite()+" Parked Here: "+this.parkedHere
                 +" User Defined: "+this.isUserDefined+" Theft probability: "+this.theftProbability+"%";
+    }
+    */
+
+    public String toString(){
+        return "Times Searched: " + getTimesSearched()+ "\n"
+                //+ "Name: " + getName()+ "\n"
+                //+ "Desc: " + getDesc() + "\n"
+                + "Location: " + getCoords()+ "\n"
+                + "Origin: " + this.originLocation.toString() + "\n"
+                + "Radius: " + this.radiusFromOrigin+" miles\n"
+                + "Has Street Parking: " + this.hasOnStreetParking+ "\n"
+//                + "OSPID: " + getOspid()+ "\n"
+//                + "BFID: " + getBfid() + "\n"
+                + "IsFavorite: " + isFavorite() + "\n"
+                + "Parked Here: " + this.parkedHere + "\n"
+                + "User Defined: " + this.isUserDefined + "\n"
+                //+ "Theft probability: " + this.theftProbability;
+                + "Theft probability: " + ((int)(this.theftProbability * 100)) / 100.0;
     }
 
 
