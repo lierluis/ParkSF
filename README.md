@@ -327,4 +327,3 @@ One final noteworthy item is the way in which the SF Vehicle Crime API handles t
 
 ## Known issues
 [No currently known issues]
-
