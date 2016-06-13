@@ -156,10 +156,11 @@ public class MainActivity extends ActionBarActivity implements
      */
     private void updatePlaces() {
         locMan = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        Location lastLoc = locMan.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+        Location lastLoc = locMan.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER);
 
         final double lat = lastLoc.getLatitude();
         final double lng = lastLoc.getLongitude();
+
 
         //LatLng lastLatLng = new LatLng(lat, lng);
         lastLatLng = new LatLng(lat, lng);
