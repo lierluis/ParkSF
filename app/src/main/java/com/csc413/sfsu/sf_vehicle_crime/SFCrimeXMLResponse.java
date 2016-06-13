@@ -200,4 +200,3 @@ class SFCrimeXMLResponse {
         timeout = secs;
     }
 }
-

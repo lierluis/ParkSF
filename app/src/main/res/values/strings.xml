@@ -47,4 +47,6 @@
     <string name="powered_by">Spring 2015 - CSC413</string>
     <string name="team_name">Team 4</string>
 
+    <string name="mytext">Message will go here…</string>
+
 </resources>
