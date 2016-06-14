@@ -1,25 +1,24 @@
-# CSC413_Parking
+# ParkSF
 
 SFSU CSC413 Android mobile application that finds information on parking locations around the downtown area of San Francisco, CA.
 
-See the extensive documentation
-<a href="https://docs.google.com/document/d/1Tja8cUpdISC0JKpar1c3Pj2pLt2VSHS2GqtcYhVEtUo/edit?usp=sharing">here</a>.
+Developed with Android Studio 1.2 (2015). Requires phone location settings to be turned on.
+<br><br>
 
-User Interface:
-- Splash Page
-- Map Activity
+See the full documentation
+<a href="https://docs.google.com/document/d/1Tja8cUpdISC0JKpar1c3Pj2pLt2VSHS2GqtcYhVEtUo/edit?usp=sharing">here</a>.
 
 <hr>
 
 # SFPark Simplified API
-## Description
+### Description
 The SFPark Simplified API provides access to the SFPark Availability database by sending queries 
 and extracting the data from responses in a simple and easy-accessible format.
-## Author
+### Author
 Jeremy Erickson
-## Package name
+### Package name
 com.csc413.sfsu.sfpark_simplified
-## Included classes
+### Included classes
 <ul>
 <li>AVLElement</li>
 <li>BranchElement</li>
@@ -35,7 +34,8 @@ com.csc413.sfsu.sfpark_simplified
 <li>SFParkXMLResponse</li>
 <li>Tuple</li>
 </ul>
-## See also
+
+### See also
 <a href="http://www.sfpark.org">SFPark Availability Service API</a>
 ## Overview
 The basic idea behind the SFPark Simplified API is to create and store queries in <b>SFParkQuery</b> objects and pass 
@@ -102,11 +102,11 @@ The following steps describe how to get started with the SFPark Simplified API:
 
 <ol>
 <li><b>Create a query:</b>
- </br>Create a new SFParkQuery instance, which will by default have no parameters.</li>
- </br>
+<br>Create a new SFParkQuery instance, which will by default have no parameters.</li>
+<br>
 	
 <li><b>Modify query parameters:</b>
-</br>Append to or update the SFParkQuery instance any desired parameters calling mutator methods respective to each query parameter. Parameters may also be removed by calling "resetter" methods, also respective to each query parameter. Manipulable query parameters for which such methods exist are:
+<br>Append to or update the SFParkQuery instance any desired parameters calling mutator methods respective to each query parameter. Parameters may also be removed by calling "resetter" methods, also respective to each query parameter. Manipulable query parameters for which such methods exist are:
 <ul>
 	<li><b>REQUESTID:</b> Request ID</li>
 	<li><b>LONGITUDE:</b> Longitude</li>
@@ -117,18 +117,17 @@ The following steps describe how to get started with the SFPark Simplified API:
 	<li><b>PRICING:</b> Pricing Information</li>
 	<li><b>UDF1:</b> User Defined Field #1</li>
 </ul>
-</br>
-	
+
 <li><b>Create a container to hold the data from the response</b>
-</br>Create a new SFParkXMLResponse instance, which will by default be unpopulated.</li>
-</br>
+<br>Create a new SFParkXMLResponse instance, which will by default be unpopulated.</li>
+<br>
 	
 <li><b>Pass the query to the database and retrieve the response:</b>
-</br>Populate the SFParkXMLResponse instance by passing the SFParkQuery created above to the <code>populate()</code> method. It is a good idea to check the value returned by the <code>status()</code> method to determine whether the SFParkXMLResponse object was successfully populated. Attempts to access data from this object on a status other than SUCCESS could result in an Exception being thrown (typically an IndexOutOfRangeException or NullPointerException).</li>
-</br>
+<br>Populate the SFParkXMLResponse instance by passing the SFParkQuery created above to the <code>populate()</code> method. It is a good idea to check the value returned by the <code>status()</code> method to determine whether the SFParkXMLResponse object was successfully populated. Attempts to access data from this object on a status other than SUCCESS could result in an Exception being thrown (typically an IndexOutOfRangeException or NullPointerException).</li>
+<br>
 	
 <li><b>Access the data</b>
-</br>Once populated successfully, the user may now access the data with the appropriate accessor methods; the naming convention for the accessors is, with a few small exceptions, the exact lowercase equivalent of the SFPark Availability Service API element tag names, with underscore separators being replaced by capital letter separators. So to access an element with the tag name DESC, for instance, you would call the <code>desc()</code> method, or <code>rr()</code> for a RR element; to access an element with the tag name AVAILABILITY_REQUEST_TIMESTAMP, the user would call <code>availabilityRequestTimestamp()</code>, and so forth. The accessor naming convention is the same for both leaf and non-leaf elements, so to access an AVL element, the <code>avl(int index)</code> accessor can be called. To access a child element of a non-root branch element such as an AVL, a simple dot-sytax chain is all that is needed; for instance, <code>avl(index).ophrs(index).end()</code> accesses the data from an END element of an OPS element, which is contained in the OPHRS element of an AVL element. Again, the user is encouraged to consult the official documentation <i>(section 3.1 XML Response, pg 11)</i> for the breakdown of the different SFPark elements and their hierarchy.</li>
+<br>Once populated successfully, the user may now access the data with the appropriate accessor methods; the naming convention for the accessors is, with a few small exceptions, the exact lowercase equivalent of the SFPark Availability Service API element tag names, with underscore separators being replaced by capital letter separators. So to access an element with the tag name DESC, for instance, you would call the <code>desc()</code> method, or <code>rr()</code> for a RR element; to access an element with the tag name AVAILABILITY_REQUEST_TIMESTAMP, the user would call <code>availabilityRequestTimestamp()</code>, and so forth. The accessor naming convention is the same for both leaf and non-leaf elements, so to access an AVL element, the <code>avl(int index)</code> accessor can be called. To access a child element of a non-root branch element such as an AVL, a simple dot-sytax chain is all that is needed; for instance, <code>avl(index).ophrs(index).end()</code> accesses the data from an END element of an OPS element, which is contained in the OPHRS element of an AVL element. Again, the user is encouraged to consult the official documentation <i>(section 3.1 XML Response, pg 11)</i> for the breakdown of the different SFPark elements and their hierarchy.</li>
 </ol>
 
 <h4>Example usage:</h4>
@@ -225,7 +224,7 @@ the names in parentheses are the SFPark Simplified classes that hold the corresp
 ## Known issues
 [No currently known issues]
 
-</br>
+<br>
 <hr>
 # SF Vehicle Crime API
 ## Description
