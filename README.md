@@ -3,7 +3,7 @@
 SFSU CSC413 Android mobile application that finds information on parking locations around the downtown area of San Francisco, CA.
 
 See the extensive documentation
-<a href="hrefhttps://docs.google.com/document/d/1Tja8cUpdISC0JKpar1c3Pj2pLt2VSHS2GqtcYhVEtUo/edit?usp=sharing">here</a>.
+<a href="https://docs.google.com/document/d/1Tja8cUpdISC0JKpar1c3Pj2pLt2VSHS2GqtcYhVEtUo/edit?usp=sharing">here</a>.
 
 User Interface:
 - Splash Page
