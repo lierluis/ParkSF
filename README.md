@@ -1,9 +1,17 @@
 # ParkSF
 
-SFSU CSC413 Android mobile application that finds information on parking locations around the downtown area of San Francisco, CA.
+ParkSF is an Android mobile application that allows users to find and interact
+with data on parking locations around downtown San Francisco, CA. Interactions
+include saving, favoriting, and defining parking locations, as well as viewing
+parking availability and crime statistics.
 
-Developed with Android Studio 1.2 (2015). Requires phone location settings to be turned on.
-<br><br>
+#### Technologies:
+* Java, XML
+* APIs: Android, Google Maps, SFpark, SF Crimespotting
+* Tools: Android Studio, Git, GitHub
 
-See the full documentation
-<a href="https://docs.google.com/document/d/1Tja8cUpdISC0JKpar1c3Pj2pLt2VSHS2GqtcYhVEtUo/edit?usp=sharing">here</a>.
+#### See more:
+* [Original documentation](https://goo.gl/zowXtv)
+
+#### Note:
+Developed with Android Studio 1.2 (2015). Not currently maintained.
